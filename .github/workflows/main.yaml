@@ -15,7 +15,7 @@ jobs:
 
       - name: Zip Files
         working-directory: ./
-        run: zip -r ./module.zip ./src/hot-pan/*
+        run: zip -r ./module.zip ./src/crunch-my-party/*
 
       - name: Get Version
         shell: bash
@@ -31,5 +31,5 @@ jobs:
           draft: false
           prerelease: true
           token: ${{secrets.GITHUB_TOKEN}}
-          artifacts: './module.zip, ./src/hot-pan/module.json'
+          artifacts: './module.zip, ./src/crunch-my-party/module.json'
           tag: ${{ steps.get-version.outputs.version }}
