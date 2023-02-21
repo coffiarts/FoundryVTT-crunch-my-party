@@ -1,0 +1,17 @@
+{
+  "hot-pan": {
+    "setting": {
+      "debug": {
+        "name": "Debug mode",
+        "hint": "Client-side setting enabling extended debug logging."
+      }
+    },
+    "chatInfoContent": {
+      "title": "",
+      "text1": "",
+      "text2": "",
+      "text3": "",
+      "footer": ""
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "id": "crunch-my-party",
+  "title": "",
+  "description": "",
+  "version": "0.0.1-alpha",
+  "url": "https://github.com/coffiarts/FoundryVTT-crunch-my-party",
+  "manifest": "https://github.com/coffiarts/FoundryVTT-crunch-my-party/releases/download/0.0.1-alpha/module.json",
+  "download": "https://github.com/coffiarts/FoundryVTT-crunch-my-party/releases/download/0.0.1-alpha/module.zip",
+  "compatibility": {
+    "minimum": 10,
+    "verified": "10.291"
+  },
+  "authors": [
+    {
+      "name": "coffiarts"
+    }
+  ],
+  "relationships": {
+    "requires": [
+      {
+        "id": "",
+        "type": "",
+        "manifest": "",
+        "compatibility": {
+          "verified": ""
+        }
+      }
+    ]
+  },
+  "esmodules": [
+    "/scripts/main.js",
+    "/scripts/config.js",
+    "/scripts/logger.js",
+    "/scripts/chatinfo.js"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json",
+      "flags": {}
+    },
+    {
+      "lang": "de",
+      "name": "German",
+      "path": "lang/de.json",
+      "flags": {}
+    }
+  ],
+  "socket": true
+}

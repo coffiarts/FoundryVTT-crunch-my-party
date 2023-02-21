@@ -1,0 +1,17 @@
+{
+  "hot-pan": {
+    "setting": {
+      "debug": {
+        "name": "Debug-Modus",
+        "hint": "Aktiviert das Debug Logging."
+      }
+    },
+    "chatInfoContent": {
+      "title": "",
+      "text1": "",
+      "text2": "",
+      "text3": "",
+      "footer": ""
+    }
+  }
+}
