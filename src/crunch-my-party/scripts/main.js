@@ -35,6 +35,7 @@ async function areDependenciesReady() {
     return new Promise(resolve => {
         Hooks.once('setup', () => {
             resolve(initDependencies());
+            resolve(initExposedClasses());
         });
     });
 }
@@ -46,11 +47,16 @@ async function initDependencies() {
     });
 }
 
+async function initExposedClasses() {
+    window.PartyCruncher = PartyCruncher;
+    Logger.debug("Exposed classes are ready");
+}
+
 /*
 Public class for accessing this module through macro code
  */
 export class PartyCruncher {
     static healthCheck() {
-        alert(`Module ${Config.data.modTitle} says: ${ready ? `I am alive!` : `I am NOT ready - something went wrong:(`}` );
+        alert(`Module '${Config.data.modTitle}' says: '${ready ? `I am alive!` : `I am NOT ready - something went wrong:(`}'` );
     }
 }

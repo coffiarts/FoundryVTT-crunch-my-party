@@ -17,7 +17,7 @@ export class Config {
         modlink: MOD_LINK
     };
 
-    static async init() {
+    static init() {
 
         // Register all globally relevant game settings here
         const data = {
