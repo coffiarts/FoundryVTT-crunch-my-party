@@ -8,7 +8,7 @@ const SUBMODULES = {
     chatinfo: ChatInfo
 };
 
-let ready;
+let ready2play;
 
 /*
   Global initializer:
@@ -57,6 +57,6 @@ Public class for accessing this module through macro code
  */
 export class PartyCruncher {
     static healthCheck() {
-        alert(`Module '${Config.data.modTitle}' says: '${ready ? `I am alive!` : `I am NOT ready - something went wrong:(`}'` );
+        alert(`Module '${Config.data.modTitle}' says: '${ready2play ? `I am alive!` : `I am NOT ready - something went wrong:(`}'` );
     }
 }
