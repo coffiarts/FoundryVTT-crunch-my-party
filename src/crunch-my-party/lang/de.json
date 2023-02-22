@@ -9,27 +9,27 @@
         "name": "Debug-Modus",
         "hint": "Aktiviert das Debug Logging."
       },
-      "partyTokenNames1": {
+      "memberTokenNames1": {
         "name": "Gruppe #1 - Mitgliederliste",
         "hint": "Tokennamen aller Mitglieder von Gruppe #1 (durch Komma getrennt)."
       },
-      "groupTokenName1": {
+      "partyTokenName1": {
         "name": "Gruppe #1 - Gruppenname",
         "hint": "Name des gemeinsamen Tokens von Gruppe #1."
       },
-      "partyTokenNames2": {
+      "memberTokenNames2": {
         "name": "Gruppe #2 - Mitgliederliste",
         "hint": "Tokennamen aller Mitglieder von Gruppe #2 (durch Komma getrennt)."
       },
-      "groupTokenName2": {
+      "partyTokenName2": {
         "name": "Gruppe #2 - Gruppenname",
         "hint": "Name des gemeinsamen Tokens von Gruppe #2."
       },
-      "partyTokenNames3": {
+      "memberTokenNames3": {
         "name": "Gruppe #3 - Mitgliederliste",
         "hint": "Tokennamen aller Mitglieder von Gruppe #3 (durch Komma getrennt)."
       },
-      "groupTokenName3": {
+      "partyTokenName3": {
         "name": "Gruppe #3 - Gruppenname",
         "hint": "Name des gemeinsamen Tokens von Gruppe #3."
       },

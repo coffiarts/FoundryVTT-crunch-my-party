@@ -31,22 +31,22 @@ export class Config {
                     }
                 }
             },
-            partyTokenNames1: {
+            memberTokenNames1: {
                 scope: 'world', config: true, type: String, default: "",
             },
-            groupTokenName1: {
+            partyTokenName1: {
                 scope: 'world', config: true, type: String, default: "",
             },
-            partyTokenNames2: {
+            memberTokenNames2: {
                 scope: 'world', config: true, type: String, default: "",
             },
-            groupTokenName2: {
+            partyTokenName2: {
                 scope: 'world', config: true, type: String, default: "",
             },
-            partyTokenNames3: {
+            memberTokenNames3: {
                 scope: 'world', config: true, type: String, default: "",
             },
-            groupTokenName3: {
+            partyTokenName3: {
                 scope: 'world', config: true, type: String, default: "",
             }
         };

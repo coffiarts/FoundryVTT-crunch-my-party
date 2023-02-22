@@ -1,5 +1,5 @@
 {
-  "hcrunch-my-party": {
+  "crunch-my-party": {
     "setting": {
       "modVersion": {
         "name": "Version",
@@ -9,29 +9,29 @@
         "name": "Debug mode",
         "hint": "Client-side setting enabling extended debug logging."
       },
-      "partyTokenNames1": {
-        "name": "Group #1 - List of members",
-        "hint": "Names of all tokens belonging to Group #1 (comma-separated)."
+      "memberTokenNames1": {
+        "name": "Party #1 - List of members",
+        "hint": "Names of all tokens belonging to Party #1 (comma-separated)."
       },
-      "groupTokenName1": {
-        "name": "Group #1 - Group name",
-        "hint": "Name of the shared tokens of Group #1."
+      "partyTokenName1": {
+        "name": "Party #1 - Party name",
+        "hint": "Name of the shared tokens of Party #1."
       },
-      "partyTokenNames2": {
-        "name": "Group #2 - List of members",
-        "hint": "Names of all tokens belonging to Group #2 (comma-separated)."
+      "memberTokenNames2": {
+        "name": "Party #2 - List of members",
+        "hint": "Names of all tokens belonging to Party #2 (comma-separated)."
       },
-      "groupTokenName2": {
-        "name": "Group #2 - Group name",
-        "hint": "Name of the shared tokens of Group #2."
+      "partyTokenName2": {
+        "name": "Party #2 - Party name",
+        "hint": "Name of the shared tokens of Party #2."
       },
-      "partyTokenNames3": {
-        "name": "Group #3 - List of members",
-        "hint": "Names of all tokens belonging to Group #3 (comma-separated)."
+      "memberTokenNames3": {
+        "name": "Party #3 - List of members",
+        "hint": "Names of all tokens belonging to Party #3 (comma-separated)."
       },
-      "groupTokenName3": {
-        "name": "Group #3 - Group name",
-        "hint": "Name of the shared tokens of Group #2."
+      "partyTokenName3": {
+        "name": "Party #3 - Party name",
+        "hint": "Name of the shared tokens of Party #3."
       },
       "hideChatInfo": {
         "name": "Hide module info in chat window",
