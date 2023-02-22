@@ -14,7 +14,7 @@
 ## Video demo on youtube
 [crunch-my-party Demo](https://youtu.be/crunch-my-party)
 
-[<img src="src/hot-pan/artwork/crunch-my-party-video-thumb.png" alt="crunch-my-party - Video demo on youtube" width="600"/>](https://youtu.be/crunch-my-party)
+[<img src="src/crunch-my-party/artwork/crunch-my-party-video-thumb.png" alt="crunch-my-party - Video demo on youtube" width="600"/>](https://youtu.be/crunch-my-party)
 
 - [What does it do ...](#what-does-it-do-)
 - [Changelog](#changelog)
@@ -62,7 +62,7 @@
 </details>
 
 ## Upcoming features
-Feel free to follow the ["dev" branch on GitHub](https://github.com/coffiarts/FoundryVTT-crunch-my-party/tree/dev) to stay tuned: [https://github.com/coffiarts/FoundryVTT-hot-pan/tree/dev](https://github.com/coffiarts/FoundryVTT-hot-pan/tree/dev)
+Feel free to follow the ["dev" branch on GitHub](https://github.com/coffiarts/FoundryVTT-crunch-my-party/tree/dev) to stay tuned: [https://github.com/coffiarts/FoundryVTT-crunch-my-party/tree/dev](https://github.com/coffiarts/FoundryVTT-crunch-my-party/tree/dev)
 
 Some things I am *considering* to do (feedback welcome!):
 

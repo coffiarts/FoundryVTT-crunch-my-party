@@ -2,22 +2,24 @@ import {Logger} from './logger.js';
 import {Config} from './config.js'
 import {ChatInfo} from "./chatinfo.js";
 
-const DEPENDENCIES = {
+const SUBMODULES = {
     MODULE: Config,
     logger: Logger,
     chatinfo: ChatInfo
-}
+};
+
+let ready;
 
 /*
   Global initializer:
   First of all, we need to initialize a lot of stuff in correct order:
  */
 (async () => {
-        console.log("<module-name> | Initializing Module");
+        console.log("Crunch My Party! | Initializing Module");
 
         await allPrerequisitesReady();
 
-        Logger.info("Ready to play!");
+        Logger.info(`Ready to play! Version: ${game.modules.get(Config.data.modID).version}`);
         Logger.info(Config.data.modDescription);
     }
 )
@@ -38,14 +40,17 @@ async function areDependenciesReady() {
 }
 
 async function initDependencies() {
-    Object.values(DEPENDENCIES).forEach(function (cl) {
+    Object.values(SUBMODULES).forEach(function (cl) {
         cl.init(); // includes loading each module's settings
-        Logger.debug("Dependency loaded:", cl.name);
+        Logger.debug("Submodule loaded:", cl.name);
     });
 }
 
 /*
 Public class for accessing this module through macro code
  */
-export class MyModuleMacroAPI {
+export class PartyCruncher {
+    static healthCheck() {
+        alert(`Module ${Config.data.modTitle} says: ${ready ? `I am alive!` : `I am NOT ready - something went wrong:(`}` );
+    }
 }

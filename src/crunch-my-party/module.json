@@ -1,7 +1,7 @@
 {
   "id": "crunch-my-party",
-  "title": "",
-  "description": "",
+  "title": "Crunch My Party!",
+  "description": "Collapse (i.e. \"crunch\") your preselected party of tokens into an easy-to-use single group token, and \"explode\" it again whenever you like. Manage up to 3 separate groups.",
   "version": "0.0.1-alpha",
   "url": "https://github.com/coffiarts/FoundryVTT-crunch-my-party",
   "manifest": "https://github.com/coffiarts/FoundryVTT-crunch-my-party/releases/download/0.0.1-alpha/module.json",
@@ -15,18 +15,6 @@
       "name": "coffiarts"
     }
   ],
-  "relationships": {
-    "requires": [
-      {
-        "id": "",
-        "type": "",
-        "manifest": "",
-        "compatibility": {
-          "verified": ""
-        }
-      }
-    ]
-  },
   "esmodules": [
     "/scripts/main.js",
     "/scripts/config.js",
@@ -46,6 +34,5 @@
       "path": "lang/de.json",
       "flags": {}
     }
-  ],
-  "socket": true
+  ]
 }

@@ -1,17 +1,49 @@
 {
-  "hot-pan": {
+  "crunch-my-party": {
     "setting": {
+      "modVersion": {
+        "name": "Version",
+        "hint": "Aktuell installierte Modulversion (hier nicht änderbar)."
+      },
       "debug": {
         "name": "Debug-Modus",
         "hint": "Aktiviert das Debug Logging."
+      },
+      "partyTokenNames1": {
+        "name": "Gruppe #1 - Mitgliederliste",
+        "hint": "Tokennamen aller Mitglieder von Gruppe #1 (durch Komma getrennt)."
+      },
+      "groupTokenName1": {
+        "name": "Gruppe #1 - Gruppenname",
+        "hint": "Name des gemeinsamen Tokens von Gruppe #1."
+      },
+      "partyTokenNames2": {
+        "name": "Gruppe #2 - Mitgliederliste",
+        "hint": "Tokennamen aller Mitglieder von Gruppe #2 (durch Komma getrennt)."
+      },
+      "groupTokenName2": {
+        "name": "Gruppe #2 - Gruppenname",
+        "hint": "Name des gemeinsamen Tokens von Gruppe #2."
+      },
+      "partyTokenNames3": {
+        "name": "Gruppe #3 - Mitgliederliste",
+        "hint": "Tokennamen aller Mitglieder von Gruppe #3 (durch Komma getrennt)."
+      },
+      "groupTokenName3": {
+        "name": "Gruppe #3 - Gruppenname",
+        "hint": "Name des gemeinsamen Tokens von Gruppe #3."
+      },
+      "hideChatInfo": {
+        "name": "Modulinfo im Chat ausblenden",
+        "hint": "Blendet beim Start den Chat-Infotext zu diesem Modul wieder ein (zum Wiederanzeigen hier deaktivieren)."
       }
     },
     "chatInfoContent": {
-      "title": "",
-      "text1": "",
-      "text2": "",
-      "text3": "",
-      "footer": ""
+      "title": "Crunch My Party!",
+      "text1": "[text1].",
+      "text2": "[text2].",
+      "text3": "Bitte Moduleinstellungen in den Spieleinstellungen beachten. Mehr Details zu ausserdem auf GitHub",
+      "footer": "Diese Nachricht wird nur einmal angezeigt. Zum Wiederanzeigen bitte die entsprechende Option in den Moduleinstellungen verwenden."
     }
   }
 }

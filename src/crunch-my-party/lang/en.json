@@ -1,17 +1,49 @@
 {
-  "hot-pan": {
+  "hcrunch-my-party": {
     "setting": {
+      "modVersion": {
+        "name": "Version",
+        "hint": "Currently installed module version (can't be changed here)."
+      },
       "debug": {
         "name": "Debug mode",
         "hint": "Client-side setting enabling extended debug logging."
+      },
+      "partyTokenNames1": {
+        "name": "Group #1 - List of members",
+        "hint": "Names of all tokens belonging to Group #1 (comma-separated)."
+      },
+      "groupTokenName1": {
+        "name": "Group #1 - Group name",
+        "hint": "Name of the shared tokens of Group #1."
+      },
+      "partyTokenNames2": {
+        "name": "Group #2 - List of members",
+        "hint": "Names of all tokens belonging to Group #2 (comma-separated)."
+      },
+      "groupTokenName2": {
+        "name": "Group #2 - Group name",
+        "hint": "Name of the shared tokens of Group #2."
+      },
+      "partyTokenNames3": {
+        "name": "Group #3 - List of members",
+        "hint": "Names of all tokens belonging to Group #3 (comma-separated)."
+      },
+      "groupTokenName3": {
+        "name": "Group #3 - Group name",
+        "hint": "Name of the shared tokens of Group #2."
+      },
+      "hideChatInfo": {
+        "name": "Hide module info in chat window",
+        "hint": "Hides the info text about this module in the chat window on game start (deactivate this option to see it again)."
       }
     },
     "chatInfoContent": {
-      "title": "",
-      "text1": "",
-      "text2": "",
-      "text3": "",
-      "footer": ""
+      "title": "Crunch My Party!",
+      "text1": "[text1].",
+      "text2": "[text2].",
+      "text3": "Please refer to the various module preferences under game settings. Find even more details on GitHub",
+      "footer": "This chat card will only be shown once. Activate once more in the module settings if needed."
     }
   }
 }

@@ -7,7 +7,7 @@ export class ChatInfo {
         <div style="text-align: justify; color: #000000; padding: 10px; background-color: #CCD0CC; border: 2px solid #FFFFFF; border-radius: 15px;">
             <p style="text-align: center;">
                 <a href="${Config.data.modlink}">
-                    <img src="modules/hot-pan/artwork/hot-pan-logo.gif" alt="Hot Pan & Zoom! Logo" style="border:0"/>
+                    <img src="modules/crunch-my-party/artwork/crunch-my-party-logo.png" alt="${Config.data.modTitle} - Logo" style="border:0"/>
                 </a>
             </p>
             <hr><div>

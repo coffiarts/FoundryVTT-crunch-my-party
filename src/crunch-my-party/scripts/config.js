@@ -1,16 +1,16 @@
 import {Logger} from './logger.js';
 
-// keep values in sync with module.json!
-const MOD_NAME = "<module-name>";
-const MOD_PATH = `/modules/${MOD_NAME}`;
-const MOD_TITLE = "";
-const MOD_DESCRIPTION = "";
-const MOD_LINK = `https://github.com/coffiarts/FoundryVTT-<module-name>`;
+/// keep values in sync with module.json!
+const MOD_ID = "crunch-my-party";
+const MOD_PATH = `/modules/${MOD_ID}`;
+const MOD_TITLE = "Crunch My Party!";
+const MOD_DESCRIPTION = "Collapse (i.e. \"crunch\") your preselected party of tokens into an easy-to-use single group token, and \"explode\" it again whenever you like. Manage up to 3 separate groups.";
+const MOD_LINK = `https://github.com/coffiarts/FoundryVTT-${MOD_ID}`;
 
 export class Config {
     static data = {
         // keep these values in sync with your module.json!
-        modName: MOD_NAME,
+        modID: MOD_ID,
         modPath: MOD_PATH,
         modTitle: MOD_TITLE,
         modDescription: MOD_DESCRIPTION,
@@ -18,10 +18,36 @@ export class Config {
     };
 
     static async init() {
+
         // Register all globally relevant game settings here
         const data = {
-            isActive: {
-                scope: 'world', config: true, type: Boolean, default: false,
+            modVersion: {
+                scope: 'client', config: true, type: String, default: game.modules.get(MOD_ID).version,
+                onChange: value => {
+                    if (value !== game.modules.get(MOD_ID).version) {
+                        // This "pseudo-setting" is meant for display only.
+                        // So we always want to snap back to its default on change
+                        game.settings.set(Config.data.modID, `modVersion`, game.modules.get(MOD_ID).version);
+                    }
+                }
+            },
+            partyTokenNames1: {
+                scope: 'world', config: true, type: String, default: "",
+            },
+            groupTokenName1: {
+                scope: 'world', config: true, type: String, default: "",
+            },
+            partyTokenNames2: {
+                scope: 'world', config: true, type: String, default: "",
+            },
+            groupTokenName2: {
+                scope: 'world', config: true, type: String, default: "",
+            },
+            partyTokenNames3: {
+                scope: 'world', config: true, type: String, default: "",
+            },
+            groupTokenName3: {
+                scope: 'world', config: true, type: String, default: "",
             }
         };
         Config.registerSettings(data);
@@ -32,7 +58,7 @@ export class Config {
             let name = Config.localize(`setting.${key}.name`);
             let hint = Config.localize(`setting.${key}.hint`);
             game.settings.register(
-                Config.data.modName, key, {
+                Config.data.modID, key, {
                     name: name,
                     hint: hint,
                     ...data
@@ -43,11 +69,11 @@ export class Config {
     }
 
     static setting(key) {
-        return game.settings.get(Config.data.modName, key);
+        return game.settings.get(Config.data.modID, key);
     }
 
     static async modifySetting(key, newValue) {
-        game.settings.set(Config.data.modName, key, newValue);
+        game.settings.set(Config.data.modID, key, newValue);
         Logger.debug("Game Setting changed by module:", key, "=>", newValue);
     }
 
@@ -61,11 +87,11 @@ export class Config {
      * @memberof Config
      */
     static localize(key) {
-        return game.i18n.localize(`${Config.data.modName}.${key}`);
+        return game.i18n.localize(`${Config.data.modID}.${key}`);
     }
 
     static format(key, data) {
-        return game.i18n.format(`${Config.data.modName}.${key}`, data);
+        return game.i18n.format(`${Config.data.modID}.${key}`, data);
     }
 
 
