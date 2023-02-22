@@ -64,7 +64,13 @@ export class PartyCruncher {
         Logger.info(`Toggling party #${partyNo} ...`);
 
         // Step 1 - Parse & validate party definitions from module settings
-        let tokenListsFromSettings = this.#parsePartySettings(partyNo);
+        let tokenListsFromSettings;
+        try {
+            tokenListsFromSettings = this.#parsePartySettings(partyNo);
+        } catch (e) {
+            Logger.error(false, e); // This will also print an error msg to the screen
+            return;
+        }
 
         Logger.debug(tokenListsFromSettings);
 
@@ -106,8 +112,7 @@ export class PartyCruncher {
         }
 
         if (errMsg) {
-            Logger.error(false, errMsg); // This will also print an error msg to the screen
-            return;
+            throw new Error(errMsg);
         }
 
         // Check 2: Are there intersecting names between members list and party?
@@ -128,8 +133,7 @@ export class PartyCruncher {
         }
 
         if (errMsg) {
-            Logger.error(false, errMsg); // This will also print an error msg to the screen
-            return;
+            throw new Error(errMsg);
         }
 
         // Remove duplicates
