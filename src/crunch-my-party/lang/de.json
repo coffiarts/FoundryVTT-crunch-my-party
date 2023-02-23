@@ -46,9 +46,11 @@
       "footer": "Diese Nachricht wird nur einmal angezeigt. Zum Wiederanzeigen bitte die entsprechende Option in den Moduleinstellungen verwenden."
     },
     "errMsg": {
-      "invalidSettings": "Ungültige Moduleinstellungen",
+      "pleaseCheckYourTokenSelection": "Bitte Gruppenkonfiguration prüfen",
       "invalidTokenCount": "Erforderlich: Genau EIN Gruppen-Token und MEHR ALS EIN Mitglieder-Token.",
-      "groupAndMembersIntersect": "Ein Name darf nicht sowohl Mitglied als auch Gruppe sein."
+      "groupAndMembersIntersect": "Ein Name darf nicht sowohl Mitglied als auch Gruppe sein.",
+      "notUniqueInScene": "existiert mehrfach in der Szene!",
+      "tokensMissingInScene": "Folgende Tokens fehlen in der Szene"
     }
   }
 }

@@ -64,21 +64,33 @@ export class PartyCruncher {
     static toggleParty(partyNo = 1) {
         Logger.info(`Toggling party #${partyNo} ...`);
 
-        // Step 1 - Parse & validate party definitions from module settings
-        let tokenListsFromSettings;
         try {
-            tokenListsFromSettings = this.#parsePartySettings(partyNo);
+
+            // Step 1 - Parse & validate party definitions from module settings
+            let namesFromSettings = this.#collectNamesFromSettings(partyNo);
+            Logger.debug(namesFromSettings);
+
+            // Step 2 - Update user prefs in module settings with the cleaned lists
+            Config.modifySetting(`memberTokenNames${partyNo}`, namesFromSettings.memberTokenNames.join(`, `))
+            Config.modifySetting(`partyTokenName${partyNo}`, namesFromSettings.partyTokenName)
+
+            // Step 3 - gather all the requested tokens in current scene
+            let sceneTokens = this.#collectSceneTokens(namesFromSettings, partyNo);
+            Logger.debug(sceneTokens);
+
         } catch (e) {
             Logger.error(false, e); // This will also print an error msg to the screen
             return;
         }
 
-        Logger.debug(tokenListsFromSettings);
-
         Logger.info(`... Toggling of party #${partyNo} complete.`);
     }
 
-    static #parsePartySettings(partyNo = 1) {
+    /**
+     *     Parse, split & validate given list of token names from module settings.
+     *     Throw meaningful UI errors if anything isn't valid.
+     */
+    static #collectNamesFromSettings(partyNo = 1) {
 
         let errMsg = "";
 
@@ -92,20 +104,21 @@ export class PartyCruncher {
             .split(",")
             .map(name => name.trim().toLowerCase())
             .filter(name  => name.length > 0); // ignore empty strings resulting from input like ",," or ", ,"
-        let partyTokenName = partyTokenNameSetting
+        let partyTokenNames = partyTokenNameSetting
             .split(",")
             .map(name => name.trim().toLowerCase())
             .filter(name  => name.length > 0); // ignore empty strings resulting from input like ",," oder ", ,"
 
         Logger.debug(memberTokenNames);
-        Logger.debug(partyTokenName);
+        Logger.debug(partyTokenNames);
+
         // Check 1: Do we have enough tokens? Do we have not too many tokens?
         if (
             !memberTokenNames || memberTokenNames.length === 0 ||  memberTokenNames[0] === "" ||
-            !partyTokenName || partyTokenName.length !== 1 || partyTokenName[0] === "") {
+            !partyTokenNames || partyTokenNames.length !== 1 || partyTokenNames[0] === "") {
             errMsg =
                 // Error: invalidTokenCount => Names do not represent exactly ONE group and MORE THAN ONE members.
-                Config.localize('errMsg.invalidSettings') + ":<br/>" +
+                Config.localize('errMsg.pleaseCheckYourTokenSelection') + ":<br/>" +
                 "<br/>" +
                 "- " + Config.localize(`setting.memberTokenNames${partyNo}.name`) + ": <strong>[ " + memberTokenNamesSetting + " ]</strong><br/>" +
                 "- " + Config.localize(`setting.partyTokenName${partyNo}.name`) + ": <strong>[ " + partyTokenNameSetting + " ]</strong><br/>" +
@@ -119,16 +132,16 @@ export class PartyCruncher {
         }
 
         // Check 2: Are there intersecting names between members list and party?
-        const membersContainParty = partyTokenName.some(element => {
+        const membersIncludeParty = partyTokenNames.some(element => {
             return memberTokenNames.includes(element);
         });
-        const partyContainsMembers = memberTokenNames.some(element => {
-            return partyTokenName.includes(element);
+        const partyIncludesMembers = memberTokenNames.some(element => {
+            return partyTokenNames.includes(element);
         });
-        if (membersContainParty || partyContainsMembers) {
+        if (membersIncludeParty || partyIncludesMembers) {
             errMsg =
                 // Error: groupAndMembersIntersect => Names must not exist both as member and as group.
-                Config.localize('errMsg.invalidSettings') + ":<br/>" +
+                Config.localize('errMsg.pleaseCheckYourTokenSelection') + ":<br/>" +
                 "<br/>" +
                 "- " + Config.localize(`setting.memberTokenNames${partyNo}.name`) + ": <strong>[ " + memberTokenNamesSetting + " ]</strong><br/>" +
                 "- " + Config.localize(`setting.partyTokenName${partyNo}.name`) + ": <strong>[ " + partyTokenNameSetting + " ]</strong><br/>" +
@@ -142,11 +155,86 @@ export class PartyCruncher {
 
         // Remove duplicates
         memberTokenNames = [...new Set(memberTokenNames)];
-        partyTokenName = [...new Set(partyTokenName )];
+        let partyTokenName = partyTokenNames[0]; // there CAN be only one by now, so we can safely reduce it to its first & only member
 
         return {
             memberTokenNames: memberTokenNames,
             partyTokenName: partyTokenName
+        };
+    }
+
+    /**
+     *     Find all the tokens corresponding to the names lists in the scene and register them for later.
+     *     Throw meaningful UI error if some tokens can't be found or are not unique.
+     */
+    static #collectSceneTokens(names, partyNo = 1) {
+
+        let errMsg = "";
+
+        let memberTokens = [];
+        let partyToken;
+
+        // Check 1: Does any of the named tokens exist more than once in the scene?
+        for (let token of canvas.tokens.ownedTokens) {
+
+            Logger.debug(`Checking if scene token is in list: [${token.name}] ...`);
+
+            if (names.memberTokenNames.includes(token.name.toLowerCase())) {
+
+                // Hurray, we've found a  member token!
+                if (memberTokens.filter(t=>t.name === token.name).length === 0) { // not yet registered
+                    memberTokens.push(token);
+                    Logger.debug(`Hurray! Found token from memberTokenNames${partyNo}: [${token.name}]!`);
+                } else {
+                    // Error: ... but it's a duplicate!
+                    errMsg += `[${token.name}] ${Config.localize(`errMsg.notUniqueInScene`)}<br/>`;
+                }
+            }
+
+            if (names.partyTokenName === token.name.toLowerCase()) {
+
+                // Hurray, we've found the party token!
+                if (!partyToken) {
+                    partyToken = token;
+                    Logger.debug(`Hurray! Found partyTokenName${partyNo}: [${token.name}]`);
+                } else {
+                    // Error: ... but it's a duplicate!
+                    errMsg += `[${token.name}] ${Config.localize(`errMsg.notUniqueInScene`)}<br/>`;
+                }
+            }
+        }
+
+        // Check 2: Are there any tokens that could NOT be found?
+        let missingTokens = names.memberTokenNames
+                            .map(name => name.toUpperCase())
+                            .filter(name => !memberTokens
+                                .map(t => t.name.toUpperCase())
+                                .includes((name)));
+        if (!partyToken) {
+            missingTokens.push(names.partyTokenName.toUpperCase());
+        }
+        if (missingTokens.length > 0)
+        {
+            errMsg += `${Config.localize(`errMsg.tokensMissingInScene`)}: ${missingTokens.join(`, `)}<br/>`;
+        }
+
+        if (errMsg) {
+            errMsg =
+                // Collect all errors into one biiiiig message
+                Config.localize('errMsg.pleaseCheckYourTokenSelection') + ":<br/>" +
+                "<br/>" +
+                "- " + Config.localize(`setting.memberTokenNames${partyNo}.name`) +
+                            ": <strong>[ " + Config.setting(`memberTokenNames${partyNo}`) + " ]</strong><br/>" +
+                "- " + Config.localize(`setting.partyTokenName${partyNo}.name`) +
+                            ": <strong>[ " + Config.setting(`partyTokenName${partyNo}`) + " ]</strong><br/>" +
+                "<br/>" +
+                errMsg;
+            throw new Error(errMsg);
+        }
+
+        return {
+            memberTokens: memberTokens,
+            partyToken: partyToken
         };
     }
 }

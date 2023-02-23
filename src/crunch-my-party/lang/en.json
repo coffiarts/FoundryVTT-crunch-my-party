@@ -46,9 +46,11 @@
       "footer": "This chat card will only be shown once. Activate once more in the module settings if needed."
     },
     "errMsg": {
-      "invalidSettings": "Invalid settings",
+      "pleaseCheckYourTokenSelection": "Please check your party configuration",
       "invalidTokenCount": "Required: Exactly ONE group and MORE THAN ONE members",
-      "groupAndMembersIntersect": "Names must not exist both as member and as group."
+      "groupAndMembersIntersect": "Names must not exist both as member and as group.",
+      "notUniqueInScene": "is not unique in scene!",
+      "tokensMissingInScene": "Tokens missing in scene"
     }
   }
 }
