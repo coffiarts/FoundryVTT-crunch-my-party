@@ -19,6 +19,7 @@ let ready2play;
 
         await allPrerequisitesReady();
 
+        ready2play = true;
         Logger.info(`Ready to play! Version: ${game.modules.get(Config.data.modID).version}`);
         Logger.info(Config.data.modDescription);
     }
@@ -100,15 +101,17 @@ export class PartyCruncher {
         Logger.debug(partyTokenName);
         // Check 1: Do we have enough tokens? Do we have not too many tokens?
         if (
-            !memberTokenNames || memberTokenNames.length == 0 ||  memberTokenNames[0] === "" ||
-            !partyTokenName || partyTokenName.length != 1 || partyTokenName[0] === "") {
-            //TODO localize!!
+            !memberTokenNames || memberTokenNames.length === 0 ||  memberTokenNames[0] === "" ||
+            !partyTokenName || partyTokenName.length !== 1 || partyTokenName[0] === "") {
             errMsg =
-                "Invalid game settings:<br/>" +
-                "Expecting 2+ party member names and exactly 1 group token name.<br/>" +
-                "Please check your settings for party #" + partyNo + ":<br/>" +
-                "- member token names: " + memberTokenNamesSetting + "<br/>" +
-                "- group token name: " + partyTokenNameSetting;
+                // Error: invalidTokenCount => Names do not represent exactly ONE group and MORE THAN ONE members.
+                Config.localize('errMsg.invalidSettings') + ":<br/>" +
+                "<br/>" +
+                "- " + Config.localize(`setting.memberTokenNames${partyNo}.name`) + ": <strong>[ " + memberTokenNamesSetting + " ]</strong><br/>" +
+                "- " + Config.localize(`setting.partyTokenName${partyNo}.name`) + ": <strong>[ " + partyTokenNameSetting + " ]</strong><br/>" +
+                "<br/>" +
+                "<strong>" + Config.localize(`errMsg.invalidTokenCount`) + "</strong>";
+
         }
 
         if (errMsg) {
@@ -123,13 +126,14 @@ export class PartyCruncher {
             return partyTokenName.includes(element);
         });
         if (membersContainParty || partyContainsMembers) {
-            // TODO localize!
             errMsg =
-                "Invalid game settings:<br/>" +
-                "At least one name is mentioned both in party and in members list<br/>" +
-                "Please check your settings for party #" + partyNo + ":<br/>" +
-                "- member token names: " + memberTokenNamesSetting + "<br/>" +
-                "- group token name: " + partyTokenNameSetting;
+                // Error: groupAndMembersIntersect => Names must not exist both as member and as group.
+                Config.localize('errMsg.invalidSettings') + ":<br/>" +
+                "<br/>" +
+                "- " + Config.localize(`setting.memberTokenNames${partyNo}.name`) + ": <strong>[ " + memberTokenNamesSetting + " ]</strong><br/>" +
+                "- " + Config.localize(`setting.partyTokenName${partyNo}.name`) + ": <strong>[ " + partyTokenNameSetting + " ]</strong><br/>" +
+                "<br/>" +
+                "<strong>" + Config.localize(`errMsg.groupAndMembersIntersect`) + "</strong>";
         }
 
         if (errMsg) {

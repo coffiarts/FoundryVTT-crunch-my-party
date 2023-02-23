@@ -44,6 +44,11 @@
       "text2": "[text2].",
       "text3": "Bitte Moduleinstellungen in den Spieleinstellungen beachten. Mehr Details zu ausserdem auf GitHub",
       "footer": "Diese Nachricht wird nur einmal angezeigt. Zum Wiederanzeigen bitte die entsprechende Option in den Moduleinstellungen verwenden."
+    },
+    "errMsg": {
+      "invalidSettings": "Ungültige Moduleinstellungen",
+      "invalidTokenCount": "Erforderlich: Genau EIN Gruppen-Token und MEHR ALS EIN Mitglieder-Token.",
+      "groupAndMembersIntersect": "Ein Name darf nicht sowohl Mitglied als auch Gruppe sein."
     }
   }
 }
