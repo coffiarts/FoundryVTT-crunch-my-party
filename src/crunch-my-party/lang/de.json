@@ -50,7 +50,10 @@
       "invalidTokenCount": "Erforderlich: Genau EIN Gruppen-Token und MEHR ALS EIN Mitglieder-Token.",
       "groupAndMembersIntersect": "Ein Name darf nicht sowohl Mitglied als auch Gruppe sein.",
       "notUniqueInScene": "existiert mehrfach in der Szene!",
-      "tokensMissingInScene": "Folgende Tokens fehlen in der Szene"
+      "tokensMissingInScene": "Folgende Tokens fehlen in der Szene",
+      "cannotDetermineAction": "Aktion kann nicht ermittelt werden!",
+      "membersAndPartyBothVisible": "Gruppenmitglieder und Gruppen-Token können nicht gleichzeitig sichtbar (aktiviert) sein.",
+      "membersAndPartyAllHidden": "Keiner der involvierten Tokens ist aktuell sichtbar (aktiviert)."
     }
   }
 }

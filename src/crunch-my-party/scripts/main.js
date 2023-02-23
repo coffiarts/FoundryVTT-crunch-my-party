@@ -57,10 +57,23 @@ async function initExposedClasses() {
 Public class for accessing this module through macro code
  */
 export class PartyCruncher {
+    /**
+     * Call this from the browser console if you're uncertain if the module has been initialized correctly
+     * Syntax: PartyCruncher.healthCheck()
+     */
     static healthCheck() {
         alert(`Module '${Config.data.modTitle}' says: '${ready2play ? `I am alive!` : `I am NOT ready - something went wrong:(`}'` );
     }
 
+    static Actions = Object.freeze({
+        CRUNCH: Symbol("CRUNCH"),
+        EXPLODE: Symbol("EXPLODE")
+    });
+
+    /**
+     * Public "main" method for usage in macros
+     * @param partyNo
+     */
     static toggleParty(partyNo = 1) {
         Logger.info(`Toggling party #${partyNo} ...`);
 
@@ -75,8 +88,18 @@ export class PartyCruncher {
             Config.modifySetting(`partyTokenName${partyNo}`, namesFromSettings.partyTokenName)
 
             // Step 3 - gather all the requested tokens in current scene
-            let sceneTokens = this.#collectSceneTokens(namesFromSettings, partyNo);
-            Logger.debug(sceneTokens);
+            let involvedTokens = this.#collectInvolvedTokens(namesFromSettings, partyNo);
+            Logger.debug(involvedTokens);
+
+            // Step 4 - determine required action ("crunch" or "explode"?)
+            let requiredAction = this.#determineRequiredAction(involvedTokens, partyNo);
+            switch (requiredAction) {
+                case this.Actions.CRUNCH:
+                    Logger.info(`Crunching party ${partyNo} ...`);
+                    break;
+                case this.Actions.EXPLODE:
+                    Logger.info(`Exploding party ${partyNo} ...`);
+            }
 
         } catch (e) {
             Logger.error(false, e); // This will also print an error msg to the screen
@@ -87,8 +110,10 @@ export class PartyCruncher {
     }
 
     /**
-     *     Parse, split & validate given list of token names from module settings.
-     *     Throw meaningful UI errors if anything isn't valid.
+     * Parse, split & validate given list of token names from module settings.
+     * Throw meaningful UI errors if anything isn't valid.
+     * @param partyNo
+     * @returns {{partyTokenName: string, memberTokenNames: string[]}}
      */
     static #collectNamesFromSettings(partyNo = 1) {
 
@@ -124,7 +149,6 @@ export class PartyCruncher {
                 "- " + Config.localize(`setting.partyTokenName${partyNo}.name`) + ": <strong>[ " + partyTokenNameSetting + " ]</strong><br/>" +
                 "<br/>" +
                 "<strong>" + Config.localize(`errMsg.invalidTokenCount`) + "</strong>";
-
         }
 
         if (errMsg) {
@@ -164,10 +188,13 @@ export class PartyCruncher {
     }
 
     /**
-     *     Find all the tokens corresponding to the names lists in the scene and register them for later.
-     *     Throw meaningful UI error if some tokens can't be found or are not unique.
+     * Identify and collect all the tokens corresponding to the names lists in the scene and register them for later.
+     * Throw meaningful UI error if some tokens can't be found or are not unique.
+     * @param names
+     * @param partyNo
+     * @returns {{partyToken: any, memberTokens: *[]}}
      */
-    static #collectSceneTokens(names, partyNo = 1) {
+    static #collectInvolvedTokens(names, partyNo = 1) {
 
         let errMsg = "";
 
@@ -236,5 +263,48 @@ export class PartyCruncher {
             memberTokens: memberTokens,
             partyToken: partyToken
         };
+    }
+
+    /**
+     * Determine current state of involved tokens and derive from it, which actions is to be next (Actions.CRUNCH or Actions.EXPLODE).
+     * Throw a meaningful UI error if action cannot be determined, because the state of any token doesn't make sense
+     * @param involvedTokens
+     * @param partyNo
+     * @returns {symbol}
+     */
+    static #determineRequiredAction(involvedTokens, partyNo) {
+
+        let noOfMembersVisible = involvedTokens.memberTokens.filter(t => !t.document.hidden);
+        let isPartyVisible = (!involvedTokens.partyToken.document.hidden);
+
+        let errMsg = "";
+
+        // Check1: Party members and party token can't be visible (active) at the same time.
+        if (isPartyVisible && noOfMembersVisible.length > 0) {
+            errMsg = Config.localize('errMsg.membersAndPartyBothVisible');
+        } else
+        // Check1: Party members and party token can't be visible (active) at the same time.
+        if (!isPartyVisible && noOfMembersVisible.length === 0) {
+            errMsg = Config.localize('errMsg.membersAndPartyAllHidden');
+        }
+
+        if (errMsg) {
+            errMsg =
+                // Error: Party members and party token can't be visible (active) at the same time.
+                Config.localize('errMsg.cannotDetermineAction') + ":<br/>" +
+                "<br/>" +
+                errMsg + ":<br/>" +
+                "<br/>" +
+                Config.localize('errMsg.pleaseCheckYourTokenSelection') + ":<br/>" +
+                "<br/>" +
+                "- " + Config.localize(`setting.memberTokenNames${partyNo}.name`) + ": <strong>[ " + Config.setting(`memberTokenNames${partyNo}`) + " ]</strong><br/>" +
+                "- " + Config.localize(`setting.partyTokenName${partyNo}.name`) + ": <strong>[ " + Config.setting(`partyTokenName${partyNo}`) + " ]</strong>";
+            throw new Error(errMsg);
+        }
+
+        let requiredAction = (isPartyVisible) ? this.Actions.EXPLODE : this.Actions.CRUNCH;
+        Logger.debug("Required requiredAction: " + requiredAction.toString());
+
+        return requiredAction;
     }
 }

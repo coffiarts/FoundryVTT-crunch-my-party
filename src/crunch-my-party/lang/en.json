@@ -50,7 +50,10 @@
       "invalidTokenCount": "Required: Exactly ONE group and MORE THAN ONE members",
       "groupAndMembersIntersect": "Names must not exist both as member and as group.",
       "notUniqueInScene": "is not unique in scene!",
-      "tokensMissingInScene": "Tokens missing in scene"
+      "tokensMissingInScene": "Tokens missing in scene",
+      "cannotDetermineAction": "Cannot determine action!",
+      "membersAndPartyBothVisible": "Party members and party token can't be visible (active) at the same time.",
+      "membersAndPartyAllHidden": "None of the involved tokens are currently visible (active)."
     }
   }
 }
