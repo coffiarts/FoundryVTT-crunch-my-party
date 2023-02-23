@@ -53,7 +53,8 @@
       "tokensMissingInScene": "Folgende Tokens fehlen in der Szene",
       "cannotDetermineAction": "Aktion kann nicht ermittelt werden!",
       "membersAndPartyBothVisible": "Gruppenmitglieder und Gruppen-Token können nicht gleichzeitig sichtbar (aktiviert) sein.",
-      "membersAndPartyAllHidden": "Keiner der involvierten Tokens ist aktuell sichtbar (aktiviert)."
+      "membersAndPartyAllHidden": "Keiner der involvierten Tokens ist aktuell sichtbar (aktiviert).",
+      "crunchTargetNotUnique": "Ungültiges Ziel: Bitte (genau!) ein Gruppenmitglied auswählen als Ziel für den Gruppen-Token."
     }
   }
 }

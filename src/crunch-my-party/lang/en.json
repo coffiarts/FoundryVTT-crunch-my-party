@@ -53,7 +53,8 @@
       "tokensMissingInScene": "Tokens missing in scene",
       "cannotDetermineAction": "Cannot determine action!",
       "membersAndPartyBothVisible": "Party members and party token can't be visible (active) at the same time.",
-      "membersAndPartyAllHidden": "None of the involved tokens are currently visible (active)."
+      "membersAndPartyAllHidden": "None of the involved tokens are currently visible (active).",
+      "crunchTargetNotUnique": "Invalid target: Please select exactly ONE of your party members as target for the party token."
     }
   }
 }

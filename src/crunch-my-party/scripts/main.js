@@ -79,20 +79,39 @@ export class PartyCruncher {
 
         try {
 
+            // ==================================================================================================
             // Step 1 - Parse & validate party definitions from module settings
+            // ==================================================================================================
             let namesFromSettings = this.#collectNamesFromSettings(partyNo);
             Logger.debug(namesFromSettings);
 
-            // Step 2 - Update user prefs in module settings with the cleaned lists
+            // ==================================================================================================
+            // Step 2 - Update user prefs in module settings with the now cleaned lists
+            // ==================================================================================================
             Config.modifySetting(`memberTokenNames${partyNo}`, namesFromSettings.memberTokenNames.join(`, `))
             Config.modifySetting(`partyTokenName${partyNo}`, namesFromSettings.partyTokenName)
 
-            // Step 3 - gather all the requested tokens in current scene
+            // ==================================================================================================
+            // Step 3 - gather and validate all the involved tokens from current scene
+            // ==================================================================================================
             let involvedTokens = this.#collectInvolvedTokens(namesFromSettings, partyNo);
             Logger.debug(involvedTokens);
 
-            // Step 4 - determine required action ("crunch" or "explode"?)
+            // ==================================================================================================
+            // Step 4 - auto-determine the required action (CRUNCH or EXPLODE?)
+            // ==================================================================================================
             let requiredAction = this.#determineRequiredAction(involvedTokens, partyNo);
+            Logger.debug(`required action: ${requiredAction.toString()}`);
+
+            // ==================================================================================================
+            // Step 5 - auto-determine target token (depending on requiredAction)
+            // ==================================================================================================
+            let targetToken = this.#getTarget(requiredAction, involvedTokens, partyNo);
+            Logger.debug(`target token: [${targetToken.name}]`);
+
+            // ==================================================================================================
+            // Step 6 - And finallyyyyyyy.... just DO IT!!
+            // ==================================================================================================
             switch (requiredAction) {
                 case this.Actions.CRUNCH:
                     Logger.info(`Crunching party ${partyNo} ...`);
@@ -100,6 +119,7 @@ export class PartyCruncher {
                 case this.Actions.EXPLODE:
                     Logger.info(`Exploding party ${partyNo} ...`);
             }
+
 
         } catch (e) {
             Logger.error(false, e); // This will also print an error msg to the screen
@@ -302,9 +322,24 @@ export class PartyCruncher {
             throw new Error(errMsg);
         }
 
-        let requiredAction = (isPartyVisible) ? this.Actions.EXPLODE : this.Actions.CRUNCH;
-        Logger.debug("Required requiredAction: " + requiredAction.toString());
+        return (isPartyVisible) ? this.Actions.EXPLODE : this.Actions.CRUNCH;
+    }
 
-        return requiredAction;
+    /**
+     *
+     * @param requiredAction
+     * @param involvedTokens@param partyNo
+     */
+    static #getTarget(requiredAction, involvedTokens) {
+        if (requiredAction === this.Actions.CRUNCH) {
+            // Check if one (and ONLY one!) one of the party members is selected as target for the crunch
+            if (canvas.tokens.controlled.length !== 1 || !involvedTokens.memberTokens.includes(canvas.tokens.controlled[0])) {
+                throw new Error(Config.localize(`errMsg.crunchTargetNotUnique`));
+            } else {
+                return canvas.tokens.controlled[0];
+            }
+        } else { // EXPLODE
+            return involvedTokens.partyToken;
+        }
     }
 }
