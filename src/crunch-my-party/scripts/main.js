@@ -239,7 +239,9 @@ export class PartyCruncher {
         if (memberTokenNames.length > 24) {
             throw new Error(
                 // Error: groupAndMembersIntersect => Names must not exist both as member and as group.
-                Config.localize('errMsg.tooManyMemberTokens') + ":<br/>" +
+                Config.localize('errMsg.tooManyMemberTokens') + ` (${memberTokenNames.length})!<br/>` +
+                Config.localize('errMsg.maxNumberOfMemberTokens') + `<br/>` +
+                "<br/>" +
                 Config.localize(`setting.memberTokenNames${partyNo}.name`) + ": <strong>[ " + memberTokenNamesSetting + " ]</strong>"
             );
         }
@@ -492,7 +494,7 @@ export class PartyCruncher {
             ];
         let yOffsets =
             [
-                -1, 0, 1, 0, -1, 0, 1, 0,  // this is the inner "ring" of 8 positions
+                -1, 0, 1, 0, -1, 1, 1, -1,  // this is the inner "ring" of 8 positions
                 -2, -2, -2, -2, -1, 0, 1, 2, 2, 2, 2, 2, 1, 0, -1, -2 // the outer "ring" with additional 16 positions
             ];
 
