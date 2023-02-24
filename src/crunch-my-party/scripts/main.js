@@ -104,10 +104,13 @@ export class PartyCruncher {
             Logger.debug(`required action: ${requiredAction.toString()}`);
 
             // ==================================================================================================
-            // Step 5 - auto-determine target token (depending on requiredAction)
+            // Step 5 - auto-determine target token (depending on requiredAction), and target it
             // ==================================================================================================
             let targetToken = this.#getTarget(requiredAction, involvedTokens, partyNo);
             Logger.debug(`target token: [${targetToken.name}]`);
+            canvas.tokens.releaseAll();
+            targetToken.control({releaseOthers: true})
+            canvas.animatePan(targetToken.getCenter(targetToken.x, targetToken.y));
 
             // ==================================================================================================
             // Step 6 - And finallyyyyyyy.... just DO IT!!
