@@ -1,11 +1,11 @@
 # Crunch My Party! for Foundry VTT
 <table style="border:0">
   <tr>
-    <td><img src="src/crunch-my-party/artwork/crunch-my-party-logo.png" width="600" alt="Hot Pan & Zoom! Logo"/></td>
+    <td><img src="src/crunch-my-party/artwork/crunch-my-party-logo.png" alt="Hot Pan & Zoom! Logo"/></td>
     <td>
         <p style="color:red"><strong>This is still an absolute alpha development - handle with care!</strong></p>
         <p style="color:#da6502">
-          Collapse (i.e. "crunch") arbitrary lists of tokens (let's name them "party members") into an easy-to-use single "party token", and then "explode" them again whenever you like. You may manage up to 3 separate parties with up to 24 members each.
+          The perfect party token utility: Easily collapse arbitrary groups of scene tokens (representing parties) into an easy-to-use single "party token", and vice versa. Manage up to 3 separate parties with up to 24 members each!
         </p>
         <p style="font-style: italic; font-weight: bold">
           "Once there were three little goblins ...<br/>
