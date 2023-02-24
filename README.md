@@ -1,4 +1,4 @@
-# Hot Pan & Zoom! for Foundry VTT
+# Crunch My Party! for Foundry VTT
 <table style="border:0">
   <tr>
     <td><img src="src/crunch-my-party/artwork/crunch-my-party-logo.png" width="600" alt="Hot Pan & Zoom! Logo"/></td>
