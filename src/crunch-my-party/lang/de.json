@@ -49,12 +49,12 @@
       "pleaseCheckYourTokenSelection": "Bitte Gruppenkonfiguration prüfen",
       "invalidTokenCount": "Erforderlich: Genau EIN Gruppen-Token und MEHR ALS EIN Mitglieder-Token.",
       "groupAndMembersIntersect": "Ein Name darf nicht sowohl Mitglied als auch Gruppe sein.",
+      "tooManyMemberTokens": "Mitgliederliste ist zu lang! Eine Gruppe darf maximal 24 Mitglieder haben.",
       "notUniqueInScene": "existiert mehrfach in der Szene!",
       "tokensMissingInScene": "Folgende Tokens fehlen in der Szene",
       "cannotDetermineAction": "Aktion kann nicht ermittelt werden!",
       "membersAndPartyBothVisible": "Gruppenmitglieder und Gruppen-Token können nicht gleichzeitig sichtbar (aktiviert) sein.",
-      "membersAndPartyAllHidden": "Keiner der involvierten Tokens ist aktuell sichtbar (aktiviert).",
-      "crunchTargetNotUnique": "Ungültiges Ziel: Bitte (genau!) ein Gruppenmitglied auswählen als Ziel für den Gruppen-Token."
+      "membersAndPartyAllHidden": "Keiner der involvierten Tokens ist aktuell sichtbar (aktiviert)."
     }
   }
 }

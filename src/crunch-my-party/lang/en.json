@@ -49,12 +49,12 @@
       "pleaseCheckYourTokenSelection": "Please check your party configuration",
       "invalidTokenCount": "Required: Exactly ONE group and MORE THAN ONE members",
       "groupAndMembersIntersect": "Names must not exist both as member and as group.",
+      "tooManyMemberTokens": "Member list too long! Maximum number of 24 members per party exceeded.",
       "notUniqueInScene": "is not unique in scene!",
       "tokensMissingInScene": "Tokens missing in scene",
       "cannotDetermineAction": "Cannot determine action!",
       "membersAndPartyBothVisible": "Party members and party token can't be visible (active) at the same time.",
-      "membersAndPartyAllHidden": "None of the involved tokens are currently visible (active).",
-      "crunchTargetNotUnique": "Invalid target: Please select exactly ONE of your party members as target for the party token."
+      "membersAndPartyAllHidden": "None of the involved tokens are currently visible (active)."
     }
   }
 }

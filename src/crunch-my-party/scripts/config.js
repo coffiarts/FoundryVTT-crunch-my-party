@@ -4,7 +4,7 @@ import {Logger} from './logger.js';
 const MOD_ID = "crunch-my-party";
 const MOD_PATH = `/modules/${MOD_ID}`;
 const MOD_TITLE = "Crunch My Party!";
-const MOD_DESCRIPTION = "Collapse (i.e. \"crunch\") arbitrary lists of tokens (let's name them \"party members\") into an easy-to-use single \"party token\", and then \"explode\" them again whenever you like.";
+const MOD_DESCRIPTION = "Collapse (i.e. \"crunch\") arbitrary lists of tokens (let's name them \"party members\") into an easy-to-use single \"party token\", and then \"explode\" them again whenever you like. You may manage up to 3 separate parties with up to 24 members each.";
 const MOD_LINK = `https://github.com/coffiarts/FoundryVTT-${MOD_ID}`;
 
 export class Config {
