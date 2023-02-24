@@ -2,11 +2,14 @@
 <table style="border:0">
   <tr>
     <td><img src="src/crunch-my-party/artwork/crunch-my-party-logo.png" width="600" alt="Hot Pan & Zoom! Logo"/></td>
-    <td><span style="color:#da6502"></span><br/>
+    <td>
+        <span style="color:#da6502">
+          Collapse (i.e. "crunch") arbitrary lists of tokens (let's name them "party members") into an easy-to-use single "party token", and then "explode" them again whenever you like. You may manage up to 3 separate parties with up to 24 members each.
+        </span><br/>
         <br/>
-        <i><strong>"Here goes ...<br/>
-            ... some fancy ...<br/>
-            ... slogan"</strong></i>
+        <i><strong>"Once there were three little goblins ...<br/>
+            ... eager to form a PARTY!<br/>
+            So here's their story."</strong></i>
     </td>
   </tr>
 </table>
