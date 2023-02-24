@@ -345,4 +345,41 @@ export class PartyCruncher {
             return involvedTokens.partyToken;
         }
     }
+
+    static groupTokensParty() {
+        let partyNo = this.#promptForPartyNo('groupTokens');
+        Logger.debug(`partyNo: ${partyNo}`);
+    }
+
+    static #promptForPartyNo() {
+        return new Dialog({
+            // TODO localize
+            title: 'Which party do you want to assign?',
+            content: `
+                <form>
+                  <div class="form-group">
+                    <label>Input text</label>
+                    <input type='text' name='partyNo'/>
+                  </div>
+                </form>`,
+            buttons: {
+                yes: {
+                    icon: "<i class='fas fa-check'></i>",
+                    label: `OK`
+                }
+            },
+            default: 'yes',
+            close: html => {
+                let result = html.find('input[name=\'inputField\']');
+                if (result.val() !== '') {
+                    let chatData = {
+                        user: game.user._id,
+                        speaker: ChatMessage.getSpeaker(),
+                        content: result.val()
+                    };
+                    ChatMessage.create(chatData, {});
+                }
+            }
+        }).render(true);
+    }
 }
