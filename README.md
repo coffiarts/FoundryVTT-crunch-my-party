@@ -1,7 +1,7 @@
 # Crunch My Party! for Foundry VTT
 <table style="border:0">
   <tr>
-    <td><img src="src/crunch-my-party/artwork/crunch-my-party-logo.png" alt="Hot Pan & Zoom! Logo"/></td>
+    <td><img src="src/crunch-my-party/artwork/cmp-logo.png" alt="Hot Pan & Zoom! Logo"/></td>
     <td>
         <p style="color:red"><strong>This is still an absolute alpha development - handle with care!</strong></p>
         <p style="color:#da6502">
@@ -19,7 +19,7 @@
 ## Video demo on youtube
 [crunch-my-party Demo](https://youtu.be/crunch-my-party)
 
-[<img src="src/crunch-my-party/artwork/crunch-my-party-video-thumb.png" alt="crunch-my-party - Video demo on youtube" width="600"/>](https://youtu.be/crunch-my-party)
+[<img src="src/crunch-my-party/artwork/cmp-video-thumb.png" alt="crunch-my-party - Video demo on youtube" width="600"/>](https://youtu.be/crunch-my-party)
 
 - [What does it do ...](#what-does-it-do-)
 - [Changelog](#changelog)
@@ -78,12 +78,12 @@ Some things I am *considering* to do (feedback welcome!):
 ### Adjustable module settings (i.e. game settings)
 This screenshot shows the default values.
 
-<img src="src/crunch-my-party/artwork/crunch-my-party-settings.png" alt="crunch-my-party settings"/>
+<img src="src/crunch-my-party/artwork/cmp-settings.png" alt="crunch-my-party settings"/>
 
 ### Control it by macro!
 Use the exposed `class MyModuleMacroAPI` - just like this, it's a no-brainer:
 
-<img src="src/crunch-my-party/artwork/crunch-my-party-toggle-macro.png" alt="crunch-my-party macro example"/>
+<img src="src/crunch-my-party/artwork/cmp-macro-toggle.png" alt="crunch-my-party macro example"/>
 
 Some more variants:
 
