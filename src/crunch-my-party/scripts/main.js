@@ -81,6 +81,9 @@ async function scanForOptionalDependencies() {
  * Public class for accessing this module through macro code
  */
 export class PartyCruncher {
+
+    static lastPartyNo;
+
     /**
      * Call this from the browser console if you're uncertain if the module has been initialized correctly
      * Syntax: PartyCruncher.healthCheck()
@@ -91,17 +94,20 @@ export class PartyCruncher {
 
     static Actions = Object.freeze({
         CRUNCH: Symbol("CRUNCH"),
-        EXPLODE: Symbol("EXPLODE")
+        EXPLODE: Symbol("EXPLODE"),
+        GROUP: Symbol("GROUP"),
+        FIND: Symbol("FIND")
     });
 
     /**
      * Public method for usage in macros: Toggle existing party between CRUNCH and EXPLODE
      * @param partyNo
      */
-    static toggleParty(partyNo) {
+    static async toggleParty(partyNo) {
         if (!partyNo)
-            partyNo = this.#promptForPartyNo('groupTokens');
+            partyNo = await this.#promptForPartyNo();
 
+        Logger.debug(partyNo);
         Logger.info(`Toggling party #${partyNo} ...`);
 
         try {
@@ -131,7 +137,7 @@ export class PartyCruncher {
             Logger.debug(`required action: ${requiredAction.toString()}`);
 
             // ==================================================================================================
-            // Step 5 - auto-determine target token (depending on requiredAction), and focus it
+            // Step 5 - auto-determine target token (depending on requiredAction), and focus on it
             // ==================================================================================================
             let targetToken = this.#getTarget(requiredAction, involvedTokens, partyNo);
             Logger.debug(`target token: [${targetToken.name}]`);
@@ -175,7 +181,7 @@ export class PartyCruncher {
     static groupParty(partyNo) {
         // TODO
         if (!partyNo)
-            partyNo = this.#promptForPartyNo('groupTokens');
+            partyNo = this.#promptForPartyNo();
         Logger.debug(`partyNo: ${partyNo}`);
     }
 
@@ -186,7 +192,7 @@ export class PartyCruncher {
     static findParty(partyNo) {
         // TODO
         if (!partyNo)
-            partyNo = this.#promptForPartyNo('groupTokens');
+            partyNo = this.#promptForPartyNo();
 
     }
 
@@ -537,35 +543,48 @@ export class PartyCruncher {
         }
     }
 
-    static #promptForPartyNo() {
-        return new Dialog({
-            // TODO localize
-            title: 'Which party do you want to assign?',
-            content: `
+    static async #promptForPartyNo() {
+        return new Promise(resolve => {
+            const dialog = new Dialog({
+                title: Config.localize('promptForPartyNoTitle'),
+                content: `
                 <form>
-                  <div class="form-group">
-                    <label>Input text</label>
-                    <input type='text' name='partyNo'/>
+                  <div>
+                    <legend>${Config.localize('promptForPartyNoTitle')}</legend>
+                    <input type='radio' name='partyNo' id="#1" value="1"${(PartyCruncher.lastPartyNo === 1 ? " checked" : "")}/>
+                    <label for="#1"> #1</label><br/>
+                    <input type='radio' name='partyNo' id="#2" value="2"${(PartyCruncher.lastPartyNo === 2 ? " checked" : "")}/>
+                    <label for="#1"> #2</label><br/>
+                    <input type='radio' name='partyNo' id="#3" value="3"${(PartyCruncher.lastPartyNo === 3 ? " checked" : "")}/>
+                    <label for="#1"> #3</label><br/>
                   </div>
                 </form>`,
-            buttons: {
-                yes: {
-                    icon: "<i class='fas fa-check'></i>",
-                    label: `OK`
+                buttons: {
+                    submit: {
+                        icon: "<i class='fas fa-check'></i>",
+                        label: `OK`
+                    },
+                    cancel: {
+                        icon: "<i class='fas fa-check'></i>",
+                        label: Config.localize('cancelButton')
+                    }
+                },
+                default: 'submit',
+                close: html => {
+                    let result = document.querySelector('input[name="partyNo"]:checked').value;
+                    if (result.value !== '') {
+                        // let chatData = {
+                        //     user: game.user._id,
+                        //     speaker: ChatMessage.getSpeaker(),
+                        //     content: result
+                        // };
+                        // ChatMessage.create(chatData, {});
+                        PartyCruncher.lastPartyNo = result;
+                        Logger.debug(`partyNo selected: ${PartyCruncher.lastPartyNo}`)
+                    }
                 }
-            },
-            default: 'yes',
-            close: html => {
-                let result = html.find('input[name=\'inputField\']');
-                if (result.val() !== '') {
-                    let chatData = {
-                        user: game.user._id,
-                        speaker: ChatMessage.getSpeaker(),
-                        content: result.val()
-                    };
-                    ChatMessage.create(chatData, {});
-                }
-            }
-        }).render(true);
+            });
+            dialog.render(true);
+        });
     }
 }
