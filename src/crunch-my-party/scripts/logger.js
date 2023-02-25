@@ -14,6 +14,11 @@ export class Logger {
     static info(...args) {
         console.log(`${Config?.data?.modTitle ?? "" }  | `, ...args);
     }
+
+    static infoGreen(msg) {
+        console.log(`%c${Config?.data?.modTitle ?? "" }  | ${msg}`, 'color: green');
+    }
+
     static debug(...args) {
         // During initialization, Config settings might not yet be present.
         // We can't rely on them here, so we need a fallback.

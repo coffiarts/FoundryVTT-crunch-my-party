@@ -8,11 +8,14 @@ const SUBMODULES = {
     chatinfo: ChatInfo
 };
 
+const optionalDependencies = ['hot-pan', 'JB2A_DnD5e'];
+let optionalDependenciesAvailable = [];
+
 let ready2play;
 
-/*
-  Global initializer:
-  First of all, we need to initialize a lot of stuff in correct order:
+/**
+ * Global initializer block:
+ * First of all, we need to initialize a lot of stuff in correct order:
  */
 (async () => {
         console.log("Crunch My Party! | Initializing Module ...");
@@ -20,7 +23,7 @@ let ready2play;
         await allPrerequisitesReady();
 
         ready2play = true;
-        Logger.info(`Ready to play! Version: ${game.modules.get(Config.data.modID).version}`);
+        Logger.infoGreen(`Ready to play! Version: ${game.modules.get(Config.data.modID).version}`);
         Logger.info(Config.data.modDescription);
     }
 )
@@ -28,7 +31,8 @@ let ready2play;
 
 async function allPrerequisitesReady() {
     return Promise.all([
-        areDependenciesReady()
+        areDependenciesReady(),
+        areOptionalDependenciesReady()
     ]);
 }
 
@@ -37,6 +41,14 @@ async function areDependenciesReady() {
         Hooks.once('setup', () => {
             resolve(initDependencies());
             resolve(initExposedClasses());
+        });
+    });
+}
+
+async function areOptionalDependenciesReady() {
+    return new Promise(resolve => {
+        Hooks.once('setup', () => {
+            resolve(scanForOptionalDependencies());
         });
     });
 }
@@ -53,8 +65,20 @@ async function initExposedClasses() {
     Logger.debug("Exposed classes are ready");
 }
 
-/*
-Public class for accessing this module through macro code
+async function scanForOptionalDependencies() {
+    for (let modID of optionalDependencies) {
+        if (game.modules.get(modID)?.active) {
+            Logger.info(`Optional 3rd-party mod [${modID}] is installed - HURRAY!`);
+            optionalDependenciesAvailable.push(modID);
+        } else {
+            Logger.info(`Optional 3rd-party mod [${modID}] is NOT installed.`);
+        }
+    }
+    Logger.debug(optionalDependenciesAvailable);
+}
+
+/**
+ * Public class for accessing this module through macro code
  */
 export class PartyCruncher {
     /**
@@ -107,13 +131,21 @@ export class PartyCruncher {
             Logger.debug(`required action: ${requiredAction.toString()}`);
 
             // ==================================================================================================
-            // Step 5 - auto-determine target token (depending on requiredAction), and target it
+            // Step 5 - auto-determine target token (depending on requiredAction), and focus it
             // ==================================================================================================
             let targetToken = this.#getTarget(requiredAction, involvedTokens, partyNo);
             Logger.debug(`target token: [${targetToken.name}]`);
             canvas.tokens.releaseAll();
+            if (optionalDependenciesAvailable.includes('hot-pan')) {
+                HotPan.switchOn(true); // true means: silentMode (no UI message)
+            }
             targetToken.control({releaseOthers: true})
             canvas.animatePan(targetToken.getCenter(targetToken.x, targetToken.y));
+            if (optionalDependenciesAvailable.includes('hot-pan')) {
+                setTimeout(function(){
+                    HotPan.switchBack(true); // true means: silentMode (no UI message)
+                }, 100);
+            }
 
             // ==================================================================================================
             // Step 6 - And finallyyyyyyy.... just DO IT!!
@@ -128,7 +160,6 @@ export class PartyCruncher {
                     this.#explodeParty(involvedTokens, targetToken, partyNo);
             }
 
-
         } catch (e) {
             Logger.error(false, e); // This will also print an error msg to the screen
             return;
@@ -141,7 +172,7 @@ export class PartyCruncher {
      * Public method for usage in macros: Assign selected scene tokens to a party
      * @param partyNo
      */
-    static groupTokensParty(partyNo) {
+    static groupParty(partyNo) {
         // TODO
         if (!partyNo)
             partyNo = this.#promptForPartyNo('groupTokens');
