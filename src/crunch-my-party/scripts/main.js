@@ -144,7 +144,7 @@ export class PartyCruncher {
             if (optionalDependenciesAvailable.includes('hot-pan')) {
                 setTimeout(function(){
                     HotPan.switchBack(true); // true means: silentMode (no UI message)
-                }, 100);
+                }, 1000);
             }
 
             // ==================================================================================================
@@ -262,12 +262,12 @@ export class PartyCruncher {
         memberTokenNames = [...new Set(memberTokenNames)];
         let partyTokenName = partyTokenNames[0]; // there CAN be only one by now, so we can safely reduce it to its first & only member
 
-        // Check 3: Is max number of 24 members per party exceeded?
+        // Check 3: Is max number of 25 members per party exceeded?
         // For anyone interested: The max number is a hard limit (thus hard-coded)!
         // It is due to the problem of having to calculate "outward spiraling" spawn positions
         // around the party token on EXPLODE.
         // See #calculateClockwiseSpiralingGridCellOffset() for details, if you're really into such brain-busting math stuff - as I am NOT :-D
-        if (memberTokenNames.length > 24) {
+        if (memberTokenNames.length > 25) {
             throw new Error(
                 // Error: groupAndMembersIntersect => Names must not exist both as member and as group.
                 Config.localize('errMsg.tooManyMemberTokens') + ` (${memberTokenNames.length})!<br/>` +
@@ -514,17 +514,19 @@ export class PartyCruncher {
      * https://stackoverflow.com/questions/3706219/algorithm-for-iterating-over-an-outward-spiral-on-a-discrete-2d-grid-from-the-or
      * As I just don't get that (and as I am tooo lazy anyway).
      * In addition, I don't want a real spiral, bit rather a custom pattern.
-     * So I'll just do it the hard-coded way, fixing the maximum of 24 positions available in hard-coded arrays! :)
+     * So I'll just do it the hard-coded way, fixing the maximum of 25 positions available in hard-coded arrays! :)
      * @param counter
      */
     static #calculateClockwiseSpiralingGridCellOffset(counter) {
         let xOffsets =
             [
+                0, // this is the origin
                 0, 1, 0, -1, 1, 1, -1, -1, // this is the inner "ring" of 8 positions
                 -1, 0, 1, 2, 2, 2, 2, 2, 1, 0, -1, -2, -2, -2, -2, -2 // the outer "ring" with additional 16 positions
             ];
         let yOffsets =
             [
+                0, // this is the origin
                 -1, 0, 1, 0, -1, 1, 1, -1,  // this is the inner "ring" of 8 positions
                 -2, -2, -2, -2, -1, 0, 1, 2, 2, 2, 2, 2, 1, 0, -1, -2 // the outer "ring" with additional 16 positions
             ];

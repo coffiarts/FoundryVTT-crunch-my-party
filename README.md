@@ -5,7 +5,7 @@
     <td>
         <p style="color:red"><strong>This is still an absolute alpha development - handle with care!</strong></p>
         <p style="color:#da6502">
-          The perfect party token utility: Easily collapse arbitrary groups of scene tokens (representing parties) into an easy-to-use single "party token", and vice versa. Manage up to 3 separate parties with up to 24 members each!
+          The perfect party token utility: Easily collapse arbitrary groups of scene tokens (representing parties) into an easy-to-use single "party token", and vice versa. Manage up to 3 separate parties with up to 25 members each!
         </p>
         <p style="font-style: italic; font-weight: bold">
           "Once there were three little goblins ...<br/>
