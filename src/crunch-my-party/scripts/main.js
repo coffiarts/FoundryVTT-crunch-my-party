@@ -100,10 +100,12 @@ export class PartyCruncher {
     /**
      * Public method for usage in macros: Toggle existing party between CRUNCH and EXPLODE
      * @param partyNo
+     * @param useHotPan - toggles "Hot Pan & Zoom!", if it is available (auto-focussing players' scene views onto the party).
+     * @returns {Promise<void>}
      */
-    static async toggleParty(partyNo = 1) {
+    static async toggleParty(partyNo = 1, useHotPan = false) {
 
-        Logger.info(`TOGGLE - partyNo: #${partyNo} ...`);
+        Logger.info(`TOGGLE - partyNo: #${partyNo}, useHotPan: ${useHotPan} ...`);
 
         try {
 
@@ -141,13 +143,15 @@ export class PartyCruncher {
             let targetToken = this.#getTarget(requiredAction, involvedTokens, partyNo);
             Logger.debug(`target token: [${targetToken.name}]`);
             canvas.tokens.releaseAll();
-            if (optionalDependenciesAvailable.includes('hot-pan')) {
+            if (useHotPan && optionalDependenciesAvailable.includes('hot-pan')) {
+                Logger.debug(`switching HotPan ON (useHotPan: ${useHotPan}`);
                 HotPan.switchOn(true); // true means: silentMode (no UI message)
             }
             targetToken.control({releaseOthers: true})
             canvas.animatePan(targetToken.getCenter(targetToken.x, targetToken.y));
-            if (optionalDependenciesAvailable.includes('hot-pan')) {
+            if (useHotPan && optionalDependenciesAvailable.includes('hot-pan')) {
                 setTimeout(function(){
+                    Logger.debug(`switching HotPan BACK (useHotPan: ${useHotPan}`);
                     HotPan.switchBack(true); // true means: silentMode (no UI message)
                 }, 1000);
             }
@@ -174,7 +178,9 @@ export class PartyCruncher {
     }
 
     /**
-     * Public method for usage in macros: Assign selected scene tokens to a party
+     * Public method for usage in macros: Assign selected scene tokens to a party.
+     * Prompts for the name of the party token that shall represent the members.
+     * Checks for non-unique or missing tokens and throws errors as required.
      * @param partyNo
      */
     static async groupParty(partyNo = 1) {
@@ -227,12 +233,31 @@ export class PartyCruncher {
     }
 
     /**
-     * Public method for usage in macros: Select all member tokens of a given party in the scene
+     * Public method for usage in macros: Select all member tokens of a given party in the scene.
+     * The new target token depends on whether party is crunched or exploded (auto-detected).
      * @param partyNo
-     */
-    static findParty(partyNo) {
-        Logger.debug(`FIND - partyNo: ${partyNo} ...`);
-        // TODO
+     * @param useHotPan - toggles "Hot Pan & Zoom!", if it is available (auto-focussing players' scene views onto the party)*/
+    static findParty(partyNo, useHotPan = false) {
+
+        Logger.debug(`FIND - partyNo: ${partyNo}, useHotPan: ${useHotPan} ...`);
+
+        // TODO identify tokens
+        // TODO decide what to focus on: party token or one of the member tokens (=targetToken)
+
+        if (useHotPan && optionalDependenciesAvailable.includes('hot-pan')) {
+            Logger.debug(`switching HotPan ON (useHotPan: ${useHotPan}`);
+            HotPan.switchOn(true); // true means: silentMode (no UI message)
+        }
+        // TODO do the focussing, depending on party or members:
+        // set <token(s))>.control({releaseOthers: true/false})
+        // canvas.animatePan(targetToken.getCenter(targetToken.x, targetToken.y));
+        if (useHotPan && optionalDependenciesAvailable.includes('hot-pan')) {
+            setTimeout(function(){
+                Logger.debug(`switching HotPan BACK (useHotPan: ${useHotPan}`);
+                HotPan.switchBack(true); // true means: silentMode (no UI message)
+            }, 1000);
+        }
+
     }
 
     /**
