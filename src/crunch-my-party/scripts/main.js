@@ -113,11 +113,7 @@ export class PartyCruncher {
             // Step 1 - Parse & validate party definitions from module settings
             // ==================================================================================================
             // grab raw input values from user prefs
-            let memberTokenNamesString = Config.setting(`memberTokenNames${partyNo}`);
-            let partyTokenNameString = Config.setting(`partyTokenName${partyNo}`);
-
-            let namesFromSettings = this.#collectNamesFromStrings(partyNo, memberTokenNamesString, partyTokenNameString);
-            let validatedNames = this.#validateNames(partyNo, namesFromSettings);
+            let validatedNames = this.#collectValidatedTokenNamesFromModuleSettings(partyNo);
             Logger.debug(validatedNames);
 
             // ==================================================================================================
@@ -177,6 +173,13 @@ export class PartyCruncher {
         Logger.info(`... Toggling of party #${partyNo} complete.`);
     }
 
+    static #collectValidatedTokenNamesFromModuleSettings(partyNo) {
+        let memberTokenNamesString = Config.setting(`memberTokenNames${partyNo}`);
+        let partyTokenNameString = Config.setting(`partyTokenName${partyNo}`);
+        let namesFromSettings = this.#collectNamesFromStrings(partyNo, memberTokenNamesString, partyTokenNameString);
+        return this.#validateNames(partyNo, namesFromSettings);
+    }
+
     /**
      * Public method for usage in macros: Assign selected scene tokens to a party.
      * Prompts for the name of the party token that shall represent the members.
@@ -202,9 +205,7 @@ export class PartyCruncher {
                 namesFromSelection.partyTokenNames = [partyTokenNameInput];
                 Logger.debug(`namesFromSelection for grouping party #${partyNo}:`, namesFromSelection);
             }
-
             let validatedNames = this.#validateNames(partyNo, namesFromSelection);
-
 
             // ==================================================================================================
             // Step 2 - Update user prefs in module settings with detected names lists
@@ -241,16 +242,40 @@ export class PartyCruncher {
 
         Logger.debug(`FIND - partyNo: ${partyNo}, useHotPan: ${useHotPan} ...`);
 
-        // TODO identify tokens
-        // TODO decide what to focus on: party token or one of the member tokens (=targetToken)
+        // ==================================================================================================
+        // Step 1 - Parse & validate party definitions from module settings
+        // ==================================================================================================
+        // grab raw input values from user prefs
+        let validatedNames = this.#collectValidatedTokenNamesFromModuleSettings(partyNo);
+        Logger.debug(validatedNames);
 
+        // ==================================================================================================
+        // Step 2 - gather and validate all the involved tokens from current scene
+        // ==================================================================================================
+        let involvedTokens = this.#collectInvolvedTokens(validatedNames, partyNo);
+        Logger.debug(involvedTokens);
+
+        // ==================================================================================================
+        // Step 3 - Finally... just FIND it!
+        // ==================================================================================================
         if (useHotPan && optionalDependenciesAvailable.includes('hot-pan')) {
             Logger.debug(`switching HotPan ON (useHotPan: ${useHotPan}`);
             HotPan.switchOn(true); // true means: silentMode (no UI message)
         }
-        // TODO do the focussing, depending on party or members:
-        // set <token(s))>.control({releaseOthers: true/false})
-        // canvas.animatePan(targetToken.getCenter(targetToken.x, targetToken.y));
+
+        // Decide what to focus on, depending on the chosen party's status in the scene:
+        // Either The party token (if crunched) or one of its member tokens (if exploded)
+        if (involvedTokens.partyToken.document.hidden) { // i.e. EXPLODED
+            canvas.tokens.releaseAll();
+            for (let token of involvedTokens.memberTokens) {
+                token.control( {releaseOthers: false} );
+            }
+            canvas.animatePan(involvedTokens.memberTokens[0].getCenter(involvedTokens.memberTokens[0].x, involvedTokens.memberTokens[0].y));
+        } else { // i.e. CRUNCHED
+            involvedTokens.partyToken.control( {releaseOthers: true} );
+            canvas.animatePan(involvedTokens.partyToken.getCenter(involvedTokens.partyToken.x, involvedTokens.partyToken.y));
+        }
+
         if (useHotPan && optionalDependenciesAvailable.includes('hot-pan')) {
             setTimeout(function(){
                 Logger.debug(`switching HotPan BACK (useHotPan: ${useHotPan}`);
@@ -258,6 +283,7 @@ export class PartyCruncher {
             }, 1000);
         }
 
+        Logger.debug(`FINDing of party #${partyNo} complete.`);
     }
 
     /**
