@@ -82,8 +82,6 @@ async function scanForOptionalDependencies() {
  */
 export class PartyCruncher {
 
-    static lastPartyNo;
-
     /**
      * Call this from the browser console if you're uncertain if the module has been initialized correctly
      * Syntax: PartyCruncher.healthCheck()
@@ -103,12 +101,9 @@ export class PartyCruncher {
      * Public method for usage in macros: Toggle existing party between CRUNCH and EXPLODE
      * @param partyNo
      */
-    static async toggleParty(partyNo) {
-        if (!partyNo)
-            partyNo = await this.#promptForPartyNo();
+    static async toggleParty(partyNo = 1) {
 
-        Logger.debug(partyNo);
-        Logger.info(`Toggling party #${partyNo} ...`);
+        Logger.info(`TOGGLE - partyNo: #${partyNo} ...`);
 
         try {
 
@@ -178,11 +173,9 @@ export class PartyCruncher {
      * Public method for usage in macros: Assign selected scene tokens to a party
      * @param partyNo
      */
-    static groupParty(partyNo) {
+    static groupParty(partyNo = 1) {
+        Logger.debug(`GROUP - partyNo: ${partyNo} ...`);
         // TODO
-        if (!partyNo)
-            partyNo = this.#promptForPartyNo();
-        Logger.debug(`partyNo: ${partyNo}`);
     }
 
     /**
@@ -190,10 +183,8 @@ export class PartyCruncher {
      * @param partyNo
      */
     static findParty(partyNo) {
+        Logger.debug(`FIND - partyNo: ${partyNo} ...`);
         // TODO
-        if (!partyNo)
-            partyNo = this.#promptForPartyNo();
-
     }
 
     /**
@@ -543,48 +534,4 @@ export class PartyCruncher {
         }
     }
 
-    static async #promptForPartyNo() {
-        return new Promise(resolve => {
-            const dialog = new Dialog({
-                title: Config.localize('promptForPartyNoTitle'),
-                content: `
-                <form>
-                  <div>
-                    <legend>${Config.localize('promptForPartyNoTitle')}</legend>
-                    <input type='radio' name='partyNo' id="#1" value="1"${(PartyCruncher.lastPartyNo === 1 ? " checked" : "")}/>
-                    <label for="#1"> #1</label><br/>
-                    <input type='radio' name='partyNo' id="#2" value="2"${(PartyCruncher.lastPartyNo === 2 ? " checked" : "")}/>
-                    <label for="#1"> #2</label><br/>
-                    <input type='radio' name='partyNo' id="#3" value="3"${(PartyCruncher.lastPartyNo === 3 ? " checked" : "")}/>
-                    <label for="#1"> #3</label><br/>
-                  </div>
-                </form>`,
-                buttons: {
-                    submit: {
-                        icon: "<i class='fas fa-check'></i>",
-                        label: `OK`
-                    },
-                    cancel: {
-                        icon: "<i class='fas fa-check'></i>",
-                        label: Config.localize('cancelButton')
-                    }
-                },
-                default: 'submit',
-                close: html => {
-                    let result = document.querySelector('input[name="partyNo"]:checked').value;
-                    if (result.value !== '') {
-                        // let chatData = {
-                        //     user: game.user._id,
-                        //     speaker: ChatMessage.getSpeaker(),
-                        //     content: result
-                        // };
-                        // ChatMessage.create(chatData, {});
-                        PartyCruncher.lastPartyNo = result;
-                        Logger.debug(`partyNo selected: ${PartyCruncher.lastPartyNo}`)
-                    }
-                }
-            });
-            dialog.render(true);
-        });
-    }
 }
