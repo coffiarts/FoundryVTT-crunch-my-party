@@ -178,6 +178,7 @@ export class PartyCruncher {
      * @param partyNo
      */
     static groupParty(partyNo = 1) {
+
         Logger.debug(`GROUP - partyNo: ${partyNo} ...`);
 
         try {
@@ -281,8 +282,8 @@ export class PartyCruncher {
                 // Error: invalidTokenCount => Names do not represent exactly ONE group and MORE THAN ONE members.
                 Config.localize('errMsg.pleaseCheckYourTokenSelection') + ":<br/>" +
                 "<br/>" +
-                "- " + Config.localize(`setting.memberTokenNames${partyNo}.name`) + ": <strong>[ " + names.memberTokenNamesString + " ]</strong><br/>" +
-                "- " + Config.localize(`setting.partyTokenName${partyNo}.name`) + ": <strong>[ " + names.partyTokenNametring + " ]</strong><br/>" +
+                "- " + Config.localize(`setting.memberTokenNames${partyNo}.name`) + ": <strong>[ " + names.memberTokenNames + " ]</strong><br/>" +
+                "- " + Config.localize(`setting.partyTokenName${partyNo}.name`) + ": <strong>[ " + names.partyTokenNames + " ]</strong><br/>" +
                 "<br/>" +
                 "<strong>" + Config.localize(`errMsg.invalidTokenCount`) + "</strong>";
         }
@@ -303,8 +304,8 @@ export class PartyCruncher {
                 // Error: groupAndMembersIntersect => Names must not exist both as member and as group.
                 Config.localize('errMsg.pleaseCheckYourTokenSelection') + ":<br/>" +
                 "<br/>" +
-                "- " + Config.localize(`setting.memberTokenNames${partyNo}.name`) + ": <strong>[ " + names.memberTokenNamesString + " ]</strong><br/>" +
-                "- " + Config.localize(`setting.partyTokenName${partyNo}.name`) + ": <strong>[ " + names.partyTokenNametring + " ]</strong><br/>" +
+                "- " + Config.localize(`setting.memberTokenNames${partyNo}.name`) + ": <strong>[ " + names.memberTokenNames + " ]</strong><br/>" +
+                "- " + Config.localize(`setting.partyTokenName${partyNo}.name`) + ": <strong>[ " + names.partyTokenNames + " ]</strong><br/>" +
                 "<br/>" +
                 "<strong>" + Config.localize(`errMsg.groupAndMembersIntersect`) + "</strong>";
         }
@@ -328,7 +329,7 @@ export class PartyCruncher {
                 Config.localize('errMsg.tooManyMemberTokens') + ` (${names.memberTokenNames.length})!<br/>` +
                 Config.localize('errMsg.maxNumberOfMemberTokens') + `<br/>` +
                 "<br/>" +
-                Config.localize(`setting.memberTokenNames${partyNo}.name`) + ": <strong>[ " + names.memberTokenNamesString + " ]</strong>"
+                Config.localize(`setting.memberTokenNames${partyNo}.name`) + ": <strong>[ " + names.memberTokenNames + " ]</strong>"
             );
         }
 
@@ -341,11 +342,11 @@ export class PartyCruncher {
     /**
      * Stores token group configurations, passed as parameters, to the game settings
      * @param partyNo
-     * @param namesFromSettings memberTokenNames and partyTokenName values
+     * @param namesAsCommaSeparatedStrings memberTokenNames and partyTokenName values
      */
-    static #updateSettings(partyNo, namesFromSettings) {
-        Config.modifySetting(`memberTokenNames${partyNo}`, namesFromSettings.memberTokenNames.join(`, `))
-        Config.modifySetting(`partyTokenName${partyNo}`, namesFromSettings.partyTokenName)
+    static #updateSettings(partyNo, namesAsCommaSeparatedStrings) {
+        Config.modifySetting(`memberTokenNames${partyNo}`, namesAsCommaSeparatedStrings.memberTokenNames.join(`, `))
+        Config.modifySetting(`partyTokenName${partyNo}`, namesAsCommaSeparatedStrings.partyTokenName)
     }
 
 
