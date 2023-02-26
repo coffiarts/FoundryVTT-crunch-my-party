@@ -115,18 +115,18 @@ export class PartyCruncher {
             let partyTokenNameString = Config.setting(`partyTokenName${partyNo}`);
 
             let namesFromSettings = this.#collectNamesFromStrings(partyNo, memberTokenNamesString, partyTokenNameString);
-            namesFromSettings = this.#validateNamesLists(partyNo, namesFromSettings);
-            Logger.debug(namesFromSettings);
+            let validatedNames = this.#validateNamesLists(partyNo, namesFromSettings);
+            Logger.debug(validatedNames);
 
             // ==================================================================================================
             // Step 2 - Update user prefs in module settings with the now cleaned lists
             // ==================================================================================================
-            this.#updateSettings(partyNo, namesFromSettings);
+            this.#updateSettings(partyNo, validatedNames);
 
             // ==================================================================================================
             // Step 3 - gather and validate all the involved tokens from current scene
             // ==================================================================================================
-            let involvedTokens = this.#collectInvolvedTokens(namesFromSettings, partyNo);
+            let involvedTokens = this.#collectInvolvedTokens(validatedNames, partyNo);
             Logger.debug(involvedTokens);
 
             // ==================================================================================================
@@ -187,12 +187,12 @@ export class PartyCruncher {
             // ==================================================================================================
             // grab raw input values from user prefs
             let namesFromSelection = this.#collectNamesFromTokenSelection();
-            namesFromSelection = this.#validateNamesLists(partyNo, namesFromSelection);
+            let validatedNames = this.#validateNamesLists(partyNo, namesFromSelection);
 
             // ==================================================================================================
             // Step 2 - Update user prefs in module settings with the now cleaned lists
             // ==================================================================================================
-            this.#updateSettings(partyNo, namesFromSelection);
+            this.#updateSettings(partyNo, validatedNames);
 
             // ==================================================================================================
             // Step 3 - ...
@@ -242,7 +242,7 @@ export class PartyCruncher {
 
         return {
             memberTokenNames: memberTokenNames,
-            partyTokenName: partyTokenNames
+            partyTokenNames: partyTokenNames
         };
     }
 
@@ -276,7 +276,7 @@ export class PartyCruncher {
         // Check 1: Do we have enough tokens? Do we have not too many tokens?
         if (
             !names.memberTokenNames || names.memberTokenNames.length === 0 ||  names.memberTokenNames[0] === "" ||
-            !names.partyTokenName || names.partyTokenName.length !== 1 || names.partyTokenName[0] === "") {
+            !names.partyTokenNames || names.partyTokenNames.length !== 1 || names.partyTokenNames[0] === "") {
             errMsg =
                 // Error: invalidTokenCount => Names do not represent exactly ONE group and MORE THAN ONE members.
                 Config.localize('errMsg.pleaseCheckYourTokenSelection') + ":<br/>" +
@@ -292,11 +292,11 @@ export class PartyCruncher {
         }
 
         // Check 2: Are there intersecting names between members list and party?
-        const membersIncludeParty = names.partyTokenName.some(element => {
+        const membersIncludeParty = names.partyTokenNames.some(element => {
             return names.memberTokenNames.includes(element);
         });
         const partyIncludesMembers = names.memberTokenNames.some(element => {
-            return names.partyTokenName.includes(element);
+            return names.partyTokenNames.includes(element);
         });
         if (membersIncludeParty || partyIncludesMembers) {
             errMsg =
@@ -315,7 +315,7 @@ export class PartyCruncher {
 
         // Remove duplicates
         names.memberTokenNames = [...new Set(names.memberTokenNames)];
-        let partyTokenName = names.partyTokenName[0]; // there CAN be only one by now, so we can safely reduce it to its first & only member
+        let partyTokenName = names.partyTokenNames[0]; // there CAN be only one by now, so we can safely reduce it to its first & only member
 
         // Check 3: Is max number of 25 members per party exceeded?
         // For anyone interested: The max number is a hard limit (thus hard-coded)!
@@ -334,7 +334,7 @@ export class PartyCruncher {
 
         return {
             memberTokenNames: names.memberTokenNames,
-            partyTokenNames: partyTokenName
+            partyTokenName: partyTokenName
         };
     }
 
@@ -399,7 +399,7 @@ export class PartyCruncher {
                             .filter(name => !memberTokens
                                 .map(t => t.name.toUpperCase())
                                 .includes((name)));
-        if (!Work) {
+        if (!partyToken) {
             missingTokens.push(names.partyTokenName.toUpperCase());
         }
         if (missingTokens.length > 0)
