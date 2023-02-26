@@ -50,15 +50,17 @@
       "invalidTokenCount": "Erforderlich: Genau EIN Gruppen-Token und MEHR ALS EIN Mitglieder-Token.",
       "groupAndMembersIntersect": "Ein Name darf nicht sowohl Mitglied als auch Gruppe sein.",
       "tooManyMemberTokens": "Mitgliederliste ist zu lang",
-      "maxNumberOfMemberTokens": "Eine Gruppe darf maximal 25 Mitglieder haben.",
+      "invalidNumberOfMemberTokens": "Ungültige Anzahl an Tokens ausgewählt! Eine Gruppe muss aus mindestens 2 und maximal 25 Mitgliedern bestehen.",
       "notUniqueInScene": "existiert mehrfach in der Szene!",
       "tokensMissingInScene": "Folgende Tokens fehlen in der Szene",
       "cannotDetermineAction": "Aktion kann nicht ermittelt werden!",
       "membersAndPartyBothVisible": "Gruppenmitglieder und Gruppen-Token können nicht gleichzeitig sichtbar (aktiviert) sein.",
       "membersAndPartyAllHidden": "Keiner der involvierten Tokens ist aktuell sichtbar (aktiviert)."
     },
-    "promptForPartyNoTitle": "Welche Gruppe?",
-    "promptForPartyPartyLabel": "Gruppe",
-    "cancelButton": "Abbrechen"
+    "promptForPartyTokenNameTitle": "Wie heisst der Gruppentoken?",
+    "promptForPartyTokenNameText": "Name des Gruppen-Tokens, der diese Auswahl repräsentieren soll<br/>(muss unter exakt diesem Namen in der Szene existieren!)",
+    "saveButton": "Übernehmen",
+    "cancelButton": "Abbrechen",
+    "groupingConfirmation": "Die folgenden Tokens sind nun der <strong>Gruppe #{partyNo} [Token: {partyTokenName}]</strong> zugewiesen"
   }
 }

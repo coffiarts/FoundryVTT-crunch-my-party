@@ -50,15 +50,17 @@
       "invalidTokenCount": "Required: Exactly ONE group and MORE THAN ONE members",
       "groupAndMembersIntersect": "Names must not exist both as member and as group.",
       "tooManyMemberTokens": "Member list too long",
-      "maxNumberOfMemberTokens": "Maximum number of 25 members per party exceeded.",
+      "invalidNumberOfMemberTokens": "Invalid number of tokens selected! A party must consist of 2 through 25 members.",
       "notUniqueInScene": "is not unique in scene!",
       "tokensMissingInScene": "Tokens missing in scene",
       "cannotDetermineAction": "Cannot determine action!",
       "membersAndPartyBothVisible": "Party members and party token can't be visible (active) at the same time.",
       "membersAndPartyAllHidden": "None of the involved tokens are currently visible (active)."
     },
-    "promptForPartyNoTitle": "Please choose a party",
-    "promptForPartyPartyLabel": "Party",
-    "cancelButton": "Cancel"
+    "promptForPartyTokenNameTitle": "What's the name of the party token?",
+    "promptForPartyTokenNameText": "Name of the party token that shall represent selected members<br/>(must exist with this exact name in current scene!)",
+    "saveButton": "Save",
+    "cancelButton": "Cancel",
+    "groupingConfirmation": "The following tokens have been assigned to <strong>party #{partyNo} [token: {partyTokenName}]</strong>"
   }
 }

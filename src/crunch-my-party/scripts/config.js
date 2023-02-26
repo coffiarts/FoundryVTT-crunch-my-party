@@ -68,7 +68,8 @@ export class Config {
         });
     }
 
-    static setting(key) {
+    static setting(key, verbose = false) {
+        if (verbose) Logger.debug(`get setting: key = ${key}`);
         return game.settings.get(Config.data.modID, key);
     }
 

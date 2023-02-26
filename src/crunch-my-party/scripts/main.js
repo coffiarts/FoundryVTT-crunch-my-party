@@ -115,7 +115,7 @@ export class PartyCruncher {
             let partyTokenNameString = Config.setting(`partyTokenName${partyNo}`);
 
             let namesFromSettings = this.#collectNamesFromStrings(partyNo, memberTokenNamesString, partyTokenNameString);
-            let validatedNames = this.#validateNamesLists(partyNo, namesFromSettings);
+            let validatedNames = this.#validateNames(partyNo, namesFromSettings);
             Logger.debug(validatedNames);
 
             // ==================================================================================================
@@ -177,7 +177,7 @@ export class PartyCruncher {
      * Public method for usage in macros: Assign selected scene tokens to a party
      * @param partyNo
      */
-    static groupParty(partyNo = 1) {
+    static async groupParty(partyNo = 1) {
 
         Logger.debug(`GROUP - partyNo: ${partyNo} ...`);
 
@@ -186,26 +186,44 @@ export class PartyCruncher {
             // ==================================================================================================
             // Step 1 - Parse & validate current token selection
             // ==================================================================================================
-            // grab raw input values from user prefs
+            // grab names from all currently selected tokens
             let namesFromSelection = this.#collectNamesFromTokenSelection();
-            let validatedNames = this.#validateNamesLists(partyNo, namesFromSelection);
+            // ask the GM for the name of the party token to use
+            let partyTokenNameInput = await this.#promptForPartyTokenName(partyNo);
+            if (partyTokenNameInput.cancelled) {
+                return;
+            } else {
+                namesFromSelection.partyTokenNames = [partyTokenNameInput];
+                Logger.debug(`namesFromSelection for grouping party #${partyNo}:`, namesFromSelection);
+            }
+
+            let validatedNames = this.#validateNames(partyNo, namesFromSelection);
+
 
             // ==================================================================================================
-            // Step 2 - Update user prefs in module settings with the now cleaned lists
+            // Step 2 - Update user prefs in module settings with detected names lists
             // ==================================================================================================
             this.#updateSettings(partyNo, validatedNames);
 
             // ==================================================================================================
-            // Step 3 - ...
+            // Step 3 - Confirm in UI that group assignment was successful
             // ==================================================================================================
-
+            let msg =
+                `${Config.localize('groupingConfirmation')
+                    .replace('{partyNo}', partyNo)
+                    .replace('{partyTokenName}', validatedNames.partyTokenName)}:</br>` +
+                `<ul><li>` +
+                validatedNames.memberTokenNames.join(`</li><li>`) +
+                `</li></ul>`;
+            ui.notifications.info(msg);
+            Logger.info(msg);
 
         } catch (e) {
             Logger.error(false, e); // This will also print an error msg to the screen
             return;
         }
 
-        Logger.info(`... Toggling of party #${partyNo} complete.`);
+        Logger.info(`... Grouping of party #${partyNo} complete.`);
     }
 
     /**
@@ -228,7 +246,6 @@ export class PartyCruncher {
     static #collectNamesFromStrings(partyNo = 1, memberTokenNamesString, partyTokenNameString) {
 
         // Parse & split given list of party names from module settings
-        // We want to make this veeeeeery robust against "creative" text input from the users
         let memberTokenNames = memberTokenNamesString
             .split(",")
             .map(name => name.trim().toLowerCase())
@@ -248,17 +265,15 @@ export class PartyCruncher {
     }
 
     static #collectNamesFromTokenSelection() {
-        let tokensFound = Array.from(canvas.tokens.controlled);
-        if (tokensFound.length < 2) {
+        let tokenNamesFound = Array.from(canvas.tokens.controlled.map(t => t.name.toLowerCase()));
+        if (tokenNamesFound.length < 2) {
             // TODO localize
             throw new Error(
-                `Please select at least ONE party token and up to 25 member tokens.<br/>
-                The party token must be the first selected.`);
+                Config.localize('errMsg.invalidNumberOfMemberTokens'));
         }
-        let partyTokenName = tokensFound.shift();
         return {
-            memberTokenNames: tokensFound.join(`,`),
-            partyTokenName: partyTokenName
+            memberTokenNames: tokenNamesFound,
+            partyTokenName: null // Still unassigned. Will be set by user input prompt
         };
     }
 
@@ -269,7 +284,7 @@ export class PartyCruncher {
      * @param names
      * @returns {{partyTokenName: *, memberTokenNames: (*|any[])}}
      */
-    static #validateNamesLists(partyNo = 1, names) {
+    static #validateNames(partyNo = 1, names) {
 
         Logger.debug(names);
         let errMsg = "";
@@ -327,11 +342,16 @@ export class PartyCruncher {
             throw new Error(
                 // Error: groupAndMembersIntersect => Names must not exist both as member and as group.
                 Config.localize('errMsg.tooManyMemberTokens') + ` (${names.memberTokenNames.length})!<br/>` +
-                Config.localize('errMsg.maxNumberOfMemberTokens') + `<br/>` +
+                Config.localize('errMsg.invalidNumberOfMemberTokens') + `<br/>` +
                 "<br/>" +
                 Config.localize(`setting.memberTokenNames${partyNo}.name`) + ": <strong>[ " + names.memberTokenNames + " ]</strong>"
             );
         }
+
+        // Check 4: Does any of the member tokens exist more than once in the scene?
+        // This is only for checking at this time. It will throw an error if some tokens are NOT unique, so we just can ignore the returned values for now
+        this.#collectTokensByNamesIfUnique(names.memberTokenNames);
+        this.#collectTokensByNamesIfUnique([names.partyTokenName])[0];
 
         return {
             memberTokenNames: names.memberTokenNames,
@@ -361,38 +381,9 @@ export class PartyCruncher {
 
         let errMsg = "";
 
-        let memberTokens = [];
-        let partyToken;
-
-        // Check 1: Does any of the named tokens exist more than once in the scene?
-        for (let token of canvas.tokens.ownedTokens) {
-
-            Logger.debug(`Checking if scene token is in list: [${token.name}] ...`);
-
-            if (names.memberTokenNames.includes(token.name.toLowerCase())) {
-
-                // Hurray, we've found a  member token!
-                if (memberTokens.filter(t=>t.name === token.name).length === 0) { // not yet registered
-                    memberTokens.push(token);
-                    Logger.debug(`Hurray! Found token from memberTokenNames${partyNo}: [${token.name}]!`);
-                } else {
-                    // Error: ... but it's a duplicate!
-                    errMsg += `[${token.name}] ${Config.localize(`errMsg.notUniqueInScene`)}<br/>`;
-                }
-            }
-
-            if (names.partyTokenName === token.name.toLowerCase()) {
-
-                // Hurray, we've found the party token!
-                if (!partyToken) {
-                    partyToken = token;
-                    Logger.debug(`Hurray! Found partyTokenName${partyNo}: [${token.name}]`);
-                } else {
-                    // Error: ... but it's a duplicate!
-                    errMsg += `[${token.name}] ${Config.localize(`errMsg.notUniqueInScene`)}<br/>`;
-                }
-            }
-        }
+        // Check 1: Does any of the member tokens exist more than once in the scene?
+        const memberTokens = this.#collectTokensByNamesIfUnique(names.memberTokenNames);
+        const partyToken = this.#collectTokensByNamesIfUnique([names.partyTokenName])[0];
 
         // Check 2: Are there any tokens that could NOT be found?
         let missingTokens = names.memberTokenNames
@@ -426,6 +417,48 @@ export class PartyCruncher {
             memberTokens: memberTokens,
             partyToken: partyToken
         };
+    }
+
+    /**
+     * Searches the current scene for all token names given in names, and creates an array from them.
+     * Throws an error if multiple tokens with the same name are found.
+     * @param names
+     * @returns tokensFound {*[]}
+     */
+    static #collectTokensByNamesIfUnique(names) {
+
+        let tokensFound = [];
+        let errMsg = "";
+
+        for (let token of canvas.tokens.ownedTokens) {
+
+            Logger.debug(`Checking if scene token is in list: [${token.name}] ...`);
+
+            if (names.includes(token.name.toLowerCase())) {
+
+                // Hurray, we've found a  token from the list!
+                if (tokensFound.filter(t => t.name === token.name).length === 0) { // not yet registered
+                    tokensFound.push(token);
+                    Logger.debug(`Hurray! Found token from the list: [${token.name}]!`);
+                } else {
+                    // Error: ... but it's a duplicate!
+                    errMsg += `[${token.name}] ${Config.localize(`errMsg.notUniqueInScene`)}<br/>`;
+                }
+            }
+        }
+
+        if (errMsg) {
+            errMsg =
+                // Collect all errors into one biiiiig message
+                Config.localize('errMsg.pleaseCheckYourTokenSelection') + ":<br/>" +
+                "<br/>" +
+                names.join(`,`) + "<br/>" +
+                "<br/>" +
+                errMsg;
+            throw new Error(errMsg);
+        }
+
+        return tokensFound;
     }
 
     /**
@@ -604,4 +637,42 @@ export class PartyCruncher {
         }
     }
 
+    static async #promptForPartyTokenName(partyNo) {
+        return new Promise(resolve => {
+            const data = {
+                title: Config.localize('promptForPartyTokenNameTitle'),
+                content: `
+                <form>
+                  <div>
+                    <legend>${Config.localize('promptForPartyTokenNameText')}</legend>
+                    <input type='text' name='partyTokenName' value="${(Config.setting(`partyTokenName${partyNo}`))}"/>
+                  </div>
+                </form>`,
+                buttons: {
+                    submit: {
+                        icon: "<i class='fas fa-check'></i>",
+                        label: Config.localize('saveButton'),
+                        callback: html => resolve(
+                            PartyCruncher.#resolvePromptForPartyTokenName(
+                                html[0].querySelector('form')))
+                    },
+                    cancel: {
+                        icon: "<i class='fas fa-cancel'></i>",
+                        label: Config.localize('cancelButton'),
+                        callback: () => resolve({cancelled: true})
+                    }
+                },
+                default: 'submit',
+                close: () => resolve({cancelled: true})
+            }
+            new Dialog(data, null).render(true);
+        });
+    }
+
+    static #resolvePromptForPartyTokenName(form) {
+        Logger.debug('form', form);
+        let result = form.partyTokenName.value.toLowerCase();
+        Logger.debug(`partyTokenName from prompt input: ${result}`);
+        return result;
+    }
 }
