@@ -110,14 +110,18 @@ export class PartyCruncher {
             // ==================================================================================================
             // Step 1 - Parse & validate party definitions from module settings
             // ==================================================================================================
-            let namesFromSettings = this.#collectNamesFromSettings(partyNo);
+            // grab raw input values from user prefs
+            let memberTokenNamesString = Config.setting(`memberTokenNames${partyNo}`);
+            let partyTokenNameString = Config.setting(`partyTokenName${partyNo}`);
+
+            let namesFromSettings = this.#collectNamesFromStrings(partyNo, memberTokenNamesString, partyTokenNameString);
+            namesFromSettings = this.#validateNamesLists(partyNo, namesFromSettings);
             Logger.debug(namesFromSettings);
 
             // ==================================================================================================
             // Step 2 - Update user prefs in module settings with the now cleaned lists
             // ==================================================================================================
-            Config.modifySetting(`memberTokenNames${partyNo}`, namesFromSettings.memberTokenNames.join(`, `))
-            Config.modifySetting(`partyTokenName${partyNo}`, namesFromSettings.partyTokenName)
+            this.#updateSettings(partyNo, namesFromSettings);
 
             // ==================================================================================================
             // Step 3 - gather and validate all the involved tokens from current scene
@@ -175,7 +179,32 @@ export class PartyCruncher {
      */
     static groupParty(partyNo = 1) {
         Logger.debug(`GROUP - partyNo: ${partyNo} ...`);
-        // TODO
+
+        try {
+
+            // ==================================================================================================
+            // Step 1 - Parse & validate current token selection
+            // ==================================================================================================
+            // grab raw input values from user prefs
+            let namesFromSelection = this.#collectNamesFromTokenSelection();
+            namesFromSelection = this.#validateNamesLists(partyNo, namesFromSelection);
+
+            // ==================================================================================================
+            // Step 2 - Update user prefs in module settings with the now cleaned lists
+            // ==================================================================================================
+            this.#updateSettings(partyNo, namesFromSelection);
+
+            // ==================================================================================================
+            // Step 3 - ...
+            // ==================================================================================================
+
+
+        } catch (e) {
+            Logger.error(false, e); // This will also print an error msg to the screen
+            return;
+        }
+
+        Logger.info(`... Toggling of party #${partyNo} complete.`);
     }
 
     /**
@@ -188,43 +217,72 @@ export class PartyCruncher {
     }
 
     /**
-     * Parse, split & validate given list of token names from module settings.
+     * Parse & split given list of token names from module settings.
      * Throw meaningful UI errors if anything isn't valid.
      * @param partyNo
-     * @returns {{partyTokenName: string, memberTokenNames: string[]}}
+     * @param memberTokenNamesString
+     * @param partyTokenNameString
+     * @returns {{partyTokenName: string[], memberTokenNames: string[]}}
      */
-    static #collectNamesFromSettings(partyNo = 1) {
-
-        let errMsg = "";
-
-        // grab raw input values from user prefs
-        let memberTokenNamesSetting = Config.setting(`memberTokenNames${partyNo}`);
-        let partyTokenNameSetting = Config.setting(`partyTokenName${partyNo}`);
+    static #collectNamesFromStrings(partyNo = 1, memberTokenNamesString, partyTokenNameString) {
 
         // Parse & split given list of party names from module settings
         // We want to make this veeeeeery robust against "creative" text input from the users
-        let memberTokenNames = memberTokenNamesSetting
+        let memberTokenNames = memberTokenNamesString
             .split(",")
             .map(name => name.trim().toLowerCase())
-            .filter(name  => name.length > 0); // ignore empty strings resulting from input like ",," or ", ,"
-        let partyTokenNames = partyTokenNameSetting
+            .filter(name => name.length > 0); // ignore empty strings resulting from input like ",," or ", ,"
+        let partyTokenNames = partyTokenNameString
             .split(",")
             .map(name => name.trim().toLowerCase())
-            .filter(name  => name.length > 0); // ignore empty strings resulting from input like ",," oder ", ,"
+            .filter(name => name.length > 0); // ignore empty strings resulting from input like ",," oder ", ,"
 
         Logger.debug(memberTokenNames);
         Logger.debug(partyTokenNames);
 
+        return {
+            memberTokenNames: memberTokenNames,
+            partyTokenName: partyTokenNames
+        };
+    }
+
+    static #collectNamesFromTokenSelection() {
+        let tokensFound = Array.from(canvas.tokens.controlled);
+        if (tokensFound.length < 2) {
+            // TODO localize
+            throw new Error(
+                `Please select at least ONE party token and up to 25 member tokens.<br/>
+                The party token must be the first selected.`);
+        }
+        let partyTokenName = tokensFound.shift();
+        return {
+            memberTokenNames: tokensFound.join(`,`),
+            partyTokenName: partyTokenName
+        };
+    }
+
+    /**
+     * Validate given list of token names from module settings.
+     * Throw meaningful UI errors if anything isn't valid.
+     * @param partyNo
+     * @param names
+     * @returns {{partyTokenName: *, memberTokenNames: (*|any[])}}
+     */
+    static #validateNamesLists(partyNo = 1, names) {
+
+        Logger.debug(names);
+        let errMsg = "";
+
         // Check 1: Do we have enough tokens? Do we have not too many tokens?
         if (
-            !memberTokenNames || memberTokenNames.length === 0 ||  memberTokenNames[0] === "" ||
-            !partyTokenNames || partyTokenNames.length !== 1 || partyTokenNames[0] === "") {
+            !names.memberTokenNames || names.memberTokenNames.length === 0 ||  names.memberTokenNames[0] === "" ||
+            !names.partyTokenName || names.partyTokenName.length !== 1 || names.partyTokenName[0] === "") {
             errMsg =
                 // Error: invalidTokenCount => Names do not represent exactly ONE group and MORE THAN ONE members.
                 Config.localize('errMsg.pleaseCheckYourTokenSelection') + ":<br/>" +
                 "<br/>" +
-                "- " + Config.localize(`setting.memberTokenNames${partyNo}.name`) + ": <strong>[ " + memberTokenNamesSetting + " ]</strong><br/>" +
-                "- " + Config.localize(`setting.partyTokenName${partyNo}.name`) + ": <strong>[ " + partyTokenNameSetting + " ]</strong><br/>" +
+                "- " + Config.localize(`setting.memberTokenNames${partyNo}.name`) + ": <strong>[ " + names.memberTokenNamesString + " ]</strong><br/>" +
+                "- " + Config.localize(`setting.partyTokenName${partyNo}.name`) + ": <strong>[ " + names.partyTokenNametring + " ]</strong><br/>" +
                 "<br/>" +
                 "<strong>" + Config.localize(`errMsg.invalidTokenCount`) + "</strong>";
         }
@@ -234,19 +292,19 @@ export class PartyCruncher {
         }
 
         // Check 2: Are there intersecting names between members list and party?
-        const membersIncludeParty = partyTokenNames.some(element => {
-            return memberTokenNames.includes(element);
+        const membersIncludeParty = names.partyTokenName.some(element => {
+            return names.memberTokenNames.includes(element);
         });
-        const partyIncludesMembers = memberTokenNames.some(element => {
-            return partyTokenNames.includes(element);
+        const partyIncludesMembers = names.memberTokenNames.some(element => {
+            return names.partyTokenName.includes(element);
         });
         if (membersIncludeParty || partyIncludesMembers) {
             errMsg =
                 // Error: groupAndMembersIntersect => Names must not exist both as member and as group.
                 Config.localize('errMsg.pleaseCheckYourTokenSelection') + ":<br/>" +
                 "<br/>" +
-                "- " + Config.localize(`setting.memberTokenNames${partyNo}.name`) + ": <strong>[ " + memberTokenNamesSetting + " ]</strong><br/>" +
-                "- " + Config.localize(`setting.partyTokenName${partyNo}.name`) + ": <strong>[ " + partyTokenNameSetting + " ]</strong><br/>" +
+                "- " + Config.localize(`setting.memberTokenNames${partyNo}.name`) + ": <strong>[ " + names.memberTokenNamesString + " ]</strong><br/>" +
+                "- " + Config.localize(`setting.partyTokenName${partyNo}.name`) + ": <strong>[ " + names.partyTokenNametring + " ]</strong><br/>" +
                 "<br/>" +
                 "<strong>" + Config.localize(`errMsg.groupAndMembersIntersect`) + "</strong>";
         }
@@ -256,29 +314,40 @@ export class PartyCruncher {
         }
 
         // Remove duplicates
-        memberTokenNames = [...new Set(memberTokenNames)];
-        let partyTokenName = partyTokenNames[0]; // there CAN be only one by now, so we can safely reduce it to its first & only member
+        names.memberTokenNames = [...new Set(names.memberTokenNames)];
+        let partyTokenName = names.partyTokenName[0]; // there CAN be only one by now, so we can safely reduce it to its first & only member
 
         // Check 3: Is max number of 25 members per party exceeded?
         // For anyone interested: The max number is a hard limit (thus hard-coded)!
         // It is due to the problem of having to calculate "outward spiraling" spawn positions
         // around the party token on EXPLODE.
         // See #calculateClockwiseSpiralingGridCellOffset() for details, if you're really into such brain-busting math stuff - as I am NOT :-D
-        if (memberTokenNames.length > 25) {
+        if (names.memberTokenNames.length > 25) {
             throw new Error(
                 // Error: groupAndMembersIntersect => Names must not exist both as member and as group.
-                Config.localize('errMsg.tooManyMemberTokens') + ` (${memberTokenNames.length})!<br/>` +
+                Config.localize('errMsg.tooManyMemberTokens') + ` (${names.memberTokenNames.length})!<br/>` +
                 Config.localize('errMsg.maxNumberOfMemberTokens') + `<br/>` +
                 "<br/>" +
-                Config.localize(`setting.memberTokenNames${partyNo}.name`) + ": <strong>[ " + memberTokenNamesSetting + " ]</strong>"
+                Config.localize(`setting.memberTokenNames${partyNo}.name`) + ": <strong>[ " + names.memberTokenNamesString + " ]</strong>"
             );
         }
 
         return {
-            memberTokenNames: memberTokenNames,
-            partyTokenName: partyTokenName
+            memberTokenNames: names.memberTokenNames,
+            partyTokenNames: partyTokenName
         };
     }
+
+    /**
+     * Stores token group configurations, passed as parameters, to the game settings
+     * @param partyNo
+     * @param namesFromSettings memberTokenNames and partyTokenName values
+     */
+    static #updateSettings(partyNo, namesFromSettings) {
+        Config.modifySetting(`memberTokenNames${partyNo}`, namesFromSettings.memberTokenNames.join(`, `))
+        Config.modifySetting(`partyTokenName${partyNo}`, namesFromSettings.partyTokenName)
+    }
+
 
     /**
      * Identify and collect all the tokens corresponding to the names lists in the scene and register them for later.
@@ -330,7 +399,7 @@ export class PartyCruncher {
                             .filter(name => !memberTokens
                                 .map(t => t.name.toUpperCase())
                                 .includes((name)));
-        if (!partyToken) {
+        if (!Work) {
             missingTokens.push(names.partyTokenName.toUpperCase());
         }
         if (missingTokens.length > 0)
