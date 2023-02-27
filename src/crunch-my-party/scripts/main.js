@@ -87,7 +87,7 @@ export class PartyCruncher {
      * Syntax: PartyCruncher.healthCheck()
      */
     static healthCheck() {
-        alert(`Module '${Config.data.modTitle}' says: '${ready2play ? `I am alive!` : `I am NOT ready - something went wrong:(`}'` );
+        alert(`Module '${Config.data.modTitle}' says: '${ready2play ? `I am alive!` : `I am NOT ready - something went wrong:(`}'`);
     }
 
     static Actions = Object.freeze({
@@ -146,7 +146,7 @@ export class PartyCruncher {
             targetToken.control({releaseOthers: true})
             canvas.animatePan(targetToken.getCenter(targetToken.x, targetToken.y));
             if (useHotPan && optionalDependenciesAvailable.includes('hot-pan')) {
-                setTimeout(function(){
+                setTimeout(function () {
                     Logger.debug(`switching HotPan BACK (useHotPan: ${useHotPan}`);
                     HotPan.switchBack(true); // true means: silentMode (no UI message)
                 }, 1000);
@@ -268,16 +268,16 @@ export class PartyCruncher {
         if (involvedTokens.partyToken.document.hidden) { // i.e. EXPLODED
             canvas.tokens.releaseAll();
             for (let token of involvedTokens.memberTokens) {
-                token.control( {releaseOthers: false} );
+                token.control({releaseOthers: false});
             }
             canvas.animatePan(involvedTokens.memberTokens[0].getCenter(involvedTokens.memberTokens[0].x, involvedTokens.memberTokens[0].y));
         } else { // i.e. CRUNCHED
-            involvedTokens.partyToken.control( {releaseOthers: true} );
+            involvedTokens.partyToken.control({releaseOthers: true});
             canvas.animatePan(involvedTokens.partyToken.getCenter(involvedTokens.partyToken.x, involvedTokens.partyToken.y));
         }
 
         if (useHotPan && optionalDependenciesAvailable.includes('hot-pan')) {
-            setTimeout(function(){
+            setTimeout(function () {
                 Logger.debug(`switching HotPan BACK (useHotPan: ${useHotPan}`);
                 HotPan.switchBack(true); // true means: silentMode (no UI message)
             }, 1000);
@@ -342,7 +342,7 @@ export class PartyCruncher {
 
         // Check 1: Do we have enough tokens? Do we have not too many tokens?
         if (
-            !names.memberTokenNames || names.memberTokenNames.length === 0 ||  names.memberTokenNames[0] === "" ||
+            !names.memberTokenNames || names.memberTokenNames.length === 0 || names.memberTokenNames[0] === "" ||
             !names.partyTokenNames || names.partyTokenNames.length !== 1 || names.partyTokenNames[0] === "") {
             errMsg =
                 // Error: invalidTokenCount => Names do not represent exactly ONE group and MORE THAN ONE members.
@@ -438,15 +438,14 @@ export class PartyCruncher {
 
         // Check 2: Are there any tokens that could NOT be found?
         let missingTokens = names.memberTokenNames
-                            .map(name => name.toUpperCase())
-                            .filter(name => !memberTokens
-                                .map(t => t.name.toUpperCase())
-                                .includes((name)));
+            .map(name => name.toUpperCase())
+            .filter(name => !memberTokens
+                .map(t => t.name.toUpperCase())
+                .includes((name)));
         if (!partyToken) {
             missingTokens.push(names.partyTokenName.toUpperCase());
         }
-        if (missingTokens.length > 0)
-        {
+        if (missingTokens.length > 0) {
             errMsg += `${Config.localize(`errMsg.tokensMissingInScene`)}: ${missingTokens.join(`, `)}<br/>`;
         }
 
@@ -456,9 +455,9 @@ export class PartyCruncher {
                 Config.localize('errMsg.pleaseCheckYourTokenSelection') + ":<br/>" +
                 "<br/>" +
                 "- " + Config.localize(`setting.memberTokenNames${partyNo}.name`) +
-                            ": <strong>[ " + Config.setting(`memberTokenNames${partyNo}`) + " ]</strong><br/>" +
+                ": <strong>[ " + Config.setting(`memberTokenNames${partyNo}`) + " ]</strong><br/>" +
                 "- " + Config.localize(`setting.partyTokenName${partyNo}.name`) +
-                            ": <strong>[ " + Config.setting(`partyTokenName${partyNo}`) + " ]</strong><br/>" +
+                ": <strong>[ " + Config.setting(`partyTokenName${partyNo}`) + " ]</strong><br/>" +
                 "<br/>" +
                 errMsg;
             throw new Error(errMsg);
@@ -530,7 +529,7 @@ export class PartyCruncher {
         if (isPartyVisible && noOfMembersVisible.length > 0) {
             errMsg = Config.localize('errMsg.membersAndPartyBothVisible');
         } else
-        // Check1: Party members and party token can't be visible (active) at the same time.
+            // Check1: Party members and party token can't be visible (active) at the same time.
         if (!isPartyVisible && noOfMembersVisible.length === 0) {
             errMsg = Config.localize('errMsg.membersAndPartyAllHidden');
         }
@@ -564,7 +563,7 @@ export class PartyCruncher {
             canvas.tokens.releaseAll();
 
             // select all the member tokens, and use the first one as the target
-            involvedTokens.memberTokens.forEach(t => t.control({ releaseOthers: false }));
+            involvedTokens.memberTokens.forEach(t => t.control({releaseOthers: false}));
             return canvas.tokens.controlled[0];
 
         } else { // EXPLODE
@@ -580,30 +579,51 @@ export class PartyCruncher {
      */
     static #crunchParty(involvedTokens, targetToken, partyNo) {
 
+        // If JB2A_DnD5e is installed, play the animation
+        if (optionalDependenciesAvailable.includes('JB2A_DnD5e')) {
+            let animationPath = Config.setting('animation4Crunch');
+            let audioPath = Config.setting('playAudio4Crunch') ? Config.setting('audioFile4Crunch').trim() : "";
+            if (animationPath) {
+                Logger.debug(`playing CRUNCH animation from JB2A_DnD5e: ${animationPath}`);
+                new Sequence()
+                    .effect()
+                    .file(animationPath)
+                    .atLocation(targetToken)
+                    .scaleToObject(4)
+                    .randomRotation()
+                    .sound()
+                    .file(audioPath)
+                    .play();
+            }
+        }
+
         // Everybody now, gather at the target!!
         involvedTokens.memberTokens
-            .forEach(function(t) {
-                t.document.update({ x: targetToken.document.x, y: targetToken.document.y },{animate: false}); // {animate: false} is the key to preventing tokens to "float" across the scene, revealing any hidden secrets ;-)
+            .forEach(function (t) {
+                t.document.update({x: targetToken.document.x, y: targetToken.document.y}, {animate: false}); // {animate: false} is the key to preventing tokens to "float" across the scene, revealing any hidden secrets ;-)
             });
 
         // Do the same for the party token
-        involvedTokens.partyToken.document.update({ x: targetToken.document.x, y: targetToken.document.y },{animate: false});
+        involvedTokens.partyToken.document.update({
+            x: targetToken.document.x,
+            y: targetToken.document.y
+        }, {animate: false});
 
         // Show party token
         involvedTokens.partyToken.document.update({hidden: false});
 
         // Hide member tokens, and move them to a far-away corner of the map
         involvedTokens.memberTokens
-            .forEach(function(t) {
+            .forEach(function (t) {
                 t.document.update(
-                        { hidden: true });
+                    {hidden: true});
                 t.document.update(
-                        { x: 0, y: 0 },
-                        { animate: false });
+                    {x: 0, y: 0},
+                    {animate: false});
             });
 
         // Set new focus on group token, then we're done here!
-        involvedTokens.partyToken.control({ releaseOthers: true });
+        involvedTokens.partyToken.control({releaseOthers: true});
     }
 
     /**
@@ -619,8 +639,26 @@ export class PartyCruncher {
 
         // Everybody now, swarm out!!
         let counter = 0;
+
+        // If JB2A_DnD5e is installed, play the animation
+        if (optionalDependenciesAvailable.includes('JB2A_DnD5e')) {
+            let animationPath = Config.setting('animation4Explode');
+            let audioPath = Config.setting('playAudio4Explode') ? Config.setting('audioFile4Explode').trim() : "";
+            if (animationPath) {
+                Logger.debug(`playing EXPLODE animation from JB2A_DnD5e: ${animationPath}`);
+                new Sequence()
+                    .effect()
+                    .file(animationPath)
+                    .atLocation(targetToken)
+                    .scaleToObject(4)
+                    .randomRotation()
+                    .sound()
+                        .file(audioPath)
+                    .play();
+            }
+        }
         involvedTokens.memberTokens
-            .forEach(function(t) {
+            .forEach(function (t) {
                 // position each token in an outward spiral around the origin (which is the party token)
                 let gridCellOffset = PartyCruncher.#calculateClockwiseSpiralingGridCellOffset(counter++);
                 Logger.debug(`[${t.name}]: gridCellOffset => ${gridCellOffset.x}, ${gridCellOffset.y}`);
@@ -630,32 +668,32 @@ export class PartyCruncher {
                 }
                 Logger.debug(`[${t.name}]: gridCellOffset => ${nextposition.x}, ${nextposition.y}`);
                 t.document.update(
-                        {
-                            // take your position
-                            x: nextposition.x,
-                            y: nextposition.y
-                        },
-                        {
-                            // And do NOT animate... AAAAArRGGGH!
-                            // Otherwise, tokens will be "floating" across the scene, revealing any hidden secrets ;-)
-                            animate: false
-                        });
+                    {
+                        // take your position
+                        x: nextposition.x,
+                        y: nextposition.y
+                    },
+                    {
+                        // And do NOT animate... AAAAArRGGGH!
+                        // Otherwise, tokens will be "floating" across the scene, revealing any hidden secrets ;-)
+                        animate: false
+                    });
                 t.document.update(
-                        {
-                            // show youselves
-                            hidden: false
-                        });
+                    {
+                        // show youselves
+                        hidden: false
+                    });
 
                 // select every member
-                t.control({ releaseOthers: false });
+                t.control({releaseOthers: false});
             });
 
         // Hide the party token and move it to a far-away corner of the map
         involvedTokens.partyToken.document.update(
-            { hidden: true } );
+            {hidden: true});
         involvedTokens.partyToken.document.update(
-            { x: 0, y: 0 },
-            { animate: false });
+            {x: 0, y: 0},
+            {animate: false});
     }
 
     /**

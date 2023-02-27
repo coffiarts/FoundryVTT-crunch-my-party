@@ -13,10 +13,6 @@
         "name": "Gruppe #1 - Mitgliederliste",
         "hint": "Tokennamen aller Mitglieder von Gruppe #1 (durch Komma getrennt)."
       },
-      "partyTokenName1": {
-        "name": "Gruppe #1 - Gruppenname",
-        "hint": "Name des gemeinsamen Tokens von Gruppe #1."
-      },
       "memberTokenNames2": {
         "name": "Gruppe #2 - Mitgliederliste",
         "hint": "Tokennamen aller Mitglieder von Gruppe #2 (durch Komma getrennt)."
@@ -36,6 +32,30 @@
       "hideChatInfo": {
         "name": "Modulinfo im Chat ausblenden",
         "hint": "Blendet beim Start den Chat-Infotext zu diesem Modul wieder ein (zum Wiederanzeigen hier deaktivieren)."
+      },
+      "animation4Crunch": {
+        "name": "\"Crunch\"-Animation (optional)",
+        "hint": "Animation beim Verschmelzen Einzel-Tokens zum Gruppen-Token. Benötigt Zusatzmodul J2BA (siehe Readme)."
+      },
+      "playAudio4Crunch": {
+        "name": "Audiosignal bei \"Crunch\"?",
+        "hint": "Wenn aktiviert, so wird das nachfolgende Audio File abgespielt."
+      },
+      "audioFile4Crunch": {
+        "name": "Audiodatei bei \"Crunch\"",
+        "hint": "Audiodatei (relativer Pfad), die beim \"Crunch\" abgespielt wird."
+      },
+      "animation4Explode": {
+        "name": "\"Explode\"-Animation (optional)",
+        "hint": "Animation beim Trennen von Gruppen-Tokens in Einzel-Tokens. Benötigt Zusatzmodul J2BA (siehe Readme)."
+      },
+      "playAudio4Explode": {
+        "name": "Audiosignal bei \"Explode\"?",
+        "hint": "Wenn aktiviert, so wird das nachfolgende Audio File abgespielt."
+      },
+      "audioFile4Explode": {
+        "name": "Audiodatei bei \"Explode\"",
+        "hint": "Audiodatei (relativer Pfad), die beim \"Explode\" abgespielt wird."
       }
     },
     "chatInfoContent": {

@@ -36,6 +36,30 @@
       "hideChatInfo": {
         "name": "Hide module info in chat window",
         "hint": "Hides the info text about this module in the chat window on game start (deactivate this option to see it again)."
+      },
+      "animation4Crunch": {
+        "name": "\"Crunch\" animation (optional)",
+        "hint": "Animation to play when crunching single tokens into party token. Requires installation of J2BA (see Readme)."
+      },
+      "playAudio4Crunch": {
+        "name": "Play audio on \"Crunch\"?",
+        "hint": "Plays the audio file spedified below, if activated."
+      },
+      "audioFile4Crunch": {
+        "name": "Audio file on \"Crunch\"",
+        "hint": "Audio file (relative path) to be played on \"Crunch\"?"
+      },
+      "animation4Explode": {
+        "name": "\"Explode\" animation (optional)",
+        "hint": "Animation to play when exploding party token into single member tokens. Requires installation of J2BA (see Readme)."
+      },
+      "playAudio4Explode": {
+        "name": "Play audio on \"Explode\"?",
+        "hint": "Plays the audio file spedified below, if activated."
+      },
+      "audioFile4Explode": {
+        "name": "Audio file on \"Explode\"",
+        "hint": "Audio file (relative path) to be played on \"Explode\"?"
       }
     },
     "chatInfoContent": {

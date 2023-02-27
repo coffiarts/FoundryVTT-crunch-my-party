@@ -23,16 +23,16 @@
 
 - [What does it do ...](#what-does-it-do-)
 - [Changelog](#changelog)
+- [Recommended modules in combination with this one](#recommended-modules-in-combination-with-this-one)
 - [Upcoming features](#upcoming-features)
-- [Tech stuff](#tech-stuff)
-  * [Adjustable module settings (i.e. game settings)](#adjustable-module-settings--ie-game-settings-)
-  * [Control it by macro!](#control-it-by-macro-)
-  * [Compatibility and Dependencies](#compatibility-and-dependencies)
-
-  <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
+- [Adjustable module settings (i.e. game settings)](#adjustable-module-settings--ie-game-settings-)
+- [Control it by macro!](#control-it-by-macro-)
+- [Compatibility and Dependencies](#compatibility-and-dependencies)
+- [Credits](#credits)
+<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
 ## What does it do ...
-
+[TODO]
 
 ## Changelog
 <table style="border:0">
@@ -66,21 +66,26 @@
 </table>
 </details>
 
-## Upcoming features
-Feel free to follow the ["dev" branch on GitHub](https://github.com/coffiarts/FoundryVTT-crunch-my-party/tree/dev) to stay tuned: [https://github.com/coffiarts/FoundryVTT-crunch-my-party/tree/dev](https://github.com/coffiarts/FoundryVTT-crunch-my-party/tree/dev)
+## Recommended modules in combination with this one
+- [Hot Pan & Zoom!](https://github.com/coffiarts/FoundryVTT-hot-pan) by coffiarts: Keeps your players' canvas position and zoom in sync with your GM screen, especially usefull when toggling and finding groups 
+- [Jules&Ben's Animated Assets (JB2A)](https://github.com/Jules-Bens-Aa/JB2A_DnD5e) by Jules & Ben: Allows auto-playing of animations on toggling
 
+Presence of these modules is optional! If installed, ***Crunch my Party!*** will automatically detect and handle them. Just lean back and enjoy.
+
+## Upcoming features
 Some things I am *considering* to do (feedback welcome!):
 
 - `small`: some small feature
 - `big`: some big feature
 
-## Tech stuff
-### Adjustable module settings (i.e. game settings)
+Feel free to follow the ["dev" branch on GitHub](https://github.com/coffiarts/FoundryVTT-crunch-my-party/tree/dev) to stay tuned: [https://github.com/coffiarts/FoundryVTT-crunch-my-party/tree/dev](https://github.com/coffiarts/FoundryVTT-crunch-my-party/tree/dev)
+
+## Adjustable module settings (i.e. game settings)
 This screenshot shows the default values.
 
 <img src="src/crunch-my-party/artwork/cmp-settings.png" alt="crunch-my-party settings"/>
 
-### Control it by macro!
+## Control it by macro!
 Use the exposed `class MyModuleMacroAPI` - just like this, it's a no-brainer:
 
 <img src="src/crunch-my-party/artwork/cmp-macro-toggle.png" alt="crunch-my-party macro example"/>
@@ -90,5 +95,10 @@ Some more variants:
     // Toggle specifically on and off (pretty obvious)
     MyModuleMacroAPI.someFunction();
 
-### Compatibility and Dependencies
+## Compatibility and Dependencies
 - some dependencies
+
+## Credits
+- [Jules & Ben](https://www.patreon.com/JB2A) for their magnificient Animated Assets module
+- [Navadaux](https://freesound.org/people/Navadaux/) for thankfully providing the "explode" sound on [freesound.org](https://freesound.org/people/Navadaux/sounds/547172/) under [CCO 1.0 license](http://creativecommons.org/publicdomain/zero/1.0/) 
+- [Glaneur de sons](https://freesound.org/people/Glaneur%20de%20sons/) for thankfully providing the "crunch" sound on [freesound.org](https://freesound.org/people/Glaneur%20de%20sons/sounds/420616/) under [CC BY 3.0 license](https://creativecommons.org/licenses/by/3.0/)
