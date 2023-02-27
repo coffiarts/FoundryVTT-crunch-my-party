@@ -100,5 +100,7 @@ Some more variants:
 
 ## Credits
 - [Jules & Ben](https://www.patreon.com/JB2A) for their magnificient Animated Assets module
-- [Navadaux](https://freesound.org/people/Navadaux/) for thankfully providing the "explode" sound on [freesound.org](https://freesound.org/people/Navadaux/sounds/547172/) under [CCO 1.0 license](http://creativecommons.org/publicdomain/zero/1.0/) 
-- [Glaneur de sons](https://freesound.org/people/Glaneur%20de%20sons/) for thankfully providing the "crunch" sound on [freesound.org](https://freesound.org/people/Glaneur%20de%20sons/sounds/420616/) under [CC BY 3.0 license](https://creativecommons.org/licenses/by/3.0/)
+- [Navadaux](https://freesound.org/people/Navadaux/) for thankfully providing the "explode" sound on [freesound.org](https://freesound.org/people/Navadaux/sounds/547172/), licensed under [CCO 1.0 license](http://creativecommons.org/publicdomain/zero/1.0/) 
+- [Glaneur de sons](https://freesound.org/people/Glaneur%20de%20sons/) for thankfully providing the "crunch" sound on [freesound.org](https://freesound.org/people/Glaneur%20de%20sons/sounds/420616/), licensed under [CC BY 3.0 license](https://creativecommons.org/licenses/by/3.0/)
+- Video background music: ***"Circus of Freaks"*** by [Kevin MacLeod (incompetech.com)](https://incompetech.com/music/royalty-free/music.html)
+  Licensed under [CC BY 4.0 License](http://creativecommons.org/licenses/by/4.0/)
