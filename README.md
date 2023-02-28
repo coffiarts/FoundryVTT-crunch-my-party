@@ -24,11 +24,12 @@
 - [What does it do ...](#what-does-it-do-)
 - [Changelog](#changelog)
 - [Recommended modules in combination with this one](#recommended-modules-in-combination-with-this-one)
-- [Upcoming features](#upcoming-features)
 - [Adjustable module settings (i.e. game settings)](#adjustable-module-settings--ie-game-settings-)
 - [Control it by macro!](#control-it-by-macro-)
 - [Compatibility and Dependencies](#compatibility-and-dependencies)
+- [Upcoming features](#upcoming-features)
 - [Credits](#credits)
+
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
 ## What does it do ...
@@ -72,14 +73,6 @@
 
 Presence of these modules is optional! If installed, ***Crunch my Party!*** will automatically detect and handle them. Just lean back and enjoy.
 
-## Upcoming features
-Some things I am *considering* to do (feedback welcome!):
-
-- `small`: some small feature
-- `big`: some big feature
-
-Feel free to follow the ["dev" branch on GitHub](https://github.com/coffiarts/FoundryVTT-crunch-my-party/tree/dev) to stay tuned: [https://github.com/coffiarts/FoundryVTT-crunch-my-party/tree/dev](https://github.com/coffiarts/FoundryVTT-crunch-my-party/tree/dev)
-
 ## Adjustable module settings (i.e. game settings)
 This screenshot shows the default values.
 
@@ -96,7 +89,17 @@ Some more variants:
     MyModuleMacroAPI.someFunction();
 
 ## Compatibility and Dependencies
-- some dependencies
+- Tested with Foundry VTT 10 in world system "dsa5" / "tde5" (The Dark Eye). But I consider it system-agnostic.
+- Some **optional* dependencies are listed further above. I warmly recommend to use them, but it's... well... **optional**.
+- The "EXPLODE" animation of large groups appears somewhat slow. That is known and by design. I had to build in a 200 msec timeout between every two tokens, to improve stability (no better solution found yet).
+
+## Upcoming features
+Some things I am *considering* to do (feedback welcome!):
+
+- `small`: some small feature
+- `big`: some big feature
+
+Feel free to follow the ["dev" branch on GitHub](https://github.com/coffiarts/FoundryVTT-crunch-my-party/tree/dev) to stay tuned: [https://github.com/coffiarts/FoundryVTT-crunch-my-party/tree/dev](https://github.com/coffiarts/FoundryVTT-crunch-my-party/tree/dev)
 
 ## Credits
 - [Jules & Ben](https://www.patreon.com/JB2A) for their magnificient Animated Assets module

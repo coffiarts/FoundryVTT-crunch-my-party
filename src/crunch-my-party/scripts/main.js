@@ -388,7 +388,7 @@ export class PartyCruncher {
         // For anyone interested: The max number is a hard limit (thus hard-coded)!
         // It is due to the problem of having to calculate "outward spiraling" spawn positions
         // around the party token on EXPLODE.
-        // See #calculateClockwiseSpiralingGridCellOffset() for details, if you're really into such brain-busting math stuff - as I am NOT :-D
+        // See #getMovementPathToExplodePosition() for details, if you're really into such brain-busting math stuff - as I am NOT :-D
         if (names.memberTokenNames.length > 25) {
             throw new Error(
                 // Error: groupAndMembersIntersect => Names must not exist both as member and as group.
@@ -598,7 +598,7 @@ export class PartyCruncher {
         }
 
         // Everybody now, gather at the target!!
-        involvedTokens.memberTokens
+        involvedTokens.memberTokens.reverse()
             .forEach(function (t) {
                 t.document.update({x: targetToken.document.x, y: targetToken.document.y}, {animate: false}); // {animate: false} is the key to preventing tokens to "float" across the scene, revealing any hidden secrets ;-)
             });
@@ -622,6 +622,8 @@ export class PartyCruncher {
                     {animate: false});
             });
 
+        involvedTokens.memberTokens.reverse();
+
         // Set new focus on group token, then we're done here!
         involvedTokens.partyToken.control({releaseOthers: true});
     }
@@ -632,13 +634,14 @@ export class PartyCruncher {
      * @param targetToken - Here this is always the party token itself, providing the anchor point for the member tokens
      * @param partyNo
      */
-    static #explodeParty(involvedTokens, targetToken, partyNo) {
+    static async #explodeParty(involvedTokens, targetToken, partyNo) {
+
+        if (!canvas.ready) return false;
+        const tokenLayer = canvas.activeLayer;
+        if (!(tokenLayer instanceof TokenLayer)) return false;
 
         // Release any currently active tokens
         canvas.tokens.releaseAll();
-
-        // Everybody now, swarm out!!
-        let counter = 0;
 
         // If JB2A_DnD5e is installed, play the animation
         if (optionalDependenciesAvailable.includes('JB2A_DnD5e')) {
@@ -653,42 +656,58 @@ export class PartyCruncher {
                     .scaleToObject(4)
                     .randomRotation()
                     .sound()
-                        .file(audioPath)
+                    .file(audioPath)
                     .play();
             }
         }
-        involvedTokens.memberTokens
-            .forEach(function (t) {
-                // position each token in an outward spiral around the origin (which is the party token)
-                let gridCellOffset = PartyCruncher.#calculateClockwiseSpiralingGridCellOffset(counter++);
-                Logger.debug(`[${t.name}]: gridCellOffset => ${gridCellOffset.x}, ${gridCellOffset.y}`);
-                let nextposition = {
-                    x: targetToken.document.x + gridCellOffset.x * canvas.grid.size,
-                    y: targetToken.document.y + gridCellOffset.y * canvas.grid.size
-                }
-                Logger.debug(`[${t.name}]: gridCellOffset => ${nextposition.x}, ${nextposition.y}`);
-                t.document.update(
-                    {
-                        // take your position
-                        x: nextposition.x,
-                        y: nextposition.y
-                    },
-                    {
-                        // And do NOT animate... AAAAArRGGGH!
-                        // Otherwise, tokens will be "floating" across the scene, revealing any hidden secrets ;-)
-                        animate: false
-                    });
-                t.document.update(
-                    {
-                        // show youselves
-                        hidden: false
-                    });
 
-                // select every member
-                t.control({releaseOthers: false});
-            });
+        // Everybody now, swarm out!!
+        let tokenCounter = 0;
 
-        // Hide the party token and move it to a far-away corner of the map
+        for (const memberToken of involvedTokens.memberTokens) {
+
+            // Teleport to the origin - and wait for it to complete before proceeding!
+            // Otherwise, our tokens would end up anywhere random on the way!
+            await this.#teleportToken(memberToken, targetToken);
+
+            // Now show yourself!
+            memberToken.document.update({hidden: false});
+
+            // Set selection onto the token.
+            // Otherwise, movement by moveMany below won't have any effec
+            memberToken.control({releaseOthers: true});
+
+            // Position each token along an "outward spiral" around the origin (which is the party token)
+            let movementPath = PartyCruncher.#getMovementPathToExplodePosition(tokenCounter++);
+            Logger.debug(`[${memberToken.name}]: movementPath =>`, movementPath);
+
+            // Detect directions of this token's movement
+            let xdir = (movementPath.x >= 0) ? 1 : -1;
+            let ydir = (movementPath.y >= 0) ? 1 : -1;
+            Logger.debug('xdir, ydir', xdir, ydir);
+
+            let safetyCount = 0;
+
+            for (let x = 0; x !== movementPath.x && safetyCount++ < 10; x += xdir) {
+                // take one step along movementPath.x
+                await this.#moveTokenByOneStep(tokenLayer, xdir, 0, memberToken);
+                await Config.sleep(200);
+            }
+            for (let y = 0; y !== movementPath.y && safetyCount++ < 10; y += ydir) {
+                // take one step along movementPath.y
+                await this.#moveTokenByOneStep(tokenLayer, 0, ydir, memberToken);
+                await Config.sleep(200);
+            }
+        }
+
+        // Now we need to loop over all members once more to select them all
+        // If we had done this within the first loop, together with the moving, the tokens movements
+        // would interfere with each others cumulatively.
+        for (const memberToken of involvedTokens.memberTokens) {
+            memberToken.control({releaseOthers: false});
+        }
+
+        // Finally, hide the party token and move it to a far-away corner of the map
         involvedTokens.partyToken.document.update(
             {hidden: true});
         involvedTokens.partyToken.document.update(
@@ -696,34 +715,60 @@ export class PartyCruncher {
             {animate: false});
     }
 
+    static async #teleportToken(token, target) {
+        return new Promise( resolve => {
+            resolve(
+                token.document.update(
+                {
+                    // take your position
+                    x: target.x,
+                    y: target.y
+                },
+                {
+                    // And do NOT animate... AAAAArRGGGH!
+                    // Otherwise, tokens will be "floating" across the scene, revealing any hidden secrets ;-)
+                    animate: false
+                })
+            );
+        });
+    }
+
     /**
-     * Calculates clockwise "outwads-spiraling" offsets in grid cell coordinates, relative to a given origin in the center (0, 0).
+     *
+     * @param tokenLayer
+     * @param x
+     * @param y
+     * @param token
+     * @returns {Promise<unknown>}
+     */
+    static async #moveTokenByOneStep(tokenLayer, x, y, token) {
+        return new Promise( resolve => {
+            Logger.debug('tokenLayer, x, y, token.name', tokenLayer, x, y, token.name);
+            resolve(tokenLayer.moveMany(
+                {dx: x, dy: y, rotate: false, ids: token.id}));
+        });
+    }
+
+    /**
+     * Calculates clockwise "outwards-spiraling" offsets in grid cell coordinates, relative to a given origin in the center (0, 0).
      * Normally, we'd need some brains here (for a change). Reals experts (which I am NOT one of them), would do
      * this with fancy "spiraling matrix maths", like this crazy stuff here:
      * https://stackoverflow.com/questions/3706219/algorithm-for-iterating-over-an-outward-spiral-on-a-discrete-2d-grid-from-the-or
      * As I just don't get that (and as I am tooo lazy anyway).
-     * In addition, I don't want a real spiral, bit rather a custom pattern.
-     * So I'll just do it the hard-coded way, fixing the maximum of 25 positions available in hard-coded arrays! :)
+     * In addition, I don't want a real spiral, but rather a custom pattern.
+     * So I'll just do it the unelegant way, fixing the maximum of 25 movement paths to 25 fixed positions in hard-coded arrays! :)
      * @param counter
      */
-    static #calculateClockwiseSpiralingGridCellOffset(counter) {
-        let xOffsets =
-            [
-                0, // this is the origin
-                0, 1, 0, -1, 1, 1, -1, -1, // this is the inner "ring" of 8 positions
-                -1, 0, 1, 2, 2, 2, 2, 2, 1, 0, -1, -2, -2, -2, -2, -2 // the outer "ring" with additional 16 positions
-            ];
-        let yOffsets =
-            [
-                0, // this is the origin
-                -1, 0, 1, 0, -1, 1, 1, -1,  // this is the inner "ring" of 8 positions
-                -2, -2, -2, -2, -1, 0, 1, 2, 2, 2, 2, 2, 1, 0, -1, -2 // the outer "ring" with additional 16 positions
-            ];
-
-        return {
-            x: xOffsets[counter],
-            y: yOffsets[counter]
-        }
+    static #getMovementPathToExplodePosition(counter) {
+        let movementVector = [
+            {x: 0, y: 0}, // this is the origin
+            // now the inner "ring" of 8 positions
+            {x: 0, y: -1}, {x: 1, y: 0}, {x: 0, y: 1}, {x: -1, y: 0}, {x: 1, y: -1}, {x: 1, y: 1}, {x: -1, y: 1}, {x: -1, y: -1},
+            // and the outer "ring" with additional 16 positions
+            {x: -1, y: -2}, {x: 0, y: -2}, {x: 1, y: -2}, {x: 2, y: -2}, {x: 2, y: -1}, {x: 2, y: 0}, {x: 2, y: 1}, {x: 2, y: 2},
+            {x: 1, y: 2}, {x: 0, y: 2}, {x: -1, y: 2}, {x: -2, y: 2}, {x: -2, y: 1}, {x: -2, y: 0}, {x: -2, y: -1}, {x: -2, y: -2}
+        ];
+        return movementVector[counter];
     }
 
     static async #promptForPartyTokenName(partyNo) {

@@ -114,5 +114,8 @@ export class Config {
         return game.i18n.format(`${Config.data.modID}.${key}`, data);
     }
 
-
+    static async sleep(msec) {
+        Logger.debug(`Waiting for ${msec} msec. Zzzzzz....`)
+        return new Promise(resolve => setTimeout(resolve, msec));
+    }
 }
