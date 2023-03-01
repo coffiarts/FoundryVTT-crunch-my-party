@@ -3,7 +3,7 @@
   <tr>
     <td><img src="src/crunch-my-party/artwork/cmp-logo.png" alt="Hot Pan & Zoom! Logo"/></td>
     <td>
-        <p style="color:red"><strong>This is still an absolute alpha development - handle with care!</strong></p>
+        <p style="color:red"><strong>Still in alpha development - handle with care!</strong></p>
         <p style="color:#da6502">
           Easily collapse arbitrary groups of scene tokens (representing parties) into an easy-to-use single "party token", and vice versa. Manage up to 5 separate parties with up to 25 members each!
         </p>
@@ -47,12 +47,12 @@
         <th colspan="3" style="text-align: left">Latest Version</th>
     </tr>
     <tr>
-        <td>xxx</td>
-        <td>YYYY-MM-DD</td>
+        <td>Pre-Release 0.0.2-alpha</td>
+        <td>2023-03-01</td>
         <td>
             <ul>
-                <li><b>Change topic:</b><br/>
-                    Description</li>
+                <li><b>Pre-Release:</b><br/>
+                    Still in alpha development - handle with care!
             </ul>
         </td>
     </tr>
