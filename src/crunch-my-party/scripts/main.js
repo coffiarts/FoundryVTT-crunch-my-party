@@ -472,7 +472,7 @@ export class PartyCruncher {
     }
 
     /**
-     * Stores token group configurations, passed as parameters, to the game settings
+     * Stores token group configurations, passed as parameters, as game settings
      * @param partyNo
      * @param namesAsCommaSeparatedStrings memberTokenNames and partyTokenName values
      */
@@ -668,7 +668,7 @@ export class PartyCruncher {
 
         // Everybody now, gather at the target!!
         // Note that we're reversing the order temporarily, because this is visually much nicer (especially with large groups).
-        // It processes outer tokens first and inner onces last.
+        // It processes outer tokens first and inner ones last.
         for (const t of involvedTokens.memberTokens.reverse()) {
             // Teleport to the origin - and wait for it to complete before proceeding!
             // Otherwise, our tokens would end up anywhere random on the way!
@@ -817,13 +817,14 @@ export class PartyCruncher {
     }
 
     /**
-     * Calculates clockwise "outwards-spiraling" offsets in grid cell coordinates, relative to a given origin in the center (0, 0).
-     * Normally, we'd need some brains here (for a change). Reals experts (which I am NOT one of them), would do
-     * this with fancy "spiraling matrix maths", like this crazy stuff here:
+     * Delivers clockwise "outwards-spiraling" offsets in grid cell coordinates, relative to a given origin in the center (0, 0).
+     * Normally, we should use some brains here (for a change). Real experts (and I am NOT one of them), would do
+     * this with fancy "spiraling matrix maths", like this crazy stuff over here:
      * https://stackoverflow.com/questions/3706219/algorithm-for-iterating-over-an-outward-spiral-on-a-discrete-2d-grid-from-the-or
-     * As I just don't get that (and as I am tooo lazy anyway).
-     * In addition, I don't want a real spiral, but rather a custom pattern.
-     * So I'll just do it the unelegant way, fixing the maximum of 25 movement paths to 25 fixed positions in hard-coded arrays! :)
+     * But I just don't get that (and as I am tooo lazy anyway).
+     * Also, I don't want a real spiral, but rather a custom pattern.
+     * So I'll just do it the unelegant way, fixing the maximum of 25 movement paths to 25 fixed positions in a hard-coded array!
+     * Quite dull, isn't it? :)
      * @param counter
      */
     static #getMovementPathToExplodePosition(counter) {
