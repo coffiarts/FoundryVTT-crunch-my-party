@@ -36,7 +36,8 @@
 [TODO]
 
 ## Known restrictions
-- Does NOT work with token names that contain commas (as the comma is used as delimiter for token names when storing your selection in the user preferences). If many people rely on commas in names, I'll consider making the delimiter configurable (see "Upcoming features")
+- Does currently NOT work with token names that contain commas (as the comma is used as delimiter for token names when storing your selection in the user preferences). If many people rely on commas in names, I'll consider making the delimiter configurable (see "Upcoming features")
+- Always wait for any crunch/explode actions to finish, before selecting and/or moving any other tokens in the scene. If you do so, it's probably not a big issue, but it could lead to unexpected interference among token's movement and position.
 - The "EXPLODE" animation of large groups appears somewhat slow. That is known and by design. I had to build in a 200 msec timeout between every two tokens, to improve stability (no better solution found yet).
 
 ## Changelog
@@ -104,7 +105,7 @@ Things I am **considering** to do in the future (given proper demand for it - fe
 Feel free to follow the ["dev" branch on GitHub](https://github.com/coffiarts/FoundryVTT-crunch-my-party/tree/dev) to stay tuned: [https://github.com/coffiarts/FoundryVTT-crunch-my-party/tree/dev](https://github.com/coffiarts/FoundryVTT-crunch-my-party/tree/dev)
 
 ## Credits
-- [Jules & Ben](https://www.patreon.com/JB2A) for their magnificient Animated Assets module
+- [Jules & Ben](https://www.patreon.com/JB2A) for their magnificient [Animated Assets](https://github.com/Jules-Bens-Aa/JB2A_DnD5e) module (see Recommended Dependencies)
 - [Navadaux](https://freesound.org/people/Navadaux/) for thankfully providing the "explode" sound on [freesound.org](https://freesound.org/people/Navadaux/sounds/547172/), licensed under [CCO 1.0 license](http://creativecommons.org/publicdomain/zero/1.0/) 
 - [Glaneur de sons](https://freesound.org/people/Glaneur%20de%20sons/) for thankfully providing the "crunch" sound on [freesound.org](https://freesound.org/people/Glaneur%20de%20sons/sounds/420616/), licensed under [CC BY 3.0 license](https://creativecommons.org/licenses/by/3.0/)
 - Video background music: ***"Circus of Freaks"*** by [Kevin MacLeod (incompetech.com)](https://incompetech.com/music/royalty-free/music.html)

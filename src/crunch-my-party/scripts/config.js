@@ -18,6 +18,7 @@ export class Config {
         modDescription: MOD_DESCRIPTION,
         modlink: MOD_LINK
     };
+    static NO_AUDIO_FILE = '../modules/crunch-my-party/audio/audio_null.wav';
 
     static init() {
 
@@ -71,12 +72,9 @@ export class Config {
 
             // Special treatment for the generic "party settings": Use ony localization key for all
             let localizeKey = key;
-            Logger.debug('localizeKey', localizeKey);
             const isPartySetting = (key.startsWith('memberTokenNames') || key.startsWith('partyTokenName'));
-            Logger.debug('isPartySetting', isPartySetting, key);
             if (isPartySetting) {
                 localizeKey = localizeKey.replace(/\d+/, '#'); // maps any setting like partyTokenName2 to partyTokenName#
-                Logger.debug('localizeKey', localizeKey);
             }
 
             let name = Config.localize(`setting.${localizeKey}.name`);
@@ -86,7 +84,6 @@ export class Config {
             if (isPartySetting) {
                 name = name.replace('#', `#${key.match(/\d+/)}`);
                 hint = hint.replace('#', `#${key.match(/\d+/)}`);
-                Logger.debug('name, hint', name, hint);
             }
             game.settings.register(
                 Config.data.modID, key, {

@@ -109,12 +109,12 @@ export class PartyCruncher {
     /**
      * Public method for usage in macros: Toggle existing party between CRUNCH and EXPLODE
      * @param partyNo
-     * @param useHotPan - toggles "Hot Pan & Zoom!", if it is available (auto-focussing players' scene views onto the party).
+     * @param useHotPanIfAvailable - toggles "Hot Pan & Zoom!", if it is available (auto-focussing players' scene views onto the party).
      * @returns {Promise<void>}
      */
-    static async toggleParty(partyNo = 1, useHotPan = false) {
+    static async toggleParty(partyNo = 1, useHotPanIfAvailable = true) {
 
-        Logger.info(`TOGGLE - partyNo: #${partyNo}, useHotPan: ${useHotPan} ...`);
+        Logger.info(`TOGGLE - partyNo: #${partyNo}, useHotPan: ${useHotPanIfAvailable} ...`);
 
         const instance = PartyCruncher.#getInstance(partyNo);
 
@@ -150,15 +150,15 @@ export class PartyCruncher {
             let targetToken = instance.#getTarget(requiredAction, involvedTokens, partyNo);
             Logger.debug(`target token: [${targetToken.name}]`);
             canvas.tokens.releaseAll();
-            if (useHotPan && optionalDependenciesAvailable.includes('hot-pan')) {
-                Logger.debug(`switching HotPan ON (useHotPan: ${useHotPan}`);
+            if (useHotPanIfAvailable && optionalDependenciesAvailable.includes('hot-pan')) {
+                Logger.debug(`switching HotPan ON (useHotPan: ${useHotPanIfAvailable})`);
                 HotPan.switchOn(true); // true means: silentMode (no UI message)
             }
             targetToken.control({releaseOthers: true})
             canvas.animatePan(targetToken.getCenter(targetToken.x, targetToken.y));
-            if (useHotPan && optionalDependenciesAvailable.includes('hot-pan')) {
+            if (useHotPanIfAvailable && optionalDependenciesAvailable.includes('hot-pan')) {
                 setTimeout(function () {
-                    Logger.debug(`switching HotPan BACK (useHotPan: ${useHotPan}`);
+                    Logger.debug(`switching HotPan BACK (useHotPan: ${useHotPanIfAvailable})`);
                     HotPan.switchBack(true); // true means: silentMode (no UI message)
                 }, 1000);
             }
@@ -243,10 +243,10 @@ export class PartyCruncher {
      * Public method for usage in macros: Select all member tokens of a given party in the scene.
      * The new target token depends on whether party is crunched or exploded (auto-detected).
      * @param partyNo
-     * @param useHotPan - toggles "Hot Pan & Zoom!", if it is available (auto-focussing players' scene views onto the party)*/
-    static findParty(partyNo, useHotPan = false) {
+     * @param useHotPanIfAvailable - toggles "Hot Pan & Zoom!", if it is available (autofocussing players' scene views onto the party)*/
+    static findParty(partyNo, useHotPanIfAvailable = true) {
 
-        Logger.debug(`FIND - partyNo: ${partyNo}, useHotPan: ${useHotPan} ...`);
+        Logger.debug(`FIND - partyNo: ${partyNo}, useHotPan: ${useHotPanIfAvailable} ...`);
 
         const instance = PartyCruncher.#getInstance(partyNo);
 
@@ -266,8 +266,8 @@ export class PartyCruncher {
         // ==================================================================================================
         // Step 3 - Finally... just FIND it!
         // ==================================================================================================
-        if (useHotPan && optionalDependenciesAvailable.includes('hot-pan')) {
-            Logger.debug(`switching HotPan ON (useHotPan: ${useHotPan}`);
+        if (useHotPanIfAvailable && optionalDependenciesAvailable.includes('hot-pan')) {
+            Logger.debug(`switching HotPan ON (useHotPan: ${useHotPanIfAvailable})`);
             HotPan.switchOn(true); // true means: silentMode (no UI message)
         }
 
@@ -284,9 +284,9 @@ export class PartyCruncher {
             canvas.animatePan(involvedTokens.partyToken.getCenter(involvedTokens.partyToken.x, involvedTokens.partyToken.y));
         }
 
-        if (useHotPan && optionalDependenciesAvailable.includes('hot-pan')) {
+        if (useHotPanIfAvailable && optionalDependenciesAvailable.includes('hot-pan')) {
             setTimeout(function () {
-                Logger.debug(`switching HotPan BACK (useHotPan: ${useHotPan}`);
+                Logger.debug(`switching HotPan BACK (useHotPan: ${useHotPanIfAvailable})`);
                 HotPan.switchBack(true); // true means: silentMode (no UI message)
             }, 1000);
         }
@@ -600,7 +600,7 @@ export class PartyCruncher {
         // If JB2A_DnD5e is installed, play the animation
         if (optionalDependenciesAvailable.includes('JB2A_DnD5e')) {
             let animationPath = Config.setting('animation4Crunch');
-            let audioPath = Config.setting('playAudio4Crunch') ? Config.setting('audioFile4Crunch').trim() : "";
+            let audioPath = Config.setting('playAudio4Crunch') ? Config.setting('audioFile4Crunch').trim() : Config.NO_AUDIO_FILE;
             if (animationPath) {
                 Logger.debug(`playing CRUNCH animation from JB2A_DnD5e: ${animationPath}`);
                 new Sequence()
@@ -609,8 +609,7 @@ export class PartyCruncher {
                     .atLocation(targetToken)
                     .scaleToObject(4)
                     .randomRotation()
-                    .sound()
-                    .file(audioPath)
+                    .sound().file(audioPath)
                     .play();
             }
         }
@@ -625,7 +624,7 @@ export class PartyCruncher {
         }
 
         // Do the same for the party token (still invisible)
-        this.#teleportToken(involvedTokens.partyToken, targetToken.position);
+        await this.#teleportToken(involvedTokens.partyToken, targetToken.position);
 
         // Reveal the party token
         involvedTokens.partyToken.document.update({hidden: false});
@@ -634,7 +633,7 @@ export class PartyCruncher {
         for (const t of involvedTokens.memberTokens) {
             t.document.update(
                 {hidden: true});
-            this.#teleportToken(t, {_x:0, _y:0});
+            await this.#teleportToken(t, {_x:0, _y:0});
         }
         // Don't forget to set back memberToken order
         involvedTokens.memberTokens.reverse();
@@ -661,7 +660,7 @@ export class PartyCruncher {
         // If JB2A_DnD5e is installed, play the animation
         if (optionalDependenciesAvailable.includes('JB2A_DnD5e')) {
             let animationPath = Config.setting('animation4Explode');
-            let audioPath = Config.setting('playAudio4Explode') ? Config.setting('audioFile4Explode').trim() : "";
+            let audioPath = Config.setting('playAudio4Explode') ? Config.setting('audioFile4Explode').trim() : Config.NO_AUDIO_FILE;
             if (animationPath) {
                 Logger.debug(`playing EXPLODE animation from JB2A_DnD5e: ${animationPath}`);
                 new Sequence()
@@ -670,8 +669,7 @@ export class PartyCruncher {
                     .atLocation(targetToken)
                     .scaleToObject(4)
                     .randomRotation()
-                    .sound()
-                    .file(audioPath)
+                    .sound().file(audioPath)
                     .play();
             }
         }
@@ -684,6 +682,9 @@ export class PartyCruncher {
             // Teleport to the partyToken's current position (=origin) - and wait for it to complete!
             // Otherwise, our tokens would end up anywhere random on their way!
             await this.#teleportToken(memberToken, targetToken.position);
+
+            // Hide the party token
+            involvedTokens.partyToken.document.update({hidden: true});
 
             // Now show yourself!
             memberToken.document.update({hidden: false});
@@ -722,9 +723,10 @@ export class PartyCruncher {
             memberToken.control({releaseOthers: false});
         }
 
-        // Finally, hide the party token and move it to a far-away corner of the map
-        involvedTokens.partyToken.document.update(
-            {hidden: true});
+        // Hide the party token
+        involvedTokens.partyToken.document.update({hidden: true});
+
+        // Finally, move the party token to a far-away corner of the map
         await this.#teleportToken(involvedTokens.partyToken, {_x:0, _y:0});
     }
 
