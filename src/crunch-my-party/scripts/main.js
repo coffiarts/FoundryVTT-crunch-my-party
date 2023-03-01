@@ -577,7 +577,10 @@ export class PartyCruncher {
      * @param targetToken - Here this is the one member selected, providing the new position of the party token
      * @param partyNo
      */
-    static #crunchParty(involvedTokens, targetToken, partyNo) {
+    static async #crunchParty(involvedTokens, targetToken, partyNo) {
+
+        // Release any currently active tokens
+        canvas.tokens.releaseAll();
 
         // If JB2A_DnD5e is installed, play the animation
         if (optionalDependenciesAvailable.includes('JB2A_DnD5e')) {
@@ -598,30 +601,27 @@ export class PartyCruncher {
         }
 
         // Everybody now, gather at the target!!
-        involvedTokens.memberTokens.reverse()
-            .forEach(function (t) {
-                t.document.update({x: targetToken.document.x, y: targetToken.document.y}, {animate: false}); // {animate: false} is the key to preventing tokens to "float" across the scene, revealing any hidden secrets ;-)
-            });
+        // Note that we're reversing the order temporarily, because this is visually much nicer (especially with large groups).
+        // It processes outer tokens first and inner onces last.
+        for (const t of involvedTokens.memberTokens.reverse()) {
+            // Teleport to the origin - and wait for it to complete before proceeding!
+            // Otherwise, our tokens would end up anywhere random on the way!
+            this.#teleportToken(t, targetToken.position);
+        }
 
-        // Do the same for the party token
-        involvedTokens.partyToken.document.update({
-            x: targetToken.document.x,
-            y: targetToken.document.y
-        }, {animate: false});
+        // Do the same for the party token (still invisible)
+        this.#teleportToken(involvedTokens.partyToken, targetToken.position);
 
-        // Show party token
+        // Reveal the party token
         involvedTokens.partyToken.document.update({hidden: false});
 
-        // Hide member tokens, and move them to a far-away corner of the map
-        involvedTokens.memberTokens
-            .forEach(function (t) {
-                t.document.update(
-                    {hidden: true});
-                t.document.update(
-                    {x: 0, y: 0},
-                    {animate: false});
-            });
-
+        // Hide member tokens, and move them once again, this time to a far-away corner of the map
+        for (const t of involvedTokens.memberTokens) {
+            t.document.update(
+                {hidden: true});
+            this.#teleportToken(t, {_x:0, _y:0});
+        }
+        // Don't forget to set back memberToken order
         involvedTokens.memberTokens.reverse();
 
         // Set new focus on group token, then we're done here!
@@ -666,15 +666,15 @@ export class PartyCruncher {
 
         for (const memberToken of involvedTokens.memberTokens) {
 
-            // Teleport to the origin - and wait for it to complete before proceeding!
-            // Otherwise, our tokens would end up anywhere random on the way!
-            await this.#teleportToken(memberToken, targetToken);
+            // Teleport to the partyToken's current position (=origin) - and wait for it to complete!
+            // Otherwise, our tokens would end up anywhere random on their way!
+            await this.#teleportToken(memberToken, targetToken.position);
 
             // Now show yourself!
             memberToken.document.update({hidden: false});
 
             // Set selection onto the token.
-            // Otherwise, movement by moveMany below won't have any effec
+            // Otherwise, movement by moveMany below won't have any effect
             memberToken.control({releaseOthers: true});
 
             // Position each token along an "outward spiral" around the origin (which is the party token)
@@ -690,12 +690,12 @@ export class PartyCruncher {
 
             for (let x = 0; x !== movementPath.x && safetyCount++ < 10; x += xdir) {
                 // take one step along movementPath.x
-                await this.#moveTokenByOneStep(tokenLayer, xdir, 0, memberToken);
+                await this.#pushTokenByOneStep(tokenLayer, xdir, 0, memberToken);
                 await Config.sleep(200);
             }
             for (let y = 0; y !== movementPath.y && safetyCount++ < 10; y += ydir) {
                 // take one step along movementPath.y
-                await this.#moveTokenByOneStep(tokenLayer, 0, ydir, memberToken);
+                await this.#pushTokenByOneStep(tokenLayer, 0, ydir, memberToken);
                 await Config.sleep(200);
             }
         }
@@ -710,19 +710,17 @@ export class PartyCruncher {
         // Finally, hide the party token and move it to a far-away corner of the map
         involvedTokens.partyToken.document.update(
             {hidden: true});
-        involvedTokens.partyToken.document.update(
-            {x: 0, y: 0},
-            {animate: false});
+        await this.#teleportToken(involvedTokens.partyToken, {_x:0, _y:0});
     }
 
-    static async #teleportToken(token, target) {
+    static async #teleportToken(token, targetPosition) {
         return new Promise( resolve => {
             resolve(
                 token.document.update(
                 {
                     // take your position
-                    x: target.x,
-                    y: target.y
+                    x: targetPosition._x,
+                    y: targetPosition._y
                 },
                 {
                     // And do NOT animate... AAAAArRGGGH!
@@ -741,7 +739,7 @@ export class PartyCruncher {
      * @param token
      * @returns {Promise<unknown>}
      */
-    static async #moveTokenByOneStep(tokenLayer, x, y, token) {
+    static async #pushTokenByOneStep(tokenLayer, x, y, token) {
         return new Promise( resolve => {
             Logger.debug('tokenLayer, x, y, token.name', tokenLayer, x, y, token.name);
             resolve(tokenLayer.moveMany(

@@ -35,6 +35,10 @@
 ## What does it do ...
 [TODO]
 
+## Known restrictions
+- Does NOT work with token names that contain commas (as the comma is used as delimiter for token names when storing your selection in the user preferences). If many people rely on commas in names, I'll consider making the delimiter configurable (see "Upcoming features")
+- The "EXPLODE" animation of large groups appears somewhat slow. That is known and by design. I had to build in a 200 msec timeout between every two tokens, to improve stability (no better solution found yet).
+
 ## Changelog
 <table style="border:0">
     <tr>
@@ -90,14 +94,12 @@ Some more variants:
 
 ## Compatibility and Dependencies
 - Tested with Foundry VTT 10 in world system "dsa5" / "tde5" (The Dark Eye). But I consider it system-agnostic.
-- Some **optional* dependencies are listed further above. I warmly recommend to use them, but it's... well... **optional**.
-- The "EXPLODE" animation of large groups appears somewhat slow. That is known and by design. I had to build in a 200 msec timeout between every two tokens, to improve stability (no better solution found yet).
+- No hard dependencies, but some warmly recommended **optional* 3rd-party modules are listed further above (see there to understand why I recommend them).
 
 ## Upcoming features
-Some things I am *considering* to do (feedback welcome!):
+Things I am **considering** to do in the future (given proper demand for it - feedback welcome!):
 
-- `small`: some small feature
-- `big`: some big feature
+- `small`: support commas in token names (by making the delimiter character configurable via user prefs)
 
 Feel free to follow the ["dev" branch on GitHub](https://github.com/coffiarts/FoundryVTT-crunch-my-party/tree/dev) to stay tuned: [https://github.com/coffiarts/FoundryVTT-crunch-my-party/tree/dev](https://github.com/coffiarts/FoundryVTT-crunch-my-party/tree/dev)
 
