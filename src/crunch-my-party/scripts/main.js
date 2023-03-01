@@ -620,6 +620,12 @@ export class PartyCruncher {
     #getTarget(requiredAction, involvedTokens) {
         if (requiredAction === PartyCruncher.Actions.CRUNCH) {
 
+            if (canvas.tokens.controlled.length === 1 && involvedTokens.memberTokens.includes(canvas.tokens.controlled[0])) {
+                // If only one of the members is selected, use it as the target
+                // That way the GM can decide where to place the party token
+                return canvas.tokens.controlled[0];
+            }
+
             // Release any currently active tokens
             canvas.tokens.releaseAll();
 
