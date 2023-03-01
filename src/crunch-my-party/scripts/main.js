@@ -81,13 +81,23 @@ async function scanForOptionalDependencies() {
  * Public class for accessing this module through macro code
  */
 export class PartyCruncher {
-
     /**
      * Call this from the browser console if you're uncertain if the module has been initialized correctly
      * Syntax: PartyCruncher.healthCheck()
      */
     static healthCheck() {
         alert(`Module '${Config.data.modTitle}' says: '${ready2play ? `I am alive!` : `I am NOT ready - something went wrong:(`}'`);
+    }
+
+    static #isBusy;
+
+    static isBusy() {
+        return this.#isBusy;
+    }
+
+    static setBusy(isBusy) {
+        this.#isBusy = isBusy;
+        Logger.debug((isBusy) ? "BUSY!" : "NOT BUSY")
     }
 
     static #instances = [null, null, null];
@@ -114,11 +124,18 @@ export class PartyCruncher {
      */
     static async toggleParty(partyNo = 1, useHotPanIfAvailable = true) {
 
+        if (PartyCruncher.isBusy()) {
+            Logger.warn(false, Config.localize("errMsg.pleaseWaitStillBusy"));
+            return;
+        }
+
         Logger.info(`TOGGLE - partyNo: #${partyNo}, useHotPan: ${useHotPanIfAvailable} ...`);
 
         const instance = PartyCruncher.#getInstance(partyNo);
 
         try {
+
+            PartyCruncher.setBusy(true);
 
             // ==================================================================================================
             // Step 1 - Parse & validate party definitions from module settings
@@ -169,19 +186,22 @@ export class PartyCruncher {
             switch (requiredAction) {
                 case PartyCruncher.Actions.CRUNCH:
                     Logger.info(`Crunching party ${partyNo} ...`);
-                    instance.#crunchParty(involvedTokens, targetToken, partyNo);
+                    await instance.#crunchParty(involvedTokens, targetToken, partyNo);
                     break;
                 case PartyCruncher.Actions.EXPLODE:
                     Logger.info(`Exploding party ${partyNo} ...`);
-                    instance.#explodeParty(involvedTokens, targetToken, partyNo);
+                    await instance.#explodeParty(involvedTokens, targetToken, partyNo);
             }
 
         } catch (e) {
             Logger.error(false, e); // This will also print an error msg to the screen
             return;
+        } finally {
+            PartyCruncher.setBusy(false);
         }
 
         Logger.info(`... Toggling of party #${partyNo} complete.`);
+        PartyCruncher.setBusy(false);
     }
 
     /**
@@ -192,11 +212,18 @@ export class PartyCruncher {
      */
     static async groupParty(partyNo = 1) {
 
+        if (PartyCruncher.isBusy()) {
+            Logger.warn(false, Config.localize("errMsg.pleaseWaitStillBusy"));
+            return;
+        }
+
         Logger.debug(`GROUP - partyNo: ${partyNo} ...`);
 
         const instance = PartyCruncher.#getInstance(partyNo);
 
         try {
+
+            PartyCruncher.setBusy(true);
 
             // ==================================================================================================
             // Step 1 - Parse & validate current token selection
@@ -234,9 +261,12 @@ export class PartyCruncher {
         } catch (e) {
             Logger.error(false, e); // This will also print an error msg to the screen
             return;
+        } finally {
+            PartyCruncher.setBusy(false);
         }
 
         Logger.info(`... Grouping of party #${partyNo} complete.`);
+        PartyCruncher.setBusy(false);
     }
 
     /**
@@ -246,52 +276,68 @@ export class PartyCruncher {
      * @param useHotPanIfAvailable - toggles "Hot Pan & Zoom!", if it is available (autofocussing players' scene views onto the party)*/
     static findParty(partyNo, useHotPanIfAvailable = true) {
 
+        if (PartyCruncher.isBusy()) {
+            Logger.warn(false, Config.localize("errMsg.pleaseWaitStillBusy"));
+            return;
+        }
+
         Logger.debug(`FIND - partyNo: ${partyNo}, useHotPan: ${useHotPanIfAvailable} ...`);
 
         const instance = PartyCruncher.#getInstance(partyNo);
 
-        // ==================================================================================================
-        // Step 1 - Parse & validate party definitions from module settings
-        // ==================================================================================================
-        // grab raw input values from user prefs
-        let validatedNames = instance.#collectValidatedTokenNamesFromModuleSettings(partyNo);
-        Logger.debug(validatedNames);
+        try {
 
-        // ==================================================================================================
-        // Step 2 - gather and validate all the involved tokens from current scene
-        // ==================================================================================================
-        let involvedTokens = instance.#collectInvolvedTokens(validatedNames, partyNo);
-        Logger.debug(involvedTokens);
+            PartyCruncher.setBusy(true);
 
-        // ==================================================================================================
-        // Step 3 - Finally... just FIND it!
-        // ==================================================================================================
-        if (useHotPanIfAvailable && optionalDependenciesAvailable.includes('hot-pan')) {
-            Logger.debug(`switching HotPan ON (useHotPan: ${useHotPanIfAvailable})`);
-            HotPan.switchOn(true); // true means: silentMode (no UI message)
-        }
+            // ==================================================================================================
+            // Step 1 - Parse & validate party definitions from module settings
+            // ==================================================================================================
+            // grab raw input values from user prefs
+            let validatedNames = instance.#collectValidatedTokenNamesFromModuleSettings(partyNo);
+            Logger.debug(validatedNames);
 
-        // Decide what to focus on, depending on the chosen party's status in the scene:
-        // Either The party token (if crunched) or one of its member tokens (if exploded)
-        if (involvedTokens.partyToken.document.hidden) { // i.e. EXPLODED
-            canvas.tokens.releaseAll();
-            for (let token of involvedTokens.memberTokens) {
-                token.control({releaseOthers: false});
+            // ==================================================================================================
+            // Step 2 - gather and validate all the involved tokens from current scene
+            // ==================================================================================================
+            let involvedTokens = instance.#collectInvolvedTokens(validatedNames, partyNo);
+            Logger.debug(involvedTokens);
+
+            // ==================================================================================================
+            // Step 3 - Finally... just FIND it!
+            // ==================================================================================================
+            if (useHotPanIfAvailable && optionalDependenciesAvailable.includes('hot-pan')) {
+                Logger.debug(`switching HotPan ON (useHotPan: ${useHotPanIfAvailable})`);
+                HotPan.switchOn(true); // true means: silentMode (no UI message)
             }
-            canvas.animatePan(involvedTokens.memberTokens[0].getCenter(involvedTokens.memberTokens[0].x, involvedTokens.memberTokens[0].y));
-        } else { // i.e. CRUNCHED
-            involvedTokens.partyToken.control({releaseOthers: true});
-            canvas.animatePan(involvedTokens.partyToken.getCenter(involvedTokens.partyToken.x, involvedTokens.partyToken.y));
-        }
 
-        if (useHotPanIfAvailable && optionalDependenciesAvailable.includes('hot-pan')) {
-            setTimeout(function () {
-                Logger.debug(`switching HotPan BACK (useHotPan: ${useHotPanIfAvailable})`);
-                HotPan.switchBack(true); // true means: silentMode (no UI message)
-            }, 1000);
+            // Decide what to focus on, depending on the chosen party's status in the scene:
+            // Either The party token (if crunched) or one of its member tokens (if exploded)
+            if (involvedTokens.partyToken.document.hidden) { // i.e. EXPLODED
+                canvas.tokens.releaseAll();
+                for (let token of involvedTokens.memberTokens) {
+                    token.control({releaseOthers: false});
+                }
+                canvas.animatePan(involvedTokens.memberTokens[0].getCenter(involvedTokens.memberTokens[0].x, involvedTokens.memberTokens[0].y));
+            } else { // i.e. CRUNCHED
+                involvedTokens.partyToken.control({releaseOthers: true});
+                canvas.animatePan(involvedTokens.partyToken.getCenter(involvedTokens.partyToken.x, involvedTokens.partyToken.y));
+            }
+
+            if (useHotPanIfAvailable && optionalDependenciesAvailable.includes('hot-pan')) {
+                setTimeout(function () {
+                    Logger.debug(`switching HotPan BACK (useHotPan: ${useHotPanIfAvailable})`);
+                    HotPan.switchBack(true); // true means: silentMode (no UI message)
+                }, 1000);
+            }
+        } catch (e) {
+            Logger.error(false, e); // This will also print an error msg to the screen
+            return;
+        } finally {
+            PartyCruncher.setBusy(false);
         }
 
         Logger.debug(`FINDing of party #${partyNo} complete.`);
+        PartyCruncher.setBusy(false);
     }
 
     #collectValidatedTokenNamesFromModuleSettings(partyNo) {

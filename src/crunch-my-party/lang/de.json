@@ -63,7 +63,8 @@
       "tokensMissingInScene": "Folgende Tokens fehlen in der Szene",
       "cannotDetermineAction": "Aktion kann nicht ermittelt werden!",
       "membersAndPartyBothVisible": "Gruppenmitglieder und Gruppen-Token können nicht gleichzeitig sichtbar (aktiviert) sein.",
-      "membersAndPartyAllHidden": "Keiner der involvierten Tokens ist aktuell sichtbar (aktiviert)."
+      "membersAndPartyAllHidden": "Keiner der involvierten Tokens ist aktuell sichtbar (aktiviert).",
+      "pleaseWaitStillBusy": "Bitte warten, bis laufende Aktion beendet ist ..."
     },
     "promptForPartyTokenNameTitle": "Wie heisst der Gruppentoken?",
     "promptForPartyTokenNameText": "Name des Gruppen-Tokens, der diese Auswahl repräsentieren soll<br/>(muss unter exakt diesem Namen in der Szene existieren!)",

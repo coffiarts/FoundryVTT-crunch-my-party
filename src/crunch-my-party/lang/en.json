@@ -63,7 +63,8 @@
       "tokensMissingInScene": "Tokens missing in scene",
       "cannotDetermineAction": "Cannot determine action!",
       "membersAndPartyBothVisible": "Party members and party token can't be visible (active) at the same time.",
-      "membersAndPartyAllHidden": "None of the involved tokens are currently visible (active)."
+      "membersAndPartyAllHidden": "None of the involved tokens are currently visible (active).",
+      "pleaseWaitStillBusy": "Please wait for current action to complete ..."
     },
     "promptForPartyTokenNameTitle": "What's the name of the party token?",
     "promptForPartyTokenNameText": "Name of the party token that shall represent selected members<br/>(must exist with this exact name in current scene!)",
