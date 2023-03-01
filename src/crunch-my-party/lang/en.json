@@ -11,7 +11,7 @@
       },
       "memberTokenNames#": {
         "name": "Party # - List of members",
-        "hint": "Names of all tokens belonging to Party 1 (comma-separated)."
+        "hint": "Names of all tokens belonging to Party # (comma-separated)."
       },
       "partyTokenName#": {
         "name": "Party # - Party name",
@@ -49,7 +49,7 @@
     "chatInfoContent": {
       "title": "Crunch My Party!",
       "text1": "\"Once there were three little goblins... eager to form a PARTY!<br/>So here's their story...\"",
-      "text2": "Easily collapse arbitrary groups of scene tokens (representing parties) into an easy-to-use single \"party token\", and vice versa. Manage up to 3 separate parties with up to 25 members each!",
+      "text2": "Easily collapse arbitrary groups of scene tokens (representing parties) into an easy-to-use single \"party token\", and vice versa. Manage up to 5 separate parties with up to 25 members each!",
       "text3": "Please refer to the various module preferences under game settings. Find even more details on GitHub",
       "footer": "This chat card will only be shown once. Activate once more in the module settings if needed."
     },

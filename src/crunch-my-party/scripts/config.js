@@ -4,8 +4,10 @@ import {Logger} from './logger.js';
 const MOD_ID = "crunch-my-party";
 const MOD_PATH = `/modules/${MOD_ID}`;
 const MOD_TITLE = "Crunch My Party!";
-const MOD_DESCRIPTION = "The perfect party token utility: Easily collapse arbitrary groups of scene tokens (representing parties) into an easy-to-use single \"party token\", and vice versa. Manage up to 3 separate parties with up to 25 members each!";
+const MOD_DESCRIPTION = "The perfect party token utility: Easily collapse arbitrary groups of scene tokens (representing parties) into an easy-to-use single \"party token\", and vice versa. Manage up to 5 separate parties with up to 25 members each!";
 const MOD_LINK = `https://github.com/coffiarts/FoundryVTT-${MOD_ID}`;
+
+const NO_OF_PARTIES = 5;
 
 export class Config {
     static data = {
@@ -31,56 +33,36 @@ export class Config {
                     }
                 }
             },
-            memberTokenNames1: {
-                scope: 'world', config: true, type: String, default: "",
-            },
-            partyTokenName1: {
-                scope: 'world', config: true, type: String, default: "",
-            },
-            memberTokenNames2: {
-                scope: 'world', config: true, type: String, default: "",
-            },
-            partyTokenName2: {
-                scope: 'world', config: true, type: String, default: "",
-            },
-            memberTokenNames3: {
-                scope: 'world', config: true, type: String, default: "",
-            },
-            partyTokenName3: {
-                scope: 'world', config: true, type: String, default: "",
-            },
-            memberTokenNames4: {
-                scope: 'world', config: true, type: String, default: "",
-            },
-            partyTokenName4: {
-                scope: 'world', config: true, type: String, default: "",
-            },
-            memberTokenNames5: {
-                scope: 'world', config: true, type: String, default: "",
-            },
-            partyTokenName5: {
-                scope: 'world', config: true, type: String, default: "",
-            },
             animation4Crunch: {
-                scope: 'world', config: true, type: String, default: "jb2a.extras.tmfx.inpulse.circle.02.normal",
+                scope: 'world', config: true, type: String, default: "jb2a.extras.tmfx.inpulse.circle.02.normal"
             },
             playAudio4Crunch: {
-                scope: 'world', config: true, type: Boolean, default: true,
+                scope: 'world', config: true, type: Boolean, default: true
             },
             audioFile4Crunch: {
-                scope: 'world', config: true, type: String, default: "../modules/crunch-my-party/audio/audio_crunch.wav",
+                scope: 'world', config: true, type: String, default: "../modules/crunch-my-party/audio/audio_crunch.wav"
             },
             animation4Explode: {
-                scope: 'world', config: true, type: String, default: "jb2a.extras.tmfx.outpulse.circle.02.normal",
+                scope: 'world', config: true, type: String, default: "jb2a.extras.tmfx.outpulse.circle.02.normal"
             },
             playAudio4Explode: {
-                scope: 'world', config: true, type: Boolean, default: true,
+                scope: 'world', config: true, type: Boolean, default: true
             },
             audioFile4Explode: {
-                scope: 'world', config: true, type: String, default: "../modules/crunch-my-party/audio/audio_explode.wav",
-            },
-
+                scope: 'world', config: true, type: String, default: "../modules/crunch-my-party/audio/audio_explode.wav"
+            }
         };
+
+        // Special treatment for generic "party settings" (dynamically add as many individual entries as defined by NO_OF_PARTIES)
+        for(let index = 1; index <= NO_OF_PARTIES; index++) {
+            data[`memberTokenNames${index}`] = {
+                scope: 'world', config: true, type: String, default: ""
+            };
+            data[`partyTokenName${index}`] = {
+                scope: 'world', config: true, type: String, default: ""
+            }
+        }
+
         Config.registerSettings(data);
     }
 
@@ -93,7 +75,7 @@ export class Config {
             const isPartySetting = (key.startsWith('memberTokenNames') || key.startsWith('partyTokenName'));
             Logger.debug('isPartySetting', isPartySetting, key);
             if (isPartySetting) {
-                localizeKey = localizeKey.replace(/\d/, '#'); // maps any setting like partyTokenName2 to partyTokenName#
+                localizeKey = localizeKey.replace(/\d+/, '#'); // maps any setting like partyTokenName2 to partyTokenName#
                 Logger.debug('localizeKey', localizeKey);
             }
 
@@ -102,8 +84,8 @@ export class Config {
 
             // Another special treatment for the generic "party settings": replace "#" by index number
             if (isPartySetting) {
-                name = name.replace('#', `#${key.substring(key.length-1)}`);
-                hint = hint.replace('#', `#${key.substring(key.length-1)}`);
+                name = name.replace('#', `#${key.match(/\d+/)}`);
+                hint = hint.replace('#', `#${key.match(/\d+/)}`);
                 Logger.debug('name, hint', name, hint);
             }
             game.settings.register(
