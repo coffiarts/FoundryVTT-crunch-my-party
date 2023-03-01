@@ -92,7 +92,7 @@ export class Config {
                     ...data
                 }
             );
-            Logger.info("Game Setting registered:", name);
+            Logger.debug("Game Setting registered:", name);
         });
     }
 
