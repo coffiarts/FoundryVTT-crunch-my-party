@@ -49,6 +49,18 @@ export class Config {
             partyTokenName3: {
                 scope: 'world', config: true, type: String, default: "",
             },
+            memberTokenNames4: {
+                scope: 'world', config: true, type: String, default: "",
+            },
+            partyTokenName4: {
+                scope: 'world', config: true, type: String, default: "",
+            },
+            memberTokenNames5: {
+                scope: 'world', config: true, type: String, default: "",
+            },
+            partyTokenName5: {
+                scope: 'world', config: true, type: String, default: "",
+            },
             animation4Crunch: {
                 scope: 'world', config: true, type: String, default: "jb2a.extras.tmfx.inpulse.circle.02.normal",
             },
@@ -74,8 +86,26 @@ export class Config {
 
     static registerSettings(settingsData) {
         Object.entries(settingsData).forEach(([key, data]) => {
-            let name = Config.localize(`setting.${key}.name`);
-            let hint = Config.localize(`setting.${key}.hint`);
+
+            // Special treatment for the generic "party settings": Use ony localization key for all
+            let localizeKey = key;
+            Logger.debug('localizeKey', localizeKey);
+            const isPartySetting = (key.startsWith('memberTokenNames') || key.startsWith('partyTokenName'));
+            Logger.debug('isPartySetting', isPartySetting, key);
+            if (isPartySetting) {
+                localizeKey = localizeKey.replace(/\d/, '#'); // maps any setting like partyTokenName2 to partyTokenName#
+                Logger.debug('localizeKey', localizeKey);
+            }
+
+            let name = Config.localize(`setting.${localizeKey}.name`);
+            let hint = Config.localize(`setting.${localizeKey}.hint`);
+
+            // Another special treatment for the generic "party settings": replace "#" by index number
+            if (isPartySetting) {
+                name = name.replace('#', `#${key.substring(key.length-1)}`);
+                hint = hint.replace('#', `#${key.substring(key.length-1)}`);
+                Logger.debug('name, hint', name, hint);
+            }
             game.settings.register(
                 Config.data.modID, key, {
                     name: name,

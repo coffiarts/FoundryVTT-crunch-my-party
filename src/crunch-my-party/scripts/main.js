@@ -90,6 +90,15 @@ export class PartyCruncher {
         alert(`Module '${Config.data.modTitle}' says: '${ready2play ? `I am alive!` : `I am NOT ready - something went wrong:(`}'`);
     }
 
+    static #instances = [null, null, null];
+
+    static #getInstance(partNo) {
+        if (this.#instances[partNo] == null) {
+            this.#instances[partNo] = new PartyCruncher();
+        }
+        return this.#instances[partNo];
+    }
+
     static Actions = Object.freeze({
         CRUNCH: Symbol("CRUNCH"),
         EXPLODE: Symbol("EXPLODE"),
@@ -107,36 +116,38 @@ export class PartyCruncher {
 
         Logger.info(`TOGGLE - partyNo: #${partyNo}, useHotPan: ${useHotPan} ...`);
 
+        const instance = PartyCruncher.#getInstance(partyNo);
+
         try {
 
             // ==================================================================================================
             // Step 1 - Parse & validate party definitions from module settings
             // ==================================================================================================
             // grab raw input values from user prefs
-            let validatedNames = this.#collectValidatedTokenNamesFromModuleSettings(partyNo);
+            let validatedNames = instance.#collectValidatedTokenNamesFromModuleSettings(partyNo);
             Logger.debug(validatedNames);
 
             // ==================================================================================================
             // Step 2 - Update user prefs in module settings with the now cleaned lists
             // ==================================================================================================
-            this.#updateSettings(partyNo, validatedNames);
+            PartyCruncher.#updateSettings(partyNo, validatedNames);
 
             // ==================================================================================================
             // Step 3 - gather and validate all the involved tokens from current scene
             // ==================================================================================================
-            let involvedTokens = this.#collectInvolvedTokens(validatedNames, partyNo);
+            let involvedTokens = instance.#collectInvolvedTokens(validatedNames, partyNo);
             Logger.debug(involvedTokens);
 
             // ==================================================================================================
             // Step 4 - auto-determine the required action (CRUNCH or EXPLODE?)
             // ==================================================================================================
-            let requiredAction = this.#determineRequiredAction(involvedTokens, partyNo);
+            let requiredAction = instance.#determineRequiredAction(involvedTokens, partyNo);
             Logger.debug(`required action: ${requiredAction.toString()}`);
 
             // ==================================================================================================
             // Step 5 - auto-determine target token (depending on requiredAction), and focus on it
             // ==================================================================================================
-            let targetToken = this.#getTarget(requiredAction, involvedTokens, partyNo);
+            let targetToken = instance.#getTarget(requiredAction, involvedTokens, partyNo);
             Logger.debug(`target token: [${targetToken.name}]`);
             canvas.tokens.releaseAll();
             if (useHotPan && optionalDependenciesAvailable.includes('hot-pan')) {
@@ -156,13 +167,13 @@ export class PartyCruncher {
             // Step 6 - And finallyyyyyyy.... just DO IT!!
             // ==================================================================================================
             switch (requiredAction) {
-                case this.Actions.CRUNCH:
+                case PartyCruncher.Actions.CRUNCH:
                     Logger.info(`Crunching party ${partyNo} ...`);
-                    this.#crunchParty(involvedTokens, targetToken, partyNo);
+                    instance.#crunchParty(involvedTokens, targetToken, partyNo);
                     break;
-                case this.Actions.EXPLODE:
+                case PartyCruncher.Actions.EXPLODE:
                     Logger.info(`Exploding party ${partyNo} ...`);
-                    this.#explodeParty(involvedTokens, targetToken, partyNo);
+                    instance.#explodeParty(involvedTokens, targetToken, partyNo);
             }
 
         } catch (e) {
@@ -171,13 +182,6 @@ export class PartyCruncher {
         }
 
         Logger.info(`... Toggling of party #${partyNo} complete.`);
-    }
-
-    static #collectValidatedTokenNamesFromModuleSettings(partyNo) {
-        let memberTokenNamesString = Config.setting(`memberTokenNames${partyNo}`);
-        let partyTokenNameString = Config.setting(`partyTokenName${partyNo}`);
-        let namesFromSettings = this.#collectNamesFromStrings(partyNo, memberTokenNamesString, partyTokenNameString);
-        return this.#validateNames(partyNo, namesFromSettings);
     }
 
     /**
@@ -190,27 +194,29 @@ export class PartyCruncher {
 
         Logger.debug(`GROUP - partyNo: ${partyNo} ...`);
 
+        const instance = PartyCruncher.#getInstance(partyNo);
+
         try {
 
             // ==================================================================================================
             // Step 1 - Parse & validate current token selection
             // ==================================================================================================
             // grab names from all currently selected tokens
-            let namesFromSelection = this.#collectNamesFromTokenSelection();
+            let namesFromSelection = instance.#collectNamesFromTokenSelection();
             // ask the GM for the name of the party token to use
-            let partyTokenNameInput = await this.#promptForPartyTokenName(partyNo);
+            let partyTokenNameInput = await PartyCruncher.#promptForPartyTokenName(partyNo);
             if (partyTokenNameInput.cancelled) {
                 return;
             } else {
                 namesFromSelection.partyTokenNames = [partyTokenNameInput];
                 Logger.debug(`namesFromSelection for grouping party #${partyNo}:`, namesFromSelection);
             }
-            let validatedNames = this.#validateNames(partyNo, namesFromSelection);
+            let validatedNames = instance.#validateNames(partyNo, namesFromSelection);
 
             // ==================================================================================================
             // Step 2 - Update user prefs in module settings with detected names lists
             // ==================================================================================================
-            this.#updateSettings(partyNo, validatedNames);
+            PartyCruncher.#updateSettings(partyNo, validatedNames);
 
             // ==================================================================================================
             // Step 3 - Confirm in UI that group assignment was successful
@@ -242,17 +248,19 @@ export class PartyCruncher {
 
         Logger.debug(`FIND - partyNo: ${partyNo}, useHotPan: ${useHotPan} ...`);
 
+        const instance = PartyCruncher.#getInstance(partyNo);
+
         // ==================================================================================================
         // Step 1 - Parse & validate party definitions from module settings
         // ==================================================================================================
         // grab raw input values from user prefs
-        let validatedNames = this.#collectValidatedTokenNamesFromModuleSettings(partyNo);
+        let validatedNames = instance.#collectValidatedTokenNamesFromModuleSettings(partyNo);
         Logger.debug(validatedNames);
 
         // ==================================================================================================
         // Step 2 - gather and validate all the involved tokens from current scene
         // ==================================================================================================
-        let involvedTokens = this.#collectInvolvedTokens(validatedNames, partyNo);
+        let involvedTokens = instance.#collectInvolvedTokens(validatedNames, partyNo);
         Logger.debug(involvedTokens);
 
         // ==================================================================================================
@@ -286,6 +294,13 @@ export class PartyCruncher {
         Logger.debug(`FINDing of party #${partyNo} complete.`);
     }
 
+    #collectValidatedTokenNamesFromModuleSettings(partyNo) {
+        let memberTokenNamesString = Config.setting(`memberTokenNames${partyNo}`);
+        let partyTokenNameString = Config.setting(`partyTokenName${partyNo}`);
+        let namesFromSettings = this.#collectNamesFromStrings(partyNo, memberTokenNamesString, partyTokenNameString);
+        return this.#validateNames(partyNo, namesFromSettings);
+    }
+
     /**
      * Parse & split given list of token names from module settings.
      * Throw meaningful UI errors if anything isn't valid.
@@ -294,7 +309,7 @@ export class PartyCruncher {
      * @param partyTokenNameString
      * @returns {{partyTokenName: string[], memberTokenNames: string[]}}
      */
-    static #collectNamesFromStrings(partyNo = 1, memberTokenNamesString, partyTokenNameString) {
+    #collectNamesFromStrings(partyNo = 1, memberTokenNamesString, partyTokenNameString) {
 
         // Parse & split given list of party names from module settings
         let memberTokenNames = memberTokenNamesString
@@ -315,7 +330,7 @@ export class PartyCruncher {
         };
     }
 
-    static #collectNamesFromTokenSelection() {
+    #collectNamesFromTokenSelection() {
         let tokenNamesFound = Array.from(canvas.tokens.controlled.map(t => t.name.toLowerCase()));
         if (tokenNamesFound.length < 2) {
             // TODO localize
@@ -335,7 +350,7 @@ export class PartyCruncher {
      * @param names
      * @returns {{partyTokenName: *, memberTokenNames: (*|any[])}}
      */
-    static #validateNames(partyNo = 1, names) {
+    #validateNames(partyNo = 1, names) {
 
         Logger.debug(names);
         let errMsg = "";
@@ -428,7 +443,7 @@ export class PartyCruncher {
      * @param partyNo
      * @returns {{partyToken: any, memberTokens: *[]}}
      */
-    static #collectInvolvedTokens(names, partyNo = 1) {
+    #collectInvolvedTokens(names, partyNo = 1) {
 
         let errMsg = "";
 
@@ -475,7 +490,7 @@ export class PartyCruncher {
      * @param names
      * @returns tokensFound {*[]}
      */
-    static #collectTokensByNamesIfUnique(names) {
+    #collectTokensByNamesIfUnique(names) {
 
         let tokensFound = [];
         let errMsg = "";
@@ -518,7 +533,7 @@ export class PartyCruncher {
      * @param partyNo
      * @returns {symbol}
      */
-    static #determineRequiredAction(involvedTokens, partyNo) {
+    #determineRequiredAction(involvedTokens, partyNo) {
 
         let noOfMembersVisible = involvedTokens.memberTokens.filter(t => !t.document.hidden);
         let isPartyVisible = (!involvedTokens.partyToken.document.hidden);
@@ -548,7 +563,7 @@ export class PartyCruncher {
             throw new Error(errMsg);
         }
 
-        return (isPartyVisible) ? this.Actions.EXPLODE : this.Actions.CRUNCH;
+        return (isPartyVisible) ? PartyCruncher.Actions.EXPLODE : PartyCruncher.Actions.CRUNCH;
     }
 
     /**
@@ -556,8 +571,8 @@ export class PartyCruncher {
      * @param requiredAction
      * @param involvedTokens@param partyNo
      */
-    static #getTarget(requiredAction, involvedTokens) {
-        if (requiredAction === this.Actions.CRUNCH) {
+    #getTarget(requiredAction, involvedTokens) {
+        if (requiredAction === PartyCruncher.Actions.CRUNCH) {
 
             // Release any currently active tokens
             canvas.tokens.releaseAll();
@@ -577,7 +592,7 @@ export class PartyCruncher {
      * @param targetToken - Here this is the one member selected, providing the new position of the party token
      * @param partyNo
      */
-    static async #crunchParty(involvedTokens, targetToken, partyNo) {
+    async #crunchParty(involvedTokens, targetToken, partyNo) {
 
         // Release any currently active tokens
         canvas.tokens.releaseAll();
@@ -634,7 +649,7 @@ export class PartyCruncher {
      * @param targetToken - Here this is always the party token itself, providing the anchor point for the member tokens
      * @param partyNo
      */
-    static async #explodeParty(involvedTokens, targetToken, partyNo) {
+    async #explodeParty(involvedTokens, targetToken, partyNo) {
 
         if (!canvas.ready) return false;
         const tokenLayer = canvas.activeLayer;
@@ -713,7 +728,7 @@ export class PartyCruncher {
         await this.#teleportToken(involvedTokens.partyToken, {_x:0, _y:0});
     }
 
-    static async #teleportToken(token, targetPosition) {
+    async #teleportToken(token, targetPosition) {
         return new Promise( resolve => {
             resolve(
                 token.document.update(
@@ -739,7 +754,7 @@ export class PartyCruncher {
      * @param token
      * @returns {Promise<unknown>}
      */
-    static async #pushTokenByOneStep(tokenLayer, x, y, token) {
+    async #pushTokenByOneStep(tokenLayer, x, y, token) {
         return new Promise( resolve => {
             Logger.debug('tokenLayer, x, y, token.name', tokenLayer, x, y, token.name);
             resolve(tokenLayer.moveMany(

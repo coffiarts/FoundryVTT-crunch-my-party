@@ -9,25 +9,13 @@
         "name": "Debug-Modus",
         "hint": "Aktiviert das Debug Logging."
       },
-      "memberTokenNames1": {
-        "name": "Gruppe #1 - Mitgliederliste",
-        "hint": "Tokennamen aller Mitglieder von Gruppe #1 (durch Komma getrennt)."
+      "memberTokenNames#": {
+        "name": "Gruppe # - Mitgliederliste",
+        "hint": "Tokennamen aller Mitglieder von Gruppe # (durch Komma getrennt)."
       },
-      "memberTokenNames2": {
-        "name": "Gruppe #2 - Mitgliederliste",
-        "hint": "Tokennamen aller Mitglieder von Gruppe #2 (durch Komma getrennt)."
-      },
-      "partyTokenName2": {
-        "name": "Gruppe #2 - Gruppenname",
-        "hint": "Name des gemeinsamen Tokens von Gruppe #2."
-      },
-      "memberTokenNames3": {
-        "name": "Gruppe #3 - Mitgliederliste",
-        "hint": "Tokennamen aller Mitglieder von Gruppe #3 (durch Komma getrennt)."
-      },
-      "partyTokenName3": {
-        "name": "Gruppe #3 - Gruppenname",
-        "hint": "Name des gemeinsamen Tokens von Gruppe #3."
+      "partyTokenName#": {
+        "name": "Gruppe # - Gruppenname",
+        "hint": "Name des gemeinsamen Tokens von Gruppe #."
       },
       "hideChatInfo": {
         "name": "Modulinfo im Chat ausblenden",
