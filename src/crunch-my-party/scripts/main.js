@@ -753,12 +753,12 @@ export class PartyCruncher {
             for (let x = 0; x !== movementPath.x && safetyCount++ < 10; x += xdir) {
                 // take one step along movementPath.x
                 await this.#pushTokenByOneStep(tokenLayer, xdir, 0, memberToken);
-                // await Config.sleep(200);
+                await Config.sleep(200);
             }
             for (let y = 0; y !== movementPath.y && safetyCount++ < 10; y += ydir) {
                 // take one step along movementPath.y
                 await this.#pushTokenByOneStep(tokenLayer, 0, ydir, memberToken);
-                // await Config.sleep(200);
+                await Config.sleep(200);
             }
         }
 
