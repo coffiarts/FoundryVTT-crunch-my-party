@@ -62,7 +62,6 @@
       "notUniqueInScene": "is not unique in scene!",
       "tokensMissingInScene": "Tokens missing in scene",
       "cannotDetermineAction": "Cannot determine action!",
-      "membersAndPartyBothVisible": "Party members and party token can't be visible (active) at the same time.",
       "membersAndPartyAllHidden": "None of the involved tokens are currently visible (active).",
       "pleaseWaitStillBusy": "Please wait for current action to complete ..."
     },

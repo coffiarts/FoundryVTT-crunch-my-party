@@ -219,6 +219,10 @@ export class PartyCruncher {
 
         Logger.debug(`GROUP - partyNo: ${partyNo} ...`);
 
+        // Force activation of the Token Layer in the UI
+        // The following steps require token selection, which won't work with any other layer active
+        canvas.tokens.activate();
+
         const instance = PartyCruncher.#getInstance(partyNo);
 
         try {
@@ -586,18 +590,13 @@ export class PartyCruncher {
 
         let errMsg = "";
 
-        // Check1: Party members and party token can't be visible (active) at the same time.
-        if (isPartyVisible && noOfMembersVisible.length > 0) {
-            errMsg = Config.localize('errMsg.membersAndPartyBothVisible');
-        } else
-            // Check1: Party members and party token can't be visible (active) at the same time.
+        // Check: Either the party token or any of the member tokens need to be visible
         if (!isPartyVisible && noOfMembersVisible.length === 0) {
             errMsg = Config.localize('errMsg.membersAndPartyAllHidden');
         }
 
         if (errMsg) {
             errMsg =
-                // Error: Party members and party token can't be visible (active) at the same time.
                 Config.localize('errMsg.cannotDetermineAction') + ":<br/>" +
                 "<br/>" +
                 errMsg + ":<br/>" +
@@ -703,6 +702,11 @@ export class PartyCruncher {
     async #explodeParty(involvedTokens, targetToken, partyNo) {
 
         if (!canvas.ready) return false;
+
+        // Force activation of the Token Layer in the UI
+        // Otherwise, the moveMany() calls further below won't work
+        canvas.tokens.activate();
+
         const tokenLayer = canvas.activeLayer;
         if (!(tokenLayer instanceof TokenLayer)) return false;
 
