@@ -23,13 +23,13 @@
 - [What does it do ...](#what-does-it-do-)
 - [So how does it work ...](#so-how-does-it-work-)
     * [GROUP - Define a new party](#group---define-a-new-party)
-    * [TOGGLE - Collapse (crunch) and disassemble (explode) a party](#toggle---collapse--crunch--and-disassemble--explode--a-party)
+    * [TOGGLE - Crunch or explode a party](#toggle---crunch-or-explode-a-party)
     * [FIND - Jump to an already defined party in the scene](#find---jump-to-an-already-defined-party-in-the-scene)
 - [Known restrictions](#known-restrictions)
 - [Changelog](#changelog)
-- [Recommended modules in combination with this one](#recommended-modules-in-combination-with-this-one)
-- [Adjustable module settings (i.e. game settings)](#adjustable-module-settings--ie-game-settings-)
 - [Control it by macro!](#control-it-by-macro-)
+- [Adjustable module settings (i.e. game settings)](#adjustable-module-settings--ie-game-settings-)
+- [Recommended modules in combination with this one](#recommended-modules-in-combination-with-this-one)
 - [Compatibility and Dependencies](#compatibility-and-dependencies)
 - [Upcoming features](#upcoming-features)
 - [Credits](#credits)
@@ -57,18 +57,18 @@ The main steps, briefly explained:
 1. Create a custom token representing your party in "crunched" state
 2. Add that party token to the scene and disable it (remember its name in correct spelling)
 3. Select any tokens in the scene that should join your party
-4. Run the related "Group Party #x" macro (see section [Control it by macro!](#control-it-by-macro-)
+4. Run the related "Group Party #x" macro (see section [Control it by macro!](#control-it-by-macro-))
 5. Enter the name of the party token from step 1.
 
 => You're done. Your party is defined! HURRAY!!
 
-### TOGGLE - Collapse (crunch) and disassemble (explode) a party
-1. Run the related "Toggle Party #x" macro (see section [Control it by macro!](#control-it-by-macro-)
+### TOGGLE - Crunch or explode a party
+1. Run the related "Toggle Party #x" macro (see section [Control it by macro!](#control-it-by-macro-))
 
 => That's it. Your party should automatically switch between "crunched" and "exploded" state.
 
 ### FIND - Jump to an already defined party in the scene
-1. Run the related "Find Party #x" macro (see section [Control it by macro!](#control-it-by-macro-)
+1. Run the related "Find Party #x" macro (see section [Control it by macro!](#control-it-by-macro-))
 
 => That's it. Your canvas view moves automatically to the scene location of that party and automatically selects its tokens (be it in crunched or exploded state).
 
@@ -113,16 +113,6 @@ Easy, isn't it?
 </table>
 </details-->
 
-## Recommended modules in combination with this one
-- [Hot Pan & Zoom!](https://github.com/coffiarts/FoundryVTT-hot-pan) by coffiarts: Keeps your players' canvas position and zoom in sync with your GM screen, especially useful when toggling and finding groups 
-- [Jules&Ben's Animated Assets (JB2A)](https://github.com/Jules-Bens-Aa/JB2A_DnD5e) by Jules & Ben: Allows autoplaying of animations on toggling
-
-Presence of these modules is optional! If installed, ***Crunch my Party!*** will automatically detect and handle them. Just lean back and enjoy.
-
-## Adjustable module settings (i.e. game settings)
-
-<img src="src/crunch-my-party/artwork/cmp-settings.png" alt="crunch-my-party settings"/>
-
 ## Control it by macro!
 Use the exposed `class PartyCruncher` - just like this, it's a no-brainer:
 
@@ -153,6 +143,15 @@ The module comes already bundled with a predefined set of 5 macros per action (f
 <img src="src/crunch-my-party/artwork/cmp-macro-find-5.png" alt="Macro: Find Party #5" width="100"/>
 </p>
 
+## Adjustable module settings (i.e. game settings)
+
+<img src="src/crunch-my-party/artwork/cmp-settings.png" alt="crunch-my-party settings"/>
+
+## Recommended modules in combination with this one
+- [Hot Pan & Zoom!](https://github.com/coffiarts/FoundryVTT-hot-pan) by coffiarts: Keeps your players' canvas position and zoom in sync with your GM screen, especially useful when toggling and finding groups 
+- [Jules&Ben's Animated Assets (JB2A)](https://github.com/Jules-Bens-Aa/JB2A_DnD5e) by Jules & Ben: Allows autoplaying of animations on toggling
+
+Presence of these modules is optional! If installed, ***Crunch my Party!*** will automatically detect and handle them. Just lean back and enjoy.
 
 ## Compatibility and Dependencies
 - Tested with Foundry VTT 10 in world system "dsa5" / "tde5" (The Dark Eye). But I consider it system-agnostic.
