@@ -27,7 +27,7 @@
   * [TOGGLE - Crunch or explode a party](#toggle---crunch-or-explode-a-party)
   * [FIND - Jump to an already defined party in the scene](#find---jump-to-an-already-defined-party-in-the-scene)
 - [Known restrictions](#known-restrictions)
-- [Control it by macro!](#control-it-by-macro-)
+- [Control it by macro](#control-it-by-macro)
 - [Adjustable module settings (i.e. game settings)](#adjustable-module-settings--ie-game-settings-)
 - [Recommended modules in combination with this one](#recommended-modules-in-combination-with-this-one)
 - [Compatibility and Dependencies](#compatibility-and-dependencies)
@@ -86,18 +86,18 @@ The main steps, briefly explained:
 1. Create a custom token representing your party in "crunched" state
 2. Add that party token to the scene and disable it (remember its name in correct spelling)
 3. Select any tokens in the scene that should join your party
-4. Run the related "Group Party #x" macro (see section [Control it by macro!](#control-it-by-macro-))
+4. Run the related "Group Party #x" macro (see section [Control it by macro](#control-it-by-macro))
 5. Enter the name of the party token from step 1.
 
 => You're done. Your party is defined! HURRAY!!
 
 ### TOGGLE - Crunch or explode a party
-1. Run the related "Toggle Party #x" macro (see section [Control it by macro!](#control-it-by-macro-))
+1. Run the related "Toggle Party #x" macro (see section [Control it by macro](#control-it-by-macro))
 
 => That's it. Your party should automatically switch between "crunched" and "exploded" state.
 
 ### FIND - Jump to an already defined party in the scene
-1. Run the related "Find Party #x" macro (see section [Control it by macro!](#control-it-by-macro-))
+1. Run the related "Find Party #x" macro (see section [Control it by macro](#control-it-by-macro))
 
 => That's it. Your canvas view moves automatically to the scene location of that party and automatically selects its tokens (be it in crunched or exploded state).
 
@@ -112,7 +112,7 @@ Easy, isn't it?
 - Token names may not (currently) have ***commas*** (comma is used as delimiter for the token names list stored in user prefs). If many people should comply about it, I'll try to make the delimiter char configurable (see [Upcoming features](#upcoming-features))
 - The "EXPLODE" animation of large groups appears somewhat clumsy and slow. That is known and by design. I had to build in a 200 msec timeout between every two tokens, to improve stability (no better solution found yet). If you are eager to contribute, have a look at the [related disussion on Discord](https://discord.com/channels/170995199584108546/722559135371231352/1080590427012485211)
 
-## Control it by macro!
+## Control it by macro
 Use the exposed `class PartyCruncher` - just like this, it's a no-brainer:
 
     PartyCruncher.group(<partyNumber); // Assigns the selected list of tokens to another party tokens identified by a name you type in
@@ -165,7 +165,7 @@ Things I am *considering* to do in the future (given proper demand for it - feed
 Feel free to follow the ["dev" branch on GitHub](https://github.com/coffiarts/FoundryVTT-crunch-my-party/tree/dev) to stay tuned: [https://github.com/coffiarts/FoundryVTT-crunch-my-party/tree/dev](https://github.com/coffiarts/FoundryVTT-crunch-my-party/tree/dev)
 
 ## Credits
-- [Jules & Ben](https://www.patreon.com/JB2A) for their magnificient [Animated Assets](https://github.com/Jules-Bens-Aa/JB2A_DnD5e) module (see [Recommended modules](#recommended-modules-in-combination-with-this-one))
+- [Jules & Ben](https://www.patreon.com/JB2A) for their magnificient [Animated Assets](https://github.com/Jules-Bens-Aa/JB2A_DnD5e) module (see [Recommended modules in combination with this one](#recommended-modules-in-combination-with-this-one))
 - [Navadaux](https://freesound.org/people/Navadaux/) for the "explode" sound provided via [freesound.org](https://freesound.org/people/Navadaux/sounds/547172/), released under [CCO 1.0 license](http://creativecommons.org/publicdomain/zero/1.0/) 
 - [Glaneur de sons](https://freesound.org/people/Glaneur%20de%20sons/) for the "crunch" sound provided via [freesound.org](https://freesound.org/people/Glaneur%20de%20sons/sounds/420616/), released under [CC BY 3.0 license](https://creativecommons.org/licenses/by/3.0/)
 - Video background music: ***"Marty Gots a Plan"***, ***"Circus of Freaks"*** and ***"Sneaky Snitch"*** by the incredible, unbelievable, most-famous, soo-much-beloved [Kevin MacLeod (incompetech.com)](https://incompetech.com/music/royalty-free/music.html), released under [CC BY 4.0 License](http://creativecommons.org/licenses/by/4.0/)
