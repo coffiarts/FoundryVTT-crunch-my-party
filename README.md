@@ -21,12 +21,12 @@
 [<img src="src/crunch-my-party/artwork/cmp-video-thumb.png" alt="crunch-my-party - Video demo on youtube" width="600"/>](https://youtu.be/ix66vZ8A0OI)
 
 - [What does it do ...](#what-does-it-do-)
-- [So how does it work ...](#so-how-does-it-work-)
-    * [GROUP - Define a new party](#group---define-a-new-party)
-    * [TOGGLE - Crunch or explode a party](#toggle---crunch-or-explode-a-party)
-    * [FIND - Jump to an already defined party in the scene](#find---jump-to-an-already-defined-party-in-the-scene)
-- [Known restrictions](#known-restrictions)
 - [Changelog](#changelog)
+- [So how does it work ...](#so-how-does-it-work-)
+      * [GROUP - Define a new party](#group---define-a-new-party)
+      * [TOGGLE - Crunch or explode a party](#toggle---crunch-or-explode-a-party)
+      * [FIND - Jump to an already defined party in the scene](#find---jump-to-an-already-defined-party-in-the-scene)
+- [Known restrictions](#known-restrictions)
 - [Control it by macro!](#control-it-by-macro-)
 - [Adjustable module settings (i.e. game settings)](#adjustable-module-settings--ie-game-settings-)
 - [Recommended modules in combination with this one](#recommended-modules-in-combination-with-this-one)
@@ -47,6 +47,35 @@ Then you might know the tediousness of having to micromanage all those tokens...
 
 This module of mine is meant as a comfortable solution to it:
 Easily collapse arbitrary groups of scene tokens (representing parties) into an easy-to-use single "party token", and vice versa. Manage up to 5 separate parties with up to 25 members each!
+
+## Changelog
+<table style="border:0">
+    <tr>
+        <th colspan="3" style="text-align: left">Latest Version</th>
+    </tr>
+    <tr>
+        <td>Pre-Release 1.1.0</td>
+        <td>2023-03-05</td>
+        <td>
+            <b>First official release - Going out into the world!</b>
+        </td>
+    </tr>
+</table>
+
+<!--details><summary>Click to see older versions</summary>
+<table>
+    <tr>
+        <th>Release</th>
+        <th>Date</th>
+        <th>Changes</th>
+    </tr>
+    <tr>
+        <td>xyz</td>
+        <td>YYYY-MM-DD</td>
+        <td>Description</td>
+    </tr>
+</table>
+</details-->
 
 ## So how does it work ...
 At first, before experimenting by yourself, please have a look at the [Video demo on youtube](https://youtu.be/ix66vZ8A0OI)
@@ -81,37 +110,7 @@ Easy, isn't it?
 
 ## Known restrictions
 - Token names may not (currently) have ***commas*** (comma is used as delimiter for the token names list stored in user prefs). If many people should comply about it, I'll try to make the delimiter char configurable (see [Upcoming features](#upcoming-features))
-- Always wait for any crunch/explode actions to finish, before selecting and/or moving any other tokens in the scene. If you do so, it's probably not a big issue, but it could lead to unexpected interference among token's movement and position.
-- The "EXPLODE" animation of large groups appears somewhat slow. That is known and by design. I had to build in a 200 msec timeout between every two tokens, to improve stability (no better solution found yet).
-
-## Changelog
-<table style="border:0">
-    <tr>
-        <th colspan="3" style="text-align: left">Latest Version</th>
-    </tr>
-    <tr>
-        <td>Pre-Release 1.1.0</td>
-        <td>2023-03-05</td>
-        <td>
-            <b>First official release - Going out into the world!</b>
-        </td>
-    </tr>
-</table>
-
-<!--details><summary>Click to see older versions</summary>
-<table>
-    <tr>
-        <th>Release</th>
-        <th>Date</th>
-        <th>Changes</th>
-    </tr>
-    <tr>
-        <td>xyz</td>
-        <td>YYYY-MM-DD</td>
-        <td>Description</td>
-    </tr>
-</table>
-</details-->
+- The "EXPLODE" animation of large groups appears somewhat clumsy and slow. That is known and by design. I had to build in a 200 msec timeout between every two tokens, to improve stability (no better solution found yet). If you are eager to contribute, have a look at the [related disussion on Discord](https://discord.com/channels/170995199584108546/722559135371231352/1080590427012485211)
 
 ## Control it by macro!
 Use the exposed `class PartyCruncher` - just like this, it's a no-brainer:
@@ -161,7 +160,7 @@ Presence of these modules is optional! If installed, ***Crunch my Party!*** will
 Things I am *considering* to do in the future (given proper demand for it - feedback welcome!):
 
 - `small`: support commas in token names (i.e. making the delimiter character configurable via user prefs)
-- `small` to `?`: find a robust solution for the token movement on EXPLODE, which is currently still potentially unreliable (tokens stacking onto each other erratically). If you're eager to contribute, feel free to have a look at the related [discord discussion](https://discord.com/channels/170995199584108546/722559135371231352/1080590427012485211).   
+- `small` to `?`: find a robust solution for the token movement on EXPLODE, which is currently still potentially unreliable (tokens stacking onto each other erratically). If you're eager to contribute, feel free to have a look at the [related discussion on Discord](https://discord.com/channels/170995199584108546/722559135371231352/1080590427012485211).   
 
 Feel free to follow the ["dev" branch on GitHub](https://github.com/coffiarts/FoundryVTT-crunch-my-party/tree/dev) to stay tuned: [https://github.com/coffiarts/FoundryVTT-crunch-my-party/tree/dev](https://github.com/coffiarts/FoundryVTT-crunch-my-party/tree/dev)
 
