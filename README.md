@@ -21,6 +21,10 @@
 [<img src="src/crunch-my-party/artwork/cmp-video-thumb.png" alt="crunch-my-party - Video demo on youtube" width="600"/>](https://youtu.be/ix66vZ8A0OI)
 
 - [What does it do ...](#what-does-it-do-)
+- [So how does it work ...](#so-how-does-it-work-)
+    * [GROUP - Define a new party](#group---define-a-new-party)
+    * [TOGGLE - Collapse (crunch) and disassemble (explode) a party](#toggle---collapse--crunch--and-disassemble--explode--a-party)
+    * [FIND - Jump to an already defined party in the scene](#find---jump-to-an-already-defined-party-in-the-scene)
 - [Known restrictions](#known-restrictions)
 - [Changelog](#changelog)
 - [Recommended modules in combination with this one](#recommended-modules-in-combination-with-this-one)
