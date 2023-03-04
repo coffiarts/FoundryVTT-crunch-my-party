@@ -18,7 +18,7 @@
 ## Video demo on youtube
 [Crunch My Party! - Video Demo](https://youtu.be/ix66vZ8A0OI)
 
-[<img src="src/crunch-my-party/artwork/cmp-video-thumb.png" alt="crunch-my-party - Video demo on youtube" width="600"/>](https://youtu.be/ix66vZ8A0OI)
+[<img src="src/crunch-my-party/artwork/cmp-video-thumb.png" alt="crunch-my-party - Video demo on youtube" width="800"/>](https://youtu.be/ix66vZ8A0OI)
 
 - [What does it do ...](#what-does-it-do-)
 - [Changelog](#changelog)
