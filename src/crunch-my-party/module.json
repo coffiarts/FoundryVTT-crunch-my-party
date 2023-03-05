@@ -39,7 +39,7 @@
     {
       "name": "crunch-my-party-macros",
       "label": "Crunch My Party! - Macros",
-      "path": "./packs/hot-pan-and-zoom-macros.db",
+      "path": "./packs/crunch-my-party-macros.db",
       "type": "Macro"
     }
   ]
