@@ -34,5 +34,13 @@
       "path": "lang/de.json",
       "flags": {}
     }
+  ],
+  "packs": [
+    {
+      "name": "crunch-my-party-macros",
+      "label": "Crunch My Party! - Macros",
+      "path": "./packs/hot-pan-and-zoom-macros.db",
+      "type": "Macro"
+    }
   ]
 }
