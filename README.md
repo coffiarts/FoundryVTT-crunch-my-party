@@ -15,10 +15,17 @@
   </tr>
 </table>
 
-## Video demo on youtube
+## Video demos on youtube
+### Some quick impressions for fun
 [Crunch My Party! - Video Demo](https://youtu.be/ix66vZ8A0OI)
 
 [<img src="src/crunch-my-party/artwork/cmp-video-thumb.png" alt="crunch-my-party - Video demo on youtube" width="800"/>](https://youtu.be/ix66vZ8A0OI)
+
+### Howto Video
+[Crunch My Party! - Video Howto](https://youtu.be/ix66vZ8A0OI)
+
+[<img src="src/crunch-my-party/artwork/cmp-video-howto-thumb.png" alt="crunch-my-party - Video Howto on youtube" width="800"/>](https://youtu.be/F8f29g0SLqA)
+
 
 - [What ist does ...](#what-ist-does-)
 - [Changelog](#changelog)
@@ -192,4 +199,4 @@ Feel free to follow the ["dev" branch on GitHub](https://github.com/coffiarts/Fo
 - [Jules & Ben](https://www.patreon.com/JB2A) for their magnificient [Animated Assets](https://github.com/Jules-Bens-Aa/JB2A_DnD5e) module (see [Recommended modules in combination with this one](#recommended-modules-in-combination-with-this-one))
 - [Navadaux](https://freesound.org/people/Navadaux/) for the "explode" sound provided via [freesound.org](https://freesound.org/people/Navadaux/sounds/547172/), released under [CCO 1.0 license](http://creativecommons.org/publicdomain/zero/1.0/) 
 - [Glaneur de sons](https://freesound.org/people/Glaneur%20de%20sons/) for the "crunch" sound provided via [freesound.org](https://freesound.org/people/Glaneur%20de%20sons/sounds/420616/), released under [CC BY 3.0 license](https://creativecommons.org/licenses/by/3.0/)
-- Video background music: ***"Marty Gots a Plan"***, ***"Circus of Freaks"*** and ***"Sneaky Snitch"*** by the incredible, unbelievable, most-famous, soo-much-beloved [Kevin MacLeod (incompetech.com)](https://incompetech.com/music/royalty-free/music.html), released under [CC BY 4.0 License](http://creativecommons.org/licenses/by/4.0/)
+- Video background music: ***"Marty Gots a Plan"***, ***"Circus of Freaks"***, ***"Sneaky Snitch"*** and ***"Investigations"*** by the incredible, unbelievable, most-famous, soo-much-beloved [Kevin MacLeod (incompetech.com)](https://incompetech.com/music/royalty-free/music.html), released under [CC BY 4.0 License](http://creativecommons.org/licenses/by/4.0/)
