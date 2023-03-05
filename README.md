@@ -27,7 +27,7 @@
 [<img src="src/crunch-my-party/artwork/cmp-video-howto-thumb.png" alt="crunch-my-party - Video Howto on youtube" width="800"/>](https://youtu.be/F8f29g0SLqA)
 
 
-- [What ist does ...](#what-ist-does-)
+- [What it does ...](#what-it-does-)
 - [Changelog](#changelog)
 - [How it works ...](#how-it-works-)
   * [GROUP - Define a new party](#group---define-a-new-party)
@@ -46,7 +46,7 @@
 
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
-## What ist does ...
+## What it does ...
 *The* perfect utility for the game master handling multiple tokens as one party.
 
 Are you a game master who frequently needs to control a whole bunch of scene actors at once?
