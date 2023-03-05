@@ -20,23 +20,26 @@
 
 [<img src="src/crunch-my-party/artwork/cmp-video-thumb.png" alt="crunch-my-party - Video demo on youtube" width="800"/>](https://youtu.be/ix66vZ8A0OI)
 
-- [What does it do ...](#what-does-it-do-)
+- [What ist does ...](#what-ist-does-)
 - [Changelog](#changelog)
-- [So how does it work ...](#so-how-does-it-work-)
+- [How it works ...](#how-it-works-)
   * [GROUP - Define a new party](#group---define-a-new-party)
-  * [TOGGLE - Crunch or explode a party](#toggle---crunch-or-explode-a-party)
+  * [TOGGLE - CRUNCH an exploded party into one single party token](#toggle---crunch-an-exploded-party-into-one-single-party-token)
+  * [TOGGLE - EXPLODE a collapsed party into separate member tokens](#toggle---explode-a-collapsed-party-into-separate-member-tokens)
   * [FIND - Jump to an already defined party in the scene](#find---jump-to-an-already-defined-party-in-the-scene)
 - [Known restrictions](#known-restrictions)
 - [Control it by macro](#control-it-by-macro)
 - [Adjustable module settings (i.e. game settings)](#adjustable-module-settings--ie-game-settings-)
 - [Recommended modules in combination with this one](#recommended-modules-in-combination-with-this-one)
+  * [Notes on using Hot Pan and Zoom](#notes-on-using-hot-pan-and-zoom)
+  * [Notes on using JB2A](#notes-on-using-jb2a)
 - [Compatibility and Dependencies](#compatibility-and-dependencies)
 - [Upcoming features](#upcoming-features)
 - [Credits](#credits)
 
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
-## What does it do ...
+## What ist does ...
 *The* perfect utility for the game master handling multiple tokens as one party.
 
 Are you a game master who frequently needs to control a whole bunch of scene actors at once?
@@ -77,10 +80,10 @@ Easily collapse arbitrary groups of scene tokens (representing parties) into an 
 </table>
 </details-->
 
-## So how does it work ...
+## How it works ...
 At first, before experimenting by yourself, please have a look at the [Video demo on youtube](https://youtu.be/ix66vZ8A0OI)
 
-The main steps, briefly explained:
+The main functions, briefly explained:
 
 ### GROUP - Define a new party
 1. Create a custom token representing your party in "crunched" state
@@ -91,22 +94,29 @@ The main steps, briefly explained:
 
 => You're done. Your party is defined! HURRAY!!
 
-### TOGGLE - Crunch or explode a party
+### TOGGLE - CRUNCH an exploded party into one single party token
+1. Optional: If you want to control exactly where the party token should appear, select one (exactly ONE!) of your member tokens as the target.
+2. Run the related "Toggle Party #x" macro (see section [Control it by macro](#control-it-by-macro))
+
+That's it: 
+
+=> Your party members will be automatically rendered invisible and moved (secretly) out of the way to the top-left corner of your scene
+=> Your predefined / preassigned party token will be moved from its "hiding place" in the top left corner to the previous location of your members and rendered visible.
+=> If you should have selected ONE member in step 1., this will be the position of the party token. Otherwise, the party token will appear at the location of one arbitrary member.
+
+### TOGGLE - EXPLODE a collapsed party into separate member tokens
 1. Run the related "Toggle Party #x" macro (see section [Control it by macro](#control-it-by-macro))
 
-=> That's it. Your party should automatically switch between "crunched" and "exploded" state.
+That's it:
+
+=> Your single party token will be automatically rendered invisible and moved (secretly) out of the way to the top-left corner of your scene
+=> The related member tokens will be moved from their "hiding place" in the top left corner to the previous location of your party token and rendered visible.
 
 ### FIND - Jump to an already defined party in the scene
 1. Run the related "Find Party #x" macro (see section [Control it by macro](#control-it-by-macro))
 
 => That's it. Your canvas view moves automatically to the scene location of that party and automatically selects its tokens (be it in crunched or exploded state).
 
-Note what it does in the background:
-
-- On "Crunch", all member tokens are automatically disabled and moved (invisibly) to the top left corner of the scene. Instead, the "party token" is retrieved from there, moved to the current position and rendered visible.
-- On "Explode", vice versa, the party token is automatically disabled and moved (invisibly) to the top left corner of the scene. Accordingly, the "member tokens" are retrieved from there, moved to the current position and rendered visible.
-
-Easy, isn't it?
 
 ## Known restrictions
 - Token names may not (currently) have ***commas*** (comma is used as delimiter for the token names list stored in user prefs). If many people should comply about it, I'll try to make the delimiter char configurable (see [Upcoming features](#upcoming-features))
@@ -119,7 +129,7 @@ Use the exposed `class PartyCruncher` - just like this, it's a no-brainer:
     PartyCruncher.toogle(<partyNumber); // toggles the specified party between a single "party token" (crunched) and separate "member tokens" (explode)
     PartyCruncher.find(<partyNumber); // autoselect the specified party in the scene, moving focus and canvas you to it
 
-The module comes already bundled with a predefined set of 5 macros per action (for up to 5 configurable parties of tokens), recognizeable by there icons:
+The module comes already bundled with a predefined set of 5 macros per action (for up to 5 configurable parties of tokens), recognizable by there icons:
 <p>
 <img src="src/crunch-my-party/artwork/cmp-macro-toggle-1.png" alt="Macro: Toggle Party #1" width="100"/>
 <img src="src/crunch-my-party/artwork/cmp-macro-toggle-2.png" alt="Macro: Toggle Party #2" width="100"/>
@@ -151,6 +161,20 @@ The module comes already bundled with a predefined set of 5 macros per action (f
 - [Jules&Ben's Animated Assets (JB2A)](https://github.com/Jules-Bens-Aa/JB2A_DnD5e) by Jules & Ben: Allows autoplaying of animations on toggling
 
 Presence of these modules is optional! If installed, ***Crunch my Party!*** will automatically detect and handle them. Just lean back and enjoy.
+However, note the additional options that derive from it: ...
+
+### Notes on using Hot Pan and Zoom
+If [Hot Pan & Zoom!](https://github.com/coffiarts/FoundryVTT-hot-pan) is installed and active, TOGGLE and FIND functions will, by default, make use of it: I.e. both the GM's and the player's views will be automatically panned and zoomed to the location of the related party.
+
+If you do NOT want players' views to be synchronized (e.g. if you don't want them to see what you are doing), you can bypass Hot Pan & Zoom! with an additional macro parameter, like this:
+
+    PartyCruncher.toggleParty(<partyNumber>, false); // false means: useHotPanIfAvailable = false (default is true)
+    PartyCruncher.findParty(<partyNumber>, false); // false means: useHotPanIfAvailable = false (default is true)
+
+### Notes on using JB2A
+[Jules&Ben's Animated Assets (JB2A)](https://github.com/Jules-Bens-Aa/JB2A_DnD5e) is used by my mod to play atmospheric animations on crunch and explode.
+
+You may choose to override the default animation with another one of your choice by adjusting the game setting **"Explode animation (optional)"**. See [Adjustable module settings (i.e. game settings)](#adjustable-module-settings--ie-game-settings-).
 
 ## Compatibility and Dependencies
 - Tested with Foundry VTT 10 in world system "dsa5" / "tde5" (The Dark Eye). But I consider it system-agnostic.
