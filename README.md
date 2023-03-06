@@ -64,7 +64,7 @@ Easily collapse arbitrary groups of scene tokens (representing parties) into an 
         <th colspan="3" style="text-align: left">Latest Version</th>
     </tr>
     <tr>
-        <td>Pre-Release 1.1.0</td>
+        <td>Rel. 1.0.0</td>
         <td>2023-03-05</td>
         <td>
             <b>First official release - Going out into the world!</b>
