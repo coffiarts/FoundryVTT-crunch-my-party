@@ -47,8 +47,6 @@
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
 ## What it does ...
-*The* perfect utility for the game master handling multiple tokens as one party.
-
 Are you a game master who frequently needs to control a whole bunch of scene actors at once?
 - Maybe you like remote controlling your players' tokens while they're travelling through a dungeon in between encounters?
 - Or you need to handle larger groups of foes?
@@ -107,22 +105,22 @@ The main functions, briefly explained:
 
 That's it: 
 
-=> Your party members will be automatically rendered invisible and moved (secretly) out of the way to the top-left corner of your scene
-=> Your predefined / preassigned party token will be moved from its "hiding place" in the top left corner to the previous location of your members and rendered visible.
-=> If you should have selected ONE member in step 1., this will be the position of the party token. Otherwise, the party token will appear at the location of one arbitrary member.
+- Your party members will be automatically rendered invisible and moved (secretly) out of the way to the top-left corner of your scene
+- Your predefined / preassigned party token will be moved from its "hiding place" in the top left corner to the previous location of your members and rendered visible.
+- If you should have selected ONE member in step 1., this will be the position of the party token. Otherwise, the party token will appear at the location of one arbitrary member.
 
 ### TOGGLE - EXPLODE a collapsed party into separate member tokens
 1. Run the related "Toggle Party #x" macro (see section [Control it by macro](#control-it-by-macro))
 
 That's it:
 
-=> Your single party token will be automatically rendered invisible and moved (secretly) out of the way to the top-left corner of your scene
-=> The related member tokens will be moved from their "hiding place" in the top left corner to the previous location of your party token and rendered visible.
+- Your single party token will be automatically rendered invisible and moved (secretly) out of the way to the top-left corner of your scene
+- The related member tokens will be moved from their "hiding place" in the top left corner to the previous location of your party token and rendered visible.
 
 ### FIND - Jump to an already defined party in the scene
 1. Run the related "Find Party #x" macro (see section [Control it by macro](#control-it-by-macro))
 
-=> That's it. Your canvas view moves automatically to the scene location of that party and automatically selects its tokens (be it in crunched or exploded state).
+That's it. Your canvas view moves automatically to the scene location of that party and automatically selects its tokens (be it in crunched or exploded state).
 
 
 ## Known restrictions
@@ -136,7 +134,7 @@ Use the exposed `class PartyCruncher` - just like this, it's a no-brainer:
     PartyCruncher.toogle(<partyNumber); // toggles the specified party between a single "party token" (crunched) and separate "member tokens" (explode)
     PartyCruncher.find(<partyNumber); // autoselect the specified party in the scene, moving focus and canvas you to it
 
-The module comes already bundled with a predefined set of 5 macros per action (for up to 5 configurable parties of tokens), recognizable by there icons:
+The module comes already bundled with a predefined set of 5 macros per action (for up to 5 configurable parties of tokens), recognizable by their icons:
 <p>
 <img src="src/crunch-my-party/artwork/cmp-macro-toggle-1.png" alt="Macro: Toggle Party #1" width="100"/>
 <img src="src/crunch-my-party/artwork/cmp-macro-toggle-2.png" alt="Macro: Toggle Party #2" width="100"/>
