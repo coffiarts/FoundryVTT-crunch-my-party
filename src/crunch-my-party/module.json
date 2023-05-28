@@ -25,6 +25,34 @@
       "name": "coffiarts"
     }
   ],
+  "relationships": {
+    "recommends": [
+      {
+        "id": "JB2A_DnD5e",
+        "type": "module",
+        "manifest": "https://github.com/Jules-Bens-Aa/JB2A_DnD5e/releases/download/0.5.7/module.json",
+        "compatibility": {
+          "verified": "0.5.7"
+        }
+      },
+      {
+        "id": "autoanimations",
+        "type": "module",
+        "manifest": "https://github.com/otigon/automated-jb2a-animations/releases/download/4.2.53/module.json",
+        "compatibility": {
+          "verified": "4.2.53"
+        }
+      },
+      {
+        "id": "hot-pan",
+        "type": "module",
+        "manifest": "https://github.com/coffiarts/FoundryVTT-hot-pan/releases/download/latest/module.json",
+        "compatibility": {
+          "verified": "11.0.0"
+        }
+      }
+    ]
+  },
   "esmodules": [
     "/scripts/main.js",
     "/scripts/config.js",
