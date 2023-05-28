@@ -8,7 +8,7 @@ const SUBMODULES = {
     chatinfo: ChatInfo
 };
 
-const optionalDependencies = ['hot-pan', 'JB2A_DnD5e'];
+const optionalDependencies = ['hot-pan', 'JB2A_DnD5e', 'autoanimations'];
 let optionalDependenciesAvailable = [];
 
 let ready2play;
@@ -641,19 +641,19 @@ export class PartyCruncher {
      * Do it: Crunch my party NOW!
      * @param involvedTokens
      * @param targetToken - Here this is the one member selected, providing the new position of the party token
-     * @param partyNo
      */
-    async #crunchParty(involvedTokens, targetToken, partyNo) {
+    async #crunchParty(involvedTokens, targetToken) {
 
         // Release any currently active tokens
         canvas.tokens.releaseAll();
 
-        // If JB2A_DnD5e is installed, play the animation
-        if (optionalDependenciesAvailable.includes('JB2A_DnD5e')) {
+        // If JB2A_DnD5e && AA are installed, play the animation
+        let audioPath = Config.setting('playAudio4Crunch') ? Config.setting('audioFile4Crunch').trim() : Config.NO_AUDIO_FILE;
+        if (!audioPath) audioPath = Config.NO_AUDIO_FILE;
+        if (optionalDependenciesAvailable.includes('JB2A_DnD5e') && optionalDependenciesAvailable.includes('autoanimations')) {
             let animationPath = Config.setting('animation4Crunch');
-            let audioPath = Config.setting('playAudio4Crunch') ? Config.setting('audioFile4Crunch').trim() : Config.NO_AUDIO_FILE;
             if (animationPath) {
-                Logger.debug(`playing CRUNCH animation from JB2A_DnD5e: ${animationPath}`);
+                Logger.debug(`playing CRUNCH animation: ${animationPath}`);
                 new Sequence()
                     .effect()
                     .file(animationPath)
@@ -663,6 +663,14 @@ export class PartyCruncher {
                     .sound().file(audioPath)
                     .play();
             }
+        } else if (audioPath) // Play audio without JB2A && AA
+        {
+            AudioHelper.play({
+                src: audioPath,
+                volume: 1,
+                autoplay: true,
+                loop: false
+            }, true);
         }
 
         // Everybody now, gather at the target!!
@@ -699,7 +707,7 @@ export class PartyCruncher {
      * @param targetToken - Here this is always the party token itself, providing the anchor point for the member tokens
      * @param partyNo
      */
-    async #explodeParty(involvedTokens, targetToken, partyNo) {
+    async #explodeParty(involvedTokens, targetToken) {
 
         if (!canvas.ready) return false;
 
@@ -713,12 +721,13 @@ export class PartyCruncher {
         // Release any currently active tokens
         canvas.tokens.releaseAll();
 
-        // If JB2A_DnD5e is installed, play the animation
-        if (optionalDependenciesAvailable.includes('JB2A_DnD5e')) {
+        // If JB2A_DnD5e && AA are installed, play the animation
+        let audioPath = Config.setting('playAudio4Explode') ? Config.setting('audioFile4Explode').trim() : Config.NO_AUDIO_FILE;
+        if (!audioPath) audioPath = Config.NO_AUDIO_FILE;
+        if (optionalDependenciesAvailable.includes('JB2A_DnD5e') && optionalDependenciesAvailable.includes('autoanimations')) {
             let animationPath = Config.setting('animation4Explode');
-            let audioPath = Config.setting('playAudio4Explode') ? Config.setting('audioFile4Explode').trim() : Config.NO_AUDIO_FILE;
             if (animationPath) {
-                Logger.debug(`playing EXPLODE animation from JB2A_DnD5e: ${animationPath}`);
+                Logger.debug(`playing EXPLODE animation: ${animationPath}`);
                 new Sequence()
                     .effect()
                     .file(animationPath)
@@ -728,6 +737,14 @@ export class PartyCruncher {
                     .sound().file(audioPath)
                     .play();
             }
+        } else if (audioPath) // Play audio without JB2A && AA
+        {
+            AudioHelper.play({
+                src: audioPath,
+                volume: 1,
+                autoplay: true,
+                loop: false
+            }, true);
         }
 
         // Everybody now, swarm out!!

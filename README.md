@@ -36,10 +36,10 @@
   * [FIND - Jump to an already defined party in the scene](#find---jump-to-an-already-defined-party-in-the-scene)
 - [Known restrictions](#known-restrictions)
 - [Control it by macro](#control-it-by-macro)
-- [Adjustable module settings (i.e. game settings)](#adjustable-module-settings--ie-game-settings-)
+- [Adjustable module settings](#adjustable-module-settings)
 - [Recommended modules in combination with this one](#recommended-modules-in-combination-with-this-one)
   * [Notes on using Hot Pan and Zoom](#notes-on-using-hot-pan-and-zoom)
-  * [Notes on using JB2A](#notes-on-using-jb2a)
+  * [Notes on using JB2A and Automated Animations](#notes-on-using-jb2a-and-automated-animations)
 - [Compatibility and Dependencies](#compatibility-and-dependencies)
 - [Upcoming features](#upcoming-features)
 - [Credits](#credits)
@@ -62,10 +62,24 @@ Easily collapse arbitrary groups of scene tokens (representing parties) into an 
         <th colspan="3" style="text-align: left">Latest Version</th>
     </tr>
     <tr>
-        <td>Rel. 1.0.0</td>
-        <td>2023-03-05</td>
+        <td>11.0.0</td>
+        <td>2023-05-28</td>
         <td>
-            <b>First official release - Going out into the world!</b>
+            <b>Foundry 11 compatibility release</b><br/>
+            <span style="color:green">
+              From now on, major versions will always reflect the corresponding Foundry VTT major version<br/>
+              (i.e. mod version 11.x.x => compatible with Foundry v11, and so on)
+            </span><br/>
+            Strictly speaking, this mod has already been compatible with v11 (and it is still backward-compatible with v10!), but I detected and fixed some weak points on the go:<br/>
+            <li>
+                <b>Bugfix: Improved handling of sound and animations and related mod dependencies</b><br/>
+                For (optional) usage of animations, it doesn't suffice to use JB2A, but you also need to have the Automated Animations mod (see description futher below).<br/>
+            </li>
+            <li>
+                <b>Bugfix: Audio will now also play when JB2A and Automated Animations are <i>not</i> installed.</b><br/>
+                For (optional) usage of animations, it doesn't suffice to use JB2A, but you also need to have the Automated Animations mod (see description futher below).<br/>
+            </li>
+            <li>Various minor readme corrections</li>
         </td>
     </tr>
 </table>
@@ -78,9 +92,11 @@ Easily collapse arbitrary groups of scene tokens (representing parties) into an 
         <th>Changes</th>
     </tr>
     <tr>
-        <td>xyz</td>
-        <td>YYYY-MM-DD</td>
-        <td>Description</td>
+        <td>Rel. 1.0.0</td>
+        <td>2023-03-05</td>
+        <td>
+            <b>First official release - Going out into the world!</b>
+        </td>
     </tr>
 </table>
 </details-->
@@ -157,13 +173,13 @@ The module comes already bundled with a predefined set of 5 macros per action (f
 <img src="src/crunch-my-party/artwork/cmp-macro-find-5.png" alt="Macro: Find Party #5" width="100"/>
 </p>
 
-## Adjustable module settings (i.e. game settings)
+## Adjustable module settings
 
 <img src="src/crunch-my-party/artwork/cmp-settings.png" alt="crunch-my-party settings"/>
 
 ## Recommended modules in combination with this one
 - [Hot Pan & Zoom!](https://github.com/coffiarts/FoundryVTT-hot-pan) by coffiarts: Keeps your players' canvas position and zoom in sync with your GM screen, especially useful when toggling and finding groups 
-- [Jules&Ben's Animated Assets (JB2A)](https://github.com/Jules-Bens-Aa/JB2A_DnD5e) by Jules & Ben: Allows autoplaying of animations on toggling
+- [Jules&Ben's Animated Assets (JB2A)](https://github.com/Jules-Bens-Aa/JB2A_DnD5e)by Jules & Ben, together with [otigon's Automated Animations](https://github.com/otigon/automated-jb2a-animations): Allows autoplaying of animations on toggling. A default animation from JB2A is already preconfigured in the settings, but can be changed to your liking.
 
 Presence of these modules is optional! If installed, ***Crunch my Party!*** will automatically detect and handle them. Just lean back and enjoy.
 However, note the additional options that derive from it: ...
@@ -176,13 +192,13 @@ If you do NOT want players' views to be synchronized (e.g. if you don't want the
     PartyCruncher.toggleParty(<partyNumber>, false); // false means: useHotPanIfAvailable = false (default is true)
     PartyCruncher.findParty(<partyNumber>, false); // false means: useHotPanIfAvailable = false (default is true)
 
-### Notes on using JB2A
-[Jules&Ben's Animated Assets (JB2A)](https://github.com/Jules-Bens-Aa/JB2A_DnD5e) is used by my mod to play atmospheric animations on crunch and explode.
+### Notes on using JB2A and Automated Animations
+Both mods are used together (optionally) by my mod to play atmospheric animations on crunch and explode.
 
-You may choose to override the default animation with another one of your choice by adjusting the game setting **"Explode animation (optional)"**. See [Adjustable module settings (i.e. game settings)](#adjustable-module-settings--ie-game-settings-).
+You may choose to override the default animation with another one of your choice by adjusting the game setting **"Explode animation (optional)"**. See [Adjustable module settings](#adjustable-module-settings).
 
 ## Compatibility and Dependencies
-- Tested with Foundry VTT 10 in world system "dsa5" / "tde5" (The Dark Eye). But I consider it system-agnostic.
+- Tested on Foundry VTT 10.2xx and 11.2xx in world system "dsa5" / "tde5" (The Dark Eye). But I consider it system-agnostic.
 - No hard dependencies, but some warmly recommended *optional* 3rd-party modules are listed further above (see there to understand why I recommend them).
 
 ## Upcoming features
@@ -196,6 +212,7 @@ Feel free to follow the ["dev" branch on GitHub](https://github.com/coffiarts/Fo
 ## Credits
 - [David Wilson](https://tools.2minutetabletop.com/token-editor/author?a=David%20Wilson) and [Hammertheshark](https://tools.2minutetabletop.com/token-editor/author?a=Hammertheshark) for various cute goblin images used in the videos. They were published and licensed thankfully on [https://tools.2minutetabletop.com](https://tools.2minutetabletop.com/) under [CC BY 4.0 License](http://creativecommons.org/licenses/by/4.0/)
 - [Jules & Ben](https://www.patreon.com/JB2A) for their magnificient [Animated Assets](https://github.com/Jules-Bens-Aa/JB2A_DnD5e) module (see [Recommended modules in combination with this one](#recommended-modules-in-combination-with-this-one))
+- [otigon](https://github.com/otigon), for the same reason, i.e. their equally magnificient [Automated Animations](https://github.com/otigon/automated-jb2a-animations) module 
 - [Navadaux](https://freesound.org/people/Navadaux/) for the "explode" sound provided via [freesound.org](https://freesound.org/people/Navadaux/sounds/547172/), released under [CCO 1.0 license](http://creativecommons.org/publicdomain/zero/1.0/) 
 - [Glaneur de sons](https://freesound.org/people/Glaneur%20de%20sons/) for the "crunch" sound provided via [freesound.org](https://freesound.org/people/Glaneur%20de%20sons/sounds/420616/), released under [CC BY 3.0 license](https://creativecommons.org/licenses/by/3.0/)
 - Video background music: ***"Marty Gots a Plan"***, ***"Circus of Freaks"***, ***"Sneaky Snitch"*** and ***"Investigations"*** by the incredible, unbelievable, most-famous, soo-much-beloved [Kevin MacLeod (incompetech.com)](https://incompetech.com/music/royalty-free/music.html), released under [CC BY 4.0 License](http://creativecommons.org/licenses/by/4.0/)
