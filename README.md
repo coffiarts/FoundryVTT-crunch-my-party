@@ -62,6 +62,15 @@ Easily collapse arbitrary groups of scene tokens (representing parties) into an 
         <th colspan="3" style="text-align: left">Latest Version</th>
     </tr>
     <tr>
+        <td>11.0.2</td>
+        <td>2023-06-27</td>
+        <td>
+            <b>Changelog & Readme optimization for Module Management+</b><br/>
+            Refactored documentation so that it can be properly displayed & linked in-game by [Module Management+](https://github.com/mouse0270/module-credits),
+            which is a veeeery helpful mod that I waaaaarmly recommend!
+        </td>
+    </tr>
+    <tr>
         <td>11.0.1</td>
         <td>2023-06-05</td>
         <td>
@@ -82,11 +91,11 @@ Easily collapse arbitrary groups of scene tokens (representing parties) into an 
             Strictly speaking, this mod has already been compatible with v11 (and it is still backward-compatible with v10!), but I detected and fixed some weak points on the go:<br/>
             <li>
                 <b>Bugfix: Improved handling of sound and animations and related mod dependencies</b><br/>
-                For (optional) usage of animations, it doesn't suffice to use JB2A, but you also need to have the Automated Animations mod (see description futher below).<br/>
+                For (optional) usage of animations, it doesn't suffice to use JB2A, but you also need to have the Automated Animations mod (see description further below).<br/>
             </li>
             <li>
                 <b>Bugfix: Audio will now also play when JB2A and Automated Animations are <i>not</i> installed.</b><br/>
-                For (optional) usage of animations, it doesn't suffice to use JB2A, but you also need to have the Automated Animations mod (see description futher below).<br/>
+                For (optional) usage of animations, it doesn't suffice to use JB2A, but you also need to have the Automated Animations mod (see description further below).<br/>
             </li>
             <li>Various minor readme corrections</li>
         </td>
@@ -101,7 +110,7 @@ Easily collapse arbitrary groups of scene tokens (representing parties) into an 
         <th>Changes</th>
     </tr>
     <tr>
-        <td>Rel. 1.0.0</td>
+        <td>1.0.0</td>
         <td>2023-03-05</td>
         <td>
             <b>First official release - Going out into the world!</b>
