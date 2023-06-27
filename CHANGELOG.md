@@ -1,3 +1,8 @@
+## 11.0.3
+### 2023-??-?? - ???
+- ???
+
+
 ## 11.0.2
 ### 2023-06-27 - Changelog & Readme optimization for Module Management+
 - Refactored documentation so that it can be properly displayed & linked in-game by [Module Management+](https://github.com/mouse0270/module-credits),<br/>

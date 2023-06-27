@@ -62,6 +62,14 @@ Easily collapse arbitrary groups of scene tokens (representing parties) into an 
         <th colspan="3" style="text-align: left">Latest Version</th>
     </tr>
     <tr>
+        <td>11.0.3</td>
+        <td>2023-??-??</td>
+        <td>
+            <b>???</b><br/>
+            ???
+        </td>
+    </tr>
+    <tr>
         <td>11.0.2</td>
         <td>2023-06-27</td>
         <td>
@@ -216,7 +224,7 @@ Both mods are used together (optionally) by my mod to play atmospheric animation
 You may choose to override the default animation with another one of your choice by adjusting the game setting **"Explode animation (optional)"**. See [Adjustable module settings](#adjustable-module-settings).
 
 ## Compatibility and Dependencies
-- Tested on Foundry VTT 10.2xx and 11.2xx in world system "dsa5" / "tde5" (The Dark Eye). But I consider it system-agnostic.
+- Tested on Foundry VTT 11.2xx and higher in world system "dsa5" / "tde5" (The Dark Eye). But I consider it system-agnostic.
 - No hard dependencies, but some warmly recommended *optional* 3rd-party modules are listed further above (see there to understand why I recommend them).
 
 ## Upcoming features
