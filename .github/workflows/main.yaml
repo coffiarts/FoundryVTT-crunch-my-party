@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - dev
 
 jobs:
   build:
@@ -35,7 +34,7 @@ jobs:
           allowUpdates: true
           name: Release ${{ steps.get-version.outputs.version }}
           draft: false
-          prerelease: true
+          prerelease: false
           token: ${{secrets.GITHUB_TOKEN}}
           artifacts: './module.zip, ./src/crunch-my-party/module.json, ./README.md, ./CHANGELOG.md'
           tag: ${{ steps.get-version.outputs.version }}
