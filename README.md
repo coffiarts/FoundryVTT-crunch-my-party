@@ -56,7 +56,7 @@ This is absolutely optional! Don't feel obliged in any way to do so. My mod is a
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
 ## What it does ...
-Are you a game master who frequently needs to control a whole bunch of scene actors at once?
+Are you a game master who frequently needs to control a hole bunch of scene actors at once?
 - Maybe you like remote controlling your players' tokens while they're travelling through a dungeon in between encounters?
 - Or you need to handle larger groups of foes?
 
@@ -69,6 +69,19 @@ Easily collapse arbitrary groups of scene tokens (representing parties) into an 
 <table style="border:0">
     <tr>
         <th colspan="3" style="text-align: left">Latest Version</th>
+    </tr>
+    <tr>
+        <td>11.0.4</td>
+        <td>2023-??-??</td>
+        <td>
+            <b>???</b><br/>
+            <li>
+                ???
+            </li>
+            <li>
+                ???<br/>
+            </li>
+        </td>
     </tr>
     <tr>
         <td>11.0.3</td>

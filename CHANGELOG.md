@@ -1,3 +1,7 @@
+## 11.0.4
+### 2023-??-?? - ???
+- ???
+
 ## 11.0.3
 ### 2023-07-16 - Add missing (only recommended) dependency (Sequencer)
 - If people are using my mod (as STRONGLY recommended) in combination with JB2A [Animated Assets](https://github.com/Jules-Bens-Aa/JB2A_DnD5e) and [Automated Animations](https://github.com/otigon/automated-jb2a-animations), then this won't work unless they're also using [Sequencer](https://github.com/fantasycalendar/FoundryVTT-Sequencer) by [fantasycalendar](https://github.com/fantasycalendar). Otherwise, my mod can't make use of the animations. Those three are commonly used together, but it may not be self-explaining.
