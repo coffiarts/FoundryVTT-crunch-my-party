@@ -46,6 +46,14 @@
         }
       },
       {
+        "id": "sequencer",
+        "type": "module",
+        "manifest": "https://github.com/fantasycalendar/FoundryVTT-Sequencer/releases/download/3.1.1/module.json",
+        "compatibility": {
+          "verified": "3.1.1"
+        }
+      },
+      {
         "id": "hot-pan",
         "type": "module",
         "manifest": "https://github.com/coffiarts/FoundryVTT-hot-pan/releases/download/latest/module.json",

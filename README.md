@@ -15,6 +15,15 @@
   </tr>
 </table>
 
+- Are you on [Forge VTT](https://forge-vtt.com/)?
+- Do you like my work?
+- Do you REALLY like my work?
+- Could you even imagine to DONATE?
+
+Feel free to head over to this mod on Forge, where you can even pay for it what you like: https://eu.forge-vtt.com/bazaar/package/crunch-my-party
+
+This is absolutely optional! Don't feel obliged in any way to do so. My mod is and will remain available for free.
+
 ## Video demos on youtube
 ### Some quick impressions for fun
 [Crunch My Party! - Video Demo](https://youtu.be/ix66vZ8A0OI)
@@ -63,11 +72,29 @@ Easily collapse arbitrary groups of scene tokens (representing parties) into an 
     </tr>
     <tr>
         <td>11.0.3</td>
-        <td>2023-??-??</td>
+        <td>2023-07-16</td>
         <td>
-            <b>???</b><br/>
-            ???
+            <b>Add missing (only recommended) dependency (Sequencer)</b><br/>
+            <li>
+                If people are using my mod (as STRONGLY recommended) in combination with JB2A (Animated Assets) and 
+                Automated Animations, then this won't work unless they're also using <strong>Sequencer</strong> by fantasycalendar.
+                Otherwise, my mod can't make use of the animations.<br/>
+                Those three are commonly used together, but it may not be self-explaining.<br/>
+                So even I (dull as I am) simply forgot to mention this in earlier versions. I added that missing recommended dependency now.<br/>
+            </li>
+            <li>
+                Declared end of Foundry v10 backward-compatibility.<br/>
+            </li>
         </td>
+    </tr>
+</table>
+
+<details><summary>Click to see older versions</summary>
+<table>
+    <tr>
+        <th>Release</th>
+        <th>Date</th>
+        <th>Changes</th>
     </tr>
     <tr>
         <td>11.0.2</td>
@@ -108,15 +135,6 @@ Easily collapse arbitrary groups of scene tokens (representing parties) into an 
             <li>Various minor readme corrections</li>
         </td>
     </tr>
-</table>
-
-<!--details><summary>Click to see older versions</summary>
-<table>
-    <tr>
-        <th>Release</th>
-        <th>Date</th>
-        <th>Changes</th>
-    </tr>
     <tr>
         <td>1.0.0</td>
         <td>2023-03-05</td>
@@ -125,7 +143,7 @@ Easily collapse arbitrary groups of scene tokens (representing parties) into an 
         </td>
     </tr>
 </table>
-</details-->
+</details>
 
 ## How it works ...
 At first, before experimenting by yourself, please have a look at the [Video demo on youtube](https://youtu.be/ix66vZ8A0OI)
@@ -205,7 +223,12 @@ The module comes already bundled with a predefined set of 5 macros per action (f
 
 ## Recommended modules in combination with this one
 - [Hot Pan & Zoom!](https://github.com/coffiarts/FoundryVTT-hot-pan) by coffiarts: Keeps your players' canvas position and zoom in sync with your GM screen, especially useful when toggling and finding groups 
-- [Jules&Ben's Animated Assets (JB2A)](https://github.com/Jules-Bens-Aa/JB2A_DnD5e)by Jules & Ben, together with [otigon's Automated Animations](https://github.com/otigon/automated-jb2a-animations): Allows autoplaying of animations on toggling. A default animation from JB2A is already preconfigured in the settings, but can be changed to your liking.
+- Use the following THREE mods together to pimp the whole thing to a new level!
+  1. [Animated Assets (JB2A)](https://github.com/Jules-Bens-Aa/JB2A_DnD5e) (aka "JBA") by Jules&Ben
+  2. [Automated Animations](https://github.com/otigon/automated-jb2a-animations) by otigon
+  3. [Sequencer](https://github.com/fantasycalendar/FoundryVTT-Sequencer) by fantasycalendar<br/> 
+  **Make sure that you're using ALL THREE of them in combination, otherwise it won't work!**<br/>
+  This allows autoplaying of animations on toggling. A default animation from JB2A is already preconfigured in the settings, but can be changed to your liking.
 
 Presence of these modules is optional! If installed, ***Crunch my Party!*** will automatically detect and handle them. Just lean back and enjoy.
 However, note the additional options that derive from it: ...
@@ -237,8 +260,10 @@ Feel free to follow the ["dev" branch on GitHub](https://github.com/coffiarts/Fo
 
 ## Credits
 - [David Wilson](https://tools.2minutetabletop.com/token-editor/author?a=David%20Wilson) and [Hammertheshark](https://tools.2minutetabletop.com/token-editor/author?a=Hammertheshark) for various cute goblin images used in the videos. They were published and licensed thankfully on [https://tools.2minutetabletop.com](https://tools.2minutetabletop.com/) under [CC BY 4.0 License](http://creativecommons.org/licenses/by/4.0/)
-- [Jules & Ben](https://www.patreon.com/JB2A) for their magnificient [Animated Assets](https://github.com/Jules-Bens-Aa/JB2A_DnD5e) module (see [Recommended modules in combination with this one](#recommended-modules-in-combination-with-this-one))
-- [otigon](https://github.com/otigon), for the same reason, i.e. their equally magnificient [Automated Animations](https://github.com/otigon/automated-jb2a-animations) module 
+- [Jules & Ben](https://www.patreon.com/JB2A), [otigon](https://github.com/otigon) and [fantasycalendar](https://github.com/fantasycalendar) for their 3 magnificient mods that work sooo tightly together in animating my crunch & explode transitions (see [Recommended modules in combination with this one](#recommended-modules-in-combination-with-this-one)):
+  1. [Animated Assets](https://github.com/Jules-Bens-Aa/JB2A_DnD5e)
+  2. [Automated Animations](https://github.com/otigon/automated-jb2a-animations)
+  3. [Sequencer](https://github.com/fantasycalendar/FoundryVTT-Sequencer)
 - [Navadaux](https://freesound.org/people/Navadaux/) for the "explode" sound provided via [freesound.org](https://freesound.org/people/Navadaux/sounds/547172/), released under [CCO 1.0 license](http://creativecommons.org/publicdomain/zero/1.0/) 
 - [Glaneur de sons](https://freesound.org/people/Glaneur%20de%20sons/) for the "crunch" sound provided via [freesound.org](https://freesound.org/people/Glaneur%20de%20sons/sounds/420616/), released under [CC BY 3.0 license](https://creativecommons.org/licenses/by/3.0/)
 - Video background music: ***"Marty Gots a Plan"***, ***"Circus of Freaks"***, ***"Sneaky Snitch"*** and ***"Investigations"*** by the incredible, unbelievable, most-famous, soo-much-beloved [Kevin MacLeod (incompetech.com)](https://incompetech.com/music/royalty-free/music.html), released under [CC BY 4.0 License](http://creativecommons.org/licenses/by/4.0/)
