@@ -241,8 +241,8 @@ If you do NOT want players' views to be synchronized (e.g. if you don't want the
     PartyCruncher.toggleParty(<partyNumber>, false); // false means: useHotPanIfAvailable = false (default is true)
     PartyCruncher.findParty(<partyNumber>, false); // false means: useHotPanIfAvailable = false (default is true)
 
-### Notes on using JB2A and Automated Animations
-Both mods are used together (optionally) by my mod to play atmospheric animations on crunch and explode.
+### Notes on using JB2A, Automated Animations and Sequencer
+Instlaling these 3 optional mods (strongly recommended!) will play atmospheric animations on crunch and explode. All 3 mods are used in combination (simply installing one or two of them won't work!).
 
 You may choose to override the default animation with another one of your choice by adjusting the game setting **"Explode animation (optional)"**. See [Adjustable module settings](#adjustable-module-settings).
 
