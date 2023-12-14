@@ -33,7 +33,7 @@ jobs:
         with:
           allowUpdates: true
           name: Release ${{ steps.get-version.outputs.version }}
-          draft: false
+          draft: true
           prerelease: true
           token: ${{secrets.GITHUB_TOKEN}}
           artifacts: './module.zip, ./src/crunch-my-party/module.json, ./README.md, ./CHANGELOG.md'
