@@ -682,20 +682,24 @@ export class PartyCruncher {
         // Crunch step #1: Everybody gather at the target now!!
         // We're reversing the order temporarily, because this is visually much nicer (especially with large groups).
         // It processes outer tokens first and inner ones last.
-        // let tokenUpdates = [];
-        // for (const token of involvedTokens.memberTokens.reverse()) {
-        //     // Teleport to the target (which is the party's "center")
-        //     tokenUpdates.push(this.#getTokenTeleportUpdate(token, targetToken.position, false));
-        // }
-        //
-        // // Do the same for the party token (and render it visible)
-        // tokenUpdates.push(this.#getTokenTeleportUpdate(involvedTokens.partyToken, targetToken.position, false));
-        //
-        // // Finish step #1: Apply token updates all at once (to prevent race conditions)
-        // await game.scenes.active.updateEmbeddedDocuments('Token', tokenUpdates);
+        let tokenUpdates = [];
+        for (const token of involvedTokens.memberTokens.reverse()) {
+            // Teleport to the target (which is the party's "center")
+            tokenUpdates.push(this.#getTokenTeleportUpdate(token, targetToken.position, false));
+        }
+
+        // Do the same for the party token (still invisible)
+        tokenUpdates.push(this.#getTokenTeleportUpdate(involvedTokens.partyToken, targetToken.position, true));
+
+        // Finish step #1: Apply token updates all at once (to prevent race conditions)
+        await game.scenes.active.updateEmbeddedDocuments(
+            'Token',
+            tokenUpdates,
+            {animate: false} // NEVER animate... AAAAArRGGGH! Otherwise, tokens will be "floating" across the scene, revealing any hidden secrets.});
+        );
 
         // Crunch step #2: Everybody, go invisible and move out of the way!
-        let tokenUpdates = [];
+        tokenUpdates = [];
         for (const token of involvedTokens.memberTokens) {
             tokenUpdates.push(this.#getTokenTeleportUpdate(token, {x:0, y:0}, true));
         }
@@ -704,7 +708,11 @@ export class PartyCruncher {
         tokenUpdates.push(this.#getTokenTeleportUpdate(involvedTokens.partyToken, targetPosition, false));
 
         // Finish step #2: Apply token updates all at once (to prevent race conditions)
-        await game.scenes.active.updateEmbeddedDocuments('Token', tokenUpdates);
+        await game.scenes.active.updateEmbeddedDocuments(
+            'Token',
+            tokenUpdates,
+            {animate: false} // NEVER animate... AAAAArRGGGH! Otherwise, tokens will be "floating" across the scene, revealing any hidden secrets.});
+        );
 
         // Don't forget to set back memberToken order
         involvedTokens.memberTokens.reverse();
@@ -758,59 +766,52 @@ export class PartyCruncher {
             }, true);
         }
 
-        let targetPosition = involvedTokens.partyToken.position;
-
         // Explode step #1: Everybody, grab some drinks and show up at the "party center"
         let tokenUpdates = [];
-        let tokenCounter = 0;
         for (const memberToken of involvedTokens.memberTokens) {
-
-            const movementPath = PartyCruncher.#getMovementPathToExplodePosition(tokenCounter++);
-            targetPosition = {
-                x: involvedTokens.partyToken.position.x + movementPath.x,
-                y: involvedTokens.partyToken.position.y + movementPath.y,
-            }
-
-            // Teleport to the "party center" and render visible
-            tokenUpdates.push(this.#getTokenTeleportUpdate(memberToken, targetPosition, false));
+            // Teleport to the "party center", but remain invisible for now (waiting for each token's glamorous entry later in step #2)
+            tokenUpdates.push(this.#getTokenTeleportUpdate(memberToken, involvedTokens.partyToken.position, false));
         }
-
 
         // Move the party token out of the way and render it invisible ("WE are the party now!")
         tokenUpdates.push(this.#getTokenTeleportUpdate(involvedTokens.partyToken, {x: 0, y: 0}, true));
 
         // Finish step #1: Apply token updates all at once (to prevent race conditions)
-        await game.scenes.active.updateEmbeddedDocuments('Token', tokenUpdates);
+        await game.scenes.active.updateEmbeddedDocuments(
+            'Token',
+            tokenUpdates,
+            {animate: false} // NEVER animate... AAAAArRGGGH! Otherwise, tokens will be "floating" across the scene, revealing any hidden secrets.});
+        );
 
         // // Explode step #2: Swarm out and take your places
-        // let tokenCounter = 0;
-        // for (const memberToken of involvedTokens.memberTokens) {
-        //     //Set selection onto the token.
-        //     //Otherwise, movement by moveMany below won't have any effect
-        //     memberToken.control({releaseOthers: true});
-        //
-        //     // Position each token along an "outward spiral" around the origin (which is the party token)
-        //     let movementPath = PartyCruncher.#getMovementPathToExplodePosition(tokenCounter++);
-        //     Logger.debug(`(PartyCruncher.#explodeParty) [${memberToken.name}]: movementPath =>`, movementPath);
-        //
-        //     // Detect directions of this token's movement
-        //     let xdir = (movementPath.x >= 0) ? 1 : -1;
-        //     let ydir = (movementPath.y >= 0) ? 1 : -1;
-        //     Logger.debug('(PartyCruncher.#explodeParty) xdir, ydir', xdir, ydir);
-        //
-        //     let safetyCount = 0;
-        //
-        //     for (let x = 0; x !== movementPath.x && safetyCount++ < 10; x += xdir) {
-        //         // take one step along movementPath.x
-        //         await this.#pushTokenByOneStep(tokenLayer, xdir, 0, memberToken);
-        //         await Config.sleep(200);
-        //     }
-        //     for (let y = 0; y !== movementPath.y && safetyCount++ < 10; y += ydir) {
-        //         // take one step along movementPath.y
-        //         await this.#pushTokenByOneStep(tokenLayer, 0, ydir, memberToken);
-        //         await Config.sleep(200);
-        //     }
-        // }
+        let tokenCounter = 0;
+        for (const memberToken of involvedTokens.memberTokens) {
+            //Set selection to current token.
+            //Otherwise, movement by moveMany below won't have any effect
+            memberToken.control({releaseOthers: true});
+
+            // Position each token along an "outward spiral" around the origin (which is the party token)
+            let movementPath = PartyCruncher.#getMovementPathToExplodePosition(tokenCounter++);
+            Logger.debug(`(PartyCruncher.#explodeParty) [${memberToken.name}]: movementPath =>`, movementPath);
+
+            // Detect directions of this token's movement
+            let xdir = (movementPath.x >= 0) ? 1 : -1;
+            let ydir = (movementPath.y >= 0) ? 1 : -1;
+            Logger.debug('(PartyCruncher.#explodeParty) xdir, ydir', xdir, ydir);
+
+            let safetyCount = 0;
+
+            for (let x = 0; x !== movementPath.x && safetyCount++ < 10; x += xdir) {
+                // take one step along movementPath.x
+                await this.#pushTokenByOneStep(tokenLayer, xdir, 0, memberToken);
+                await Config.sleep(200);
+            }
+            for (let y = 0; y !== movementPath.y && safetyCount++ < 10; y += ydir) {
+                // take one step along movementPath.y
+                await this.#pushTokenByOneStep(tokenLayer, 0, ydir, memberToken);
+                await Config.sleep(200);
+            }
+        }
 
         // Now we need to loop over all members once more to select them all
         // If we had done this within the first loop, together with the moving, the tokens movements
@@ -826,7 +827,6 @@ export class PartyCruncher {
             _id: token.document._id,
             x: effectiveTargetPosition.x,
             y: effectiveTargetPosition.y,
-            animate: false, // NEVER animate... AAAAArRGGGH! Otherwise, tokens will be "floating" across the scene, revealing any hidden secrets.
             hidden: hidden
         };
     }
