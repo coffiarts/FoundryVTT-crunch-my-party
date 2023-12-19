@@ -12,11 +12,11 @@ export class Logger {
         Config.registerSettings(settingsData);
     }
     static info(...args) {
-        console.log(`${Config?.data?.modTitle ?? "" }  | `, ...args);
+        console.log(`${Config?.data?.modTitle ?? "" } [${Config?.data?.modID ?? "" }] | `, ...args);
     }
 
     static infoGreen(msg) {
-        console.log(`%c${Config?.data?.modTitle ?? "" }  | ${msg}`, 'color: green');
+        console.log(`%c${Config?.data?.modTitle ?? "" } [${Config?.data?.modID ?? "" }] | ${msg}`, 'color: green');
     }
 
     static debug(...args) {
@@ -27,17 +27,17 @@ export class Logger {
             isDebugMode = Config.setting('debug');
         } catch {}
         if (isDebugMode)
-            console.debug(`${Config?.data?.modTitle ?? "" }  | DEBUG | `, ...args);
+            console.debug(`${Config?.data?.modTitle ?? "" } [${Config?.data?.modID ?? "" }] | DEBUG | `, ...args);
     }
 
     static warn(suppressUIMsg = false, ...args) {
-        console.warn(`${Config?.data?.modTitle ?? "" } | WARNING | `, ...args);
+        console.warn(`${Config?.data?.modTitle ?? "" } [${Config?.data?.modID ?? "" }] | WARNING | `, ...args);
         if (!suppressUIMsg)
             ui.notifications.warn(`[${Config?.data?.modTitle ?? "" }] ${args[0]}`);
     }
 
     static error(suppressUIMsg = false, ...args) {
-        console.error(`${Config?.data?.modTitle ?? "" } | ERROR | `, ...args);
+        console.error(`${Config?.data?.modTitle ?? "" } [${Config?.data?.modID ?? "" }] | ERROR | `, ...args);
         if (!suppressUIMsg)
             ui.notifications.error(`[${Config?.data?.modTitle ?? "" }] ${args[0]}`);
     }
