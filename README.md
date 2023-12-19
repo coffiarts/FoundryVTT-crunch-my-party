@@ -48,12 +48,13 @@ This is absolutely optional! Don't feel obliged in any way to do so. My mod is a
 - [Adjustable module settings](#adjustable-module-settings)
 - [Recommended modules in combination with this one](#recommended-modules-in-combination-with-this-one)
   * [Notes on using Hot Pan and Zoom](#notes-on-using-hot-pan-and-zoom)
-  * [Notes on using JB2A and Automated Animations](#notes-on-using-jb2a-and-automated-animations)
+  * [Notes on using JB2A - Automated Animations - Sequencer](#notes-on-using-jb2a---automated-animations---sequencer)
 - [Compatibility and Dependencies](#compatibility-and-dependencies)
 - [Upcoming features](#upcoming-features)
 - [Credits](#credits)
 
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
+
 
 ## What it does ...
 Are you a game master who frequently needs to control a hole bunch of scene actors at once?
@@ -164,7 +165,7 @@ If you do NOT want players' views to be synchronized (e.g. if you don't want the
     PartyCruncher.toggleParty(<partyNumber>, false); // false means: useHotPanIfAvailable = false (default is true)
     PartyCruncher.findParty(<partyNumber>, false); // false means: useHotPanIfAvailable = false (default is true)
 
-### Notes on using JB2A, Automated Animations and Sequencer
+### Notes on using JB2A - Automated Animations - Sequencer
 Installing these 3 optional mods (strongly recommended!) will play atmospheric animations on crunch and explode. All 3 mods are used in combination (simply installing one or two of them won't work!).
 
 You may choose to override the default animation with another one of your choice by adjusting the game setting **"Explode animation (optional)"**. See [Adjustable module settings](#adjustable-module-settings).
@@ -176,6 +177,7 @@ You may choose to override the default animation with another one of your choice
 ## Upcoming features
 Things I am *considering* to do in the future (given proper demand for it - feedback welcome!):
 
+- `medium`: auto-create the group icon's image from its member tokens by generating overlay images. I _assume_ by now that this _should_ be doable in a similar same way as I've managed to generate overlay icons in my [Lock The Sheets!](https://github.com/coffiarts/FoundryVTT-lock-the-sheets) module. But it will require some research and experimenting!
 - `small`: support commas in token names (i.e. making the delimiter character configurable via user prefs)
 - `small` to `?`: find a robust solution for the token movement on EXPLODE, which is currently still potentially unreliable (tokens stacking onto each other erratically). If you're eager to contribute, feel free to have a look at the [related discussion on Discord](https://discord.com/channels/170995199584108546/722559135371231352/1080590427012485211).   
 
