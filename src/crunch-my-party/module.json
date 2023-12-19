@@ -3,7 +3,7 @@
   "name": "crunch-my-party",
   "title": "Crunch My Party!",
   "description": "*The* perfect utility for the game master handling multiple tokens as one party. Easily collapse arbitrary groups of scene tokens (representing parties) into an easy-to-use single \"party token\", and vice versa. Manage up to 5 separate parties with up to 25 members each!",
-  "version": "11.?.?",
+  "version": "11.0.5",
   "url": "https://github.com/coffiarts/FoundryVTT-crunch-my-party",
   "manifest": "https://github.com/coffiarts/FoundryVTT-crunch-my-party/releases/download/latest/module.json",
   "download": "https://github.com/coffiarts/FoundryVTT-crunch-my-party/releases/download/latest/module.zip",
