@@ -41,7 +41,7 @@ export class Config {
                 scope: 'world', config: true, type: Boolean, default: true
             },
             audioFile4Crunch: {
-                scope: 'world', config: true, type: String, default: "../modules/crunch-my-party/audio/audio_crunch.wav"
+                scope: 'world', config: true, type: String, filePicker: "audio", default: "modules/crunch-my-party/audio/audio_crunch.wav"
             },
             animation4Explode: {
                 scope: 'world', config: true, type: String, default: "jb2a.extras.tmfx.outpulse.circle.02.normal"
@@ -50,7 +50,7 @@ export class Config {
                 scope: 'world', config: true, type: Boolean, default: true
             },
             audioFile4Explode: {
-                scope: 'world', config: true, type: String, default: "../modules/crunch-my-party/audio/audio_explode.wav"
+                scope: 'world', config: true, type: String, filePicker: "audio", default: "modules/crunch-my-party/audio/audio_explode.wav"
             }
         };
 

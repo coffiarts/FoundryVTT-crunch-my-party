@@ -652,7 +652,7 @@ export class PartyCruncher {
         canvas.tokens.releaseAll();
 
         // If JB2A_DnD5e && AA are installed, play the animation
-        let audioPath = Config.setting('playAudio4Crunch') ? Config.setting('audioFile4Crunch').trim() : Config.NO_AUDIO_FILE;
+        let audioPath = Config.setting('playAudio4Crunch') ? `../${Config.setting('audioFile4Crunch').trim()}` : Config.NO_AUDIO_FILE;
         if (!audioPath) audioPath = Config.NO_AUDIO_FILE;
         if (optionalDependenciesAvailable.includes('JB2A_DnD5e') && optionalDependenciesAvailable.includes('autoanimations')) {
             let animationPath = Config.setting('animation4Crunch');
@@ -725,7 +725,7 @@ export class PartyCruncher {
         canvas.tokens.releaseAll();
 
         // If JB2A_DnD5e && AA are installed, play the animation
-        let audioPath = Config.setting('playAudio4Explode') ? Config.setting('audioFile4Explode').trim() : Config.NO_AUDIO_FILE;
+        let audioPath = Config.setting('playAudio4Explode') ? `../${Config.setting('audioFile4Explode').trim()}` : Config.NO_AUDIO_FILE;
         if (!audioPath) audioPath = Config.NO_AUDIO_FILE;
         if (optionalDependenciesAvailable.includes('JB2A_DnD5e') && optionalDependenciesAvailable.includes('autoanimations')) {
             let animationPath = Config.setting('animation4Explode');
