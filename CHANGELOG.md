@@ -2,8 +2,11 @@ The **major** version number in my modules (like "11") always reflects the
 Foundry VTT **core** version it is compatible with (and recommended for).
 
 ## 11.0.4
-### 2023-??-?? - ???
-- ???
+### 2023-12-19 - Fixing the "Floating tokens bug" plus minor enhancements
+- Fixes a nasty bug which could (during toggling) sporadically cause tokens to float openly across the scene instead of being displaced, hidden & shown at once. This may have been game breaking whenever those tokens had sight! The code for the automated token displacement has been completely refactored, thanks to some very helpful guys on discord (honeybadger, mxzf and others). Extra credits given! 
+- Toggling from separate tokens to the single party token (aka "crunching") now tolerates missing tokens (the party must go on, even of it isn't complete). I believe it to be more intuitive and easier to use that way.
+- Optimization in settings menu: Audio files are now easily selectable by filepicker
+- Various internal refactorings
 
 ## 11.0.3
 ### 2023-07-16 - Add missing (only recommended) dependency (Sequencer)
