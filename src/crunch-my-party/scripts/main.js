@@ -95,9 +95,10 @@ export class PartyCruncher {
         return this.#isBusy;
     }
 
-    static setBusy(isBusy) {
+    static async setBusy(isBusy) {
+        //if (!isBusy) await Config.sleep(1000);
         this.#isBusy = isBusy;
-        Logger.debug("setBusy) ", isBusy ? "BUSY!" : "NOT BUSY")
+        Logger.debug("(PartyCruncher.setBusy) ", isBusy ? "BUSY!" : "NOT BUSY")
     }
 
     static #instances = [null, null, null];
@@ -135,7 +136,7 @@ export class PartyCruncher {
 
         try {
 
-            PartyCruncher.setBusy(true);
+            await PartyCruncher.setBusy(true);
 
             // ==================================================================================================
             // Step 1 - Parse & validate party definitions from module settings
@@ -197,11 +198,11 @@ export class PartyCruncher {
             Logger.error(false, e); // This will also print an error msg to the screen
             return;
         } finally {
-            PartyCruncher.setBusy(false);
+            await PartyCruncher.setBusy(false);
         }
 
         Logger.info(`... Toggling of party #${partyNo} complete.`);
-        PartyCruncher.setBusy(false);
+        await PartyCruncher.setBusy(false);
     }
 
     /**
@@ -227,7 +228,7 @@ export class PartyCruncher {
 
         try {
 
-            PartyCruncher.setBusy(true);
+            await PartyCruncher.setBusy(true);
 
             // ==================================================================================================
             // Step 1 - Parse & validate current token selection
@@ -266,11 +267,11 @@ export class PartyCruncher {
             Logger.error(false, e); // This will also print an error msg to the screen
             return;
         } finally {
-            PartyCruncher.setBusy(false);
+            await PartyCruncher.setBusy(false);
         }
 
         Logger.info(`... Grouping of party #${partyNo} complete.`);
-        PartyCruncher.setBusy(false);
+        await PartyCruncher.setBusy(false);
     }
 
     /**
@@ -278,7 +279,7 @@ export class PartyCruncher {
      * The new target token depends on whether party is crunched or exploded (auto-detected).
      * @param partyNo
      * @param useHotPanIfAvailable - toggles "Hot Pan & Zoom!", if it is available (autofocussing players' scene views onto the party)*/
-    static findParty(partyNo, useHotPanIfAvailable = true) {
+     static async findParty(partyNo, useHotPanIfAvailable = true) {
 
         if (PartyCruncher.isBusy()) {
             Logger.warn(false, Config.localize("errMsg.pleaseWaitStillBusy"));
@@ -291,7 +292,7 @@ export class PartyCruncher {
 
         try {
 
-            PartyCruncher.setBusy(true);
+            await PartyCruncher.setBusy(true);
 
             // ==================================================================================================
             // Step 1 - Parse & validate party definitions from module settings
@@ -337,11 +338,11 @@ export class PartyCruncher {
             Logger.error(false, e); // This will also print an error msg to the screen
             return;
         } finally {
-            PartyCruncher.setBusy(false);
+            await PartyCruncher.setBusy(false);
         }
 
         Logger.debug(`FINDing of party #${partyNo} complete.`);
-        PartyCruncher.setBusy(false);
+        await PartyCruncher.setBusy(false);
     }
 
     #collectValidatedTokenNamesFromModuleSettings(partyNo) {
@@ -623,7 +624,9 @@ export class PartyCruncher {
             if (canvas.tokens.controlled.length === 1 && involvedTokens.memberTokens.includes(canvas.tokens.controlled[0])) {
                 // If only one of the members is selected, use it as the target
                 // That way the GM can decide where to place the party token
-                return canvas.tokens.controlled[0];
+                let targetToken = canvas.tokens.controlled[0];
+                Logger.debug("(PartyCruncher.#getTarget) targetToken: ", targetToken);
+                return targetToken;
             }
 
             // Release any currently active tokens
@@ -808,12 +811,12 @@ export class PartyCruncher {
             resolve(
                 token.document.update(
                 {
-                    // take your position
+                    // Take your position
                     x: targetPosition._x,
                     y: targetPosition._y
                 },
                 {
-                    // And do NOT animate... AAAAArRGGGH!
+                    // BUT... do NOT animate... AAAAArRGGGH!
                     // Otherwise, tokens will be "floating" across the scene, revealing any hidden secrets ;-)
                     animate: false
                 })
