@@ -371,8 +371,9 @@ export class PartyCruncher {
             .map(name => name.trim().toLowerCase())
             .filter(name => name.length > 0); // ignore empty strings resulting from input like ",," oder ", ,"
 
-        Logger.debug(memberTokenNames);
-        Logger.debug(partyTokenNames);
+        Logger.debug(
+            "memberTokenNames:", memberTokenNames,
+            "partyTokenNames:", partyTokenNames);
 
         return {
             memberTokenNames: memberTokenNames,
