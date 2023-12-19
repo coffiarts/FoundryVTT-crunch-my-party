@@ -588,8 +588,8 @@ export class PartyCruncher {
      */
     #determineRequiredAction(involvedTokens, partyNo) {
 
-        let noOfMembersVisible = involvedTokens.memberTokens.filter(t => !t.document.hidden);
-        let isPartyVisible = (!involvedTokens.partyToken.document.hidden);
+        let noOfMembersVisible = involvedTokens?.memberTokens.filter(t => !t.document.hidden);
+        let isPartyVisible = (!involvedTokens?.partyToken?.document.hidden);
 
         let errMsg = "";
 
