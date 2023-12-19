@@ -177,7 +177,7 @@ You may choose to override the default animation with another one of your choice
 ## Upcoming features
 Things I am *considering* to do in the future (given proper demand for it - feedback welcome!):
 
-- `small`: Allow for missing tokens in the scene to make toggling more tolerant
+- `small`: ~~Allow for missing tokens in the scene to make toggling more tolerant~~ => RELEASED
 - `medium`: auto-create the group icon's image from its member tokens by generating overlay images. I _assume_ by now that this _should_ be doable in a similar same way as I've managed to generate overlay icons in my [Lock The Sheets!](https://github.com/coffiarts/FoundryVTT-lock-the-sheets) module. But it will require some research and experimenting!
 - `small`: support commas in token names (i.e. making the delimiter character configurable via user prefs)
 - `small` to `?`: find a robust solution for the token movement on EXPLODE, which is currently still potentially unreliable (tokens stacking onto each other erratically). If you're eager to contribute, feel free to have a look at the [related discussion on Discord](https://discord.com/channels/170995199584108546/722559135371231352/1080590427012485211).   
