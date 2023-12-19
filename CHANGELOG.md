@@ -1,9 +1,13 @@
 The **major** version number in my modules (like "11") always reflects the
 Foundry VTT **core** version it is compatible with (and recommended for).
 
+## 11.?.?
+### 202?-??-?? - ???
+- ???
+
 ## 11.0.5
 ### 2023-12-19 - Hotfix for 11.0.4
-- The newly introduced optimization for tolerating missing tokens on "crunch" could cause unintuitive error messages when the (still mandatory) group token was missing from the scene. Fixed now. 
+- The newly introduced optimization for tolerating missing tokens on "crunch" could cause unintuitive error messages when the (still mandatory) group token was missing from the scene. Fixed now.
 
 ## 11.0.4
 ### 2023-12-19 - Fixing the "Floating tokens bug" plus minor enhancements
