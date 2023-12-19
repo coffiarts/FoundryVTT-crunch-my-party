@@ -56,13 +56,13 @@ async function areOptionalDependenciesReady() {
 async function initDependencies() {
     Object.values(SUBMODULES).forEach(function (cl) {
         cl.init(); // includes loading each module's settings
-        Logger.debug("Submodule loaded:", cl.name);
+        Logger.debug("(initDependencies) Submodule loaded:", cl.name);
     });
 }
 
 async function initExposedClasses() {
     window.PartyCruncher = PartyCruncher;
-    Logger.debug("Exposed classes are ready");
+    Logger.debug("(initExposedClasses) Exposed classes are ready");
 }
 
 async function scanForOptionalDependencies() {
@@ -74,7 +74,7 @@ async function scanForOptionalDependencies() {
             Logger.info(`Optional 3rd-party mod [${modID}] is NOT installed.`);
         }
     }
-    Logger.debug(optionalDependenciesAvailable);
+    Logger.debug("(scanForOptionalDependencies) optionalDependenciesAvailable:", optionalDependenciesAvailable);
 }
 
 /**
@@ -97,7 +97,7 @@ export class PartyCruncher {
 
     static setBusy(isBusy) {
         this.#isBusy = isBusy;
-        Logger.debug((isBusy) ? "BUSY!" : "NOT BUSY")
+        Logger.debug("setBusy) ", isBusy ? "BUSY!" : "NOT BUSY")
     }
 
     static #instances = [null, null, null];
@@ -129,7 +129,7 @@ export class PartyCruncher {
             return;
         }
 
-        Logger.info(`TOGGLE - partyNo: #${partyNo}, useHotPan: ${useHotPanIfAvailable} ...`);
+        Logger.debug(`(PartyCruncher.toggleParty) TOGGLE - partyNo: #${partyNo}, useHotPan: ${useHotPanIfAvailable} ...`);
 
         const instance = PartyCruncher.#getInstance(partyNo);
 
@@ -142,7 +142,7 @@ export class PartyCruncher {
             // ==================================================================================================
             // grab raw input values from user prefs
             let validatedNames = instance.#collectValidatedTokenNamesFromModuleSettings(partyNo);
-            Logger.debug(validatedNames);
+            Logger.debug("(PartyCruncher.toggleParty) validatedNames: ", validatedNames);
 
             // ==================================================================================================
             // Step 2 - Update user prefs in module settings with the now cleaned lists
@@ -153,29 +153,29 @@ export class PartyCruncher {
             // Step 3 - gather and validate all the involved tokens from current scene
             // ==================================================================================================
             let involvedTokens = instance.#collectInvolvedTokens(validatedNames, partyNo);
-            Logger.debug(involvedTokens);
+            Logger.debug("(PartyCruncher.toggleParty) involvedTokens: ", involvedTokens);
 
             // ==================================================================================================
             // Step 4 - auto-determine the required action (CRUNCH or EXPLODE?)
             // ==================================================================================================
             let requiredAction = instance.#determineRequiredAction(involvedTokens, partyNo);
-            Logger.debug(`required action: ${requiredAction.toString()}`);
+            Logger.debug(`(PartyCruncher.toggleParty) required action: ${requiredAction.toString()}`);
 
             // ==================================================================================================
             // Step 5 - auto-determine target token (depending on requiredAction), and focus on it
             // ==================================================================================================
             let targetToken = instance.#getTarget(requiredAction, involvedTokens, partyNo);
-            Logger.debug(`target token: [${targetToken.name}]`);
+            Logger.debug(`(PartyCruncher.toggleParty) target token: [${targetToken.name}]`);
             canvas.tokens.releaseAll();
             if (useHotPanIfAvailable && optionalDependenciesAvailable.includes('hot-pan')) {
-                Logger.debug(`switching HotPan ON (useHotPan: ${useHotPanIfAvailable})`);
+                Logger.debug(`(PartyCruncher.toggleParty) switching HotPan ON (useHotPan: ${useHotPanIfAvailable})`);
                 HotPan.switchOn(true); // true means: silentMode (no UI message)
             }
             targetToken.control({releaseOthers: true})
             canvas.animatePan(targetToken.getCenter(targetToken.x, targetToken.y));
             if (useHotPanIfAvailable && optionalDependenciesAvailable.includes('hot-pan')) {
                 setTimeout(function () {
-                    Logger.debug(`switching HotPan BACK (useHotPan: ${useHotPanIfAvailable})`);
+                    Logger.debug(`(PartyCruncher.toggleParty) switching HotPan BACK (useHotPan: ${useHotPanIfAvailable})`);
                     HotPan.switchBack(true); // true means: silentMode (no UI message)
                 }, 1000);
             }
@@ -217,7 +217,7 @@ export class PartyCruncher {
             return;
         }
 
-        Logger.debug(`GROUP - partyNo: ${partyNo} ...`);
+        Logger.debug(`(PartyCruncher.toggleParty) GROUP - partyNo: ${partyNo} ...`);
 
         // Force activation of the Token Layer in the UI
         // The following steps require token selection, which won't work with any other layer active
@@ -240,7 +240,7 @@ export class PartyCruncher {
                 return;
             } else {
                 namesFromSelection.partyTokenNames = [partyTokenNameInput];
-                Logger.debug(`namesFromSelection for grouping party #${partyNo}:`, namesFromSelection);
+                Logger.debug(`(PartyCruncher.groupParty) namesFromSelection for grouping party #${partyNo}:`, namesFromSelection);
             }
             let validatedNames = instance.#validateNames(partyNo, namesFromSelection);
 
@@ -285,7 +285,7 @@ export class PartyCruncher {
             return;
         }
 
-        Logger.debug(`FIND - partyNo: ${partyNo}, useHotPan: ${useHotPanIfAvailable} ...`);
+        Logger.debug(`(PartyCruncher.findParty) FIND - partyNo: ${partyNo}, useHotPan: ${useHotPanIfAvailable} ...`);
 
         const instance = PartyCruncher.#getInstance(partyNo);
 
@@ -298,13 +298,13 @@ export class PartyCruncher {
             // ==================================================================================================
             // grab raw input values from user prefs
             let validatedNames = instance.#collectValidatedTokenNamesFromModuleSettings(partyNo);
-            Logger.debug(validatedNames);
+            Logger.debug("(PartyCruncher.findParty) validatedNames: ", validatedNames);
 
             // ==================================================================================================
             // Step 2 - gather and validate all the involved tokens from current scene
             // ==================================================================================================
             let involvedTokens = instance.#collectInvolvedTokens(validatedNames, partyNo);
-            Logger.debug(involvedTokens);
+            Logger.debug("(PartyCruncher.findParty) involvedTokens: ", involvedTokens);
 
             // ==================================================================================================
             // Step 3 - Finally... just FIND it!
@@ -371,7 +371,7 @@ export class PartyCruncher {
             .map(name => name.trim().toLowerCase())
             .filter(name => name.length > 0); // ignore empty strings resulting from input like ",," oder ", ,"
 
-        Logger.debug(
+        Logger.debug("(PartyCruncher.#collectNamesFromStrings) ",
             "memberTokenNames:", memberTokenNames,
             "partyTokenNames:", partyTokenNames);
 
@@ -403,7 +403,7 @@ export class PartyCruncher {
      */
     #validateNames(partyNo = 1, names) {
 
-        Logger.debug(names);
+        Logger.debug("(PartyCruncher.#validateNames) names: ", names);
         let errMsg = "";
 
         // Check 1: Do we have enough tokens? Do we have not too many tokens?
@@ -548,14 +548,14 @@ export class PartyCruncher {
 
         for (let token of canvas.tokens.ownedTokens) {
 
-            Logger.debug(`Checking if scene token is in list: [${token.name}] ...`);
+            Logger.debug(`(PartyCruncher.#collectTokensByNamesIfUnique) Checking if scene token is in list: [${token.name}] ...`);
 
             if (names.includes(token.name.toLowerCase())) {
 
                 // Hurray, we've found a  token from the list!
                 if (tokensFound.filter(t => t.name === token.name).length === 0) { // not yet registered
                     tokensFound.push(token);
-                    Logger.debug(`Hurray! Found token from the list: [${token.name}]!`);
+                    Logger.debug(`(PartyCruncher.#collectTokensByNamesIfUnique) Hurray! Found token from the list: [${token.name}]!`);
                 } else {
                     // Error: ... but it's a duplicate!
                     errMsg += `[${token.name}] ${Config.localize(`errMsg.notUniqueInScene`)}<br/>`;
@@ -615,7 +615,7 @@ export class PartyCruncher {
     /**
      *
      * @param requiredAction
-     * @param involvedTokens@param partyNo
+     * @param involvedTokens
      */
     #getTarget(requiredAction, involvedTokens) {
         if (requiredAction === PartyCruncher.Actions.CRUNCH) {
@@ -654,7 +654,7 @@ export class PartyCruncher {
         if (optionalDependenciesAvailable.includes('JB2A_DnD5e') && optionalDependenciesAvailable.includes('autoanimations')) {
             let animationPath = Config.setting('animation4Crunch');
             if (animationPath) {
-                Logger.debug(`playing CRUNCH animation: ${animationPath}`);
+                Logger.debug(`(PartyCruncher.#crunchParty) playing CRUNCH animation: ${animationPath}`);
                 new Sequence()
                     .effect()
                     .file(animationPath)
@@ -706,7 +706,6 @@ export class PartyCruncher {
      *
      * @param involvedTokens
      * @param targetToken - Here this is always the party token itself, providing the anchor point for the member tokens
-     * @param partyNo
      */
     async #explodeParty(involvedTokens, targetToken) {
 
@@ -728,7 +727,7 @@ export class PartyCruncher {
         if (optionalDependenciesAvailable.includes('JB2A_DnD5e') && optionalDependenciesAvailable.includes('autoanimations')) {
             let animationPath = Config.setting('animation4Explode');
             if (animationPath) {
-                Logger.debug(`playing EXPLODE animation: ${animationPath}`);
+                Logger.debug(`(PartyCruncher.#explodeParty) playing EXPLODE animation: ${animationPath}`);
                 new Sequence()
                     .effect()
                     .file(animationPath)
@@ -769,12 +768,12 @@ export class PartyCruncher {
 
             // Position each token along an "outward spiral" around the origin (which is the party token)
             let movementPath = PartyCruncher.#getMovementPathToExplodePosition(tokenCounter++);
-            Logger.debug(`[${memberToken.name}]: movementPath =>`, movementPath);
+            Logger.debug(`(PartyCruncher.#explodeParty) [${memberToken.name}]: movementPath =>`, movementPath);
 
             // Detect directions of this token's movement
             let xdir = (movementPath.x >= 0) ? 1 : -1;
             let ydir = (movementPath.y >= 0) ? 1 : -1;
-            Logger.debug('xdir, ydir', xdir, ydir);
+            Logger.debug('(PartyCruncher.#explodeParty) xdir, ydir', xdir, ydir);
 
             let safetyCount = 0;
 
@@ -832,7 +831,7 @@ export class PartyCruncher {
      */
     async #pushTokenByOneStep(tokenLayer, x, y, token) {
         return new Promise( resolve => {
-            Logger.debug('tokenLayer, x, y, token.name', tokenLayer, x, y, token.name);
+            Logger.debug('(PartyCruncher.#pushTokenByOneStep) tokenLayer, x, y, token.name', tokenLayer, x, y, token.name);
             resolve(tokenLayer.moveMany(
                 {dx: x, dy: y, rotate: false, ids: token.id}));
         });
@@ -894,9 +893,9 @@ export class PartyCruncher {
     }
 
     static #resolvePromptForPartyTokenName(form) {
-        Logger.debug('form', form);
+        Logger.debug('(PartyCuncher.#resolvePromptForPartyTokenName) form', form);
         let result = form.partyTokenName.value.toLowerCase();
-        Logger.debug(`partyTokenName from prompt input: ${result}`);
+        Logger.debug(`(PartyCuncher.#resolvePromptForPartyTokenName) partyTokenName from prompt input: ${result}`);
         return result;
     }
 }

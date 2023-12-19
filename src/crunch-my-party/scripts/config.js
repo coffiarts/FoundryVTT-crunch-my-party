@@ -92,18 +92,18 @@ export class Config {
                     ...data
                 }
             );
-            Logger.debug("Game Setting registered:", name);
+            Logger.debug("(Config.registerSettings) Game Setting registered:", name);
         });
     }
 
     static setting(key, verbose = false) {
-        if (verbose) Logger.debug(`get setting: key = ${key}`);
+        if (verbose) Logger.debug(`(Config.setting) get setting: key = ${key}`);
         return game.settings.get(Config.data.modID, key);
     }
 
     static async modifySetting(key, newValue) {
         game.settings.set(Config.data.modID, key, newValue);
-        Logger.debug("Game Setting changed by module:", key, "=>", newValue);
+        Logger.debug("(Config.modifySetting) Game Setting changed by module:", key, "=>", newValue);
     }
 
     /**
@@ -124,7 +124,7 @@ export class Config {
     }
 
     static async sleep(msec) {
-        Logger.debug(`Waiting for ${msec} msec. Zzzzzz....`)
+        Logger.debug(`(Config.sleep) Waiting for ${msec} msec. Zzzzzz....`)
         return new Promise(resolve => setTimeout(resolve, msec));
     }
 }
