@@ -503,18 +503,19 @@ export class PartyCruncher {
         const memberTokens = this.#collectTokensByNamesIfUnique(names.memberTokenNames);
         const partyToken = this.#collectTokensByNamesIfUnique([names.partyTokenName])[0];
 
-        // Check 2: Are there any tokens that could NOT be found?
-        let missingTokens = names.memberTokenNames
-            .map(name => name.toUpperCase())
-            .filter(name => !memberTokens
-                .map(t => t.name.toUpperCase())
-                .includes((name)));
-        if (!partyToken) {
-            missingTokens.push(names.partyTokenName.toUpperCase());
-        }
-        if (missingTokens.length > 0) {
-            errMsg += `${Config.localize(`errMsg.tokensMissingInScene`)}: ${missingTokens.join(`, `)}<br/>`;
-        }
+        // (DEACTIVATED FEATURE) Check 2: Are there any tokens that could NOT be found?
+        // let missingTokens = names.memberTokenNames
+        //     .map(name => name.toUpperCase())
+        //     .filter(name => !memberTokens
+        //         .map(t => t.name.toUpperCase())
+        //         .includes((name)));
+        // if (!partyToken) {
+        //     missingTokens.push(names.partyTokenName.toUpperCase());
+        // }
+        //
+        // if (missingTokens.length > 0) {
+        //     errMsg += `${Config.localize(`errMsg.tokensMissingInScene`)}: ${missingTokens.join(`, `)}<br/>`;
+        // }
 
         if (errMsg) {
             errMsg =
