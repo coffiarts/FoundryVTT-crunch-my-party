@@ -187,11 +187,11 @@ export class PartyCruncher {
             switch (requiredAction) {
                 case PartyCruncher.Actions.CRUNCH:
                     Logger.info(`Crunching party ${partyNo} ...`);
-                    await instance.#crunchParty(involvedTokens, targetToken, partyNo);
+                    await instance.#crunchParty(involvedTokens, targetToken);
                     break;
                 case PartyCruncher.Actions.EXPLODE:
                     Logger.info(`Exploding party ${partyNo} ...`);
-                    await instance.#explodeParty(involvedTokens, targetToken, partyNo);
+                    await instance.#explodeParty(involvedTokens, targetToken);
             }
 
         } catch (e) {
@@ -678,27 +678,34 @@ export class PartyCruncher {
             }, true);
         }
 
-        // Everybody now, gather at the target!!
-        // Note that we're reversing the order temporarily, because this is visually much nicer (especially with large groups).
+        const targetPosition = targetToken.position;
+        // Crunch step #1: Everybody gather at the target now!!
+        // We're reversing the order temporarily, because this is visually much nicer (especially with large groups).
         // It processes outer tokens first and inner ones last.
-        for (const t of involvedTokens.memberTokens.reverse()) {
-            // Teleport to the origin - and wait for it to complete before proceeding!
-            // Otherwise, our tokens would end up anywhere random on the way!
-            this.#teleportToken(t, targetToken.position);
+        // let tokenUpdates = [];
+        // for (const token of involvedTokens.memberTokens.reverse()) {
+        //     // Teleport to the target (which is the party's "center")
+        //     tokenUpdates.push(this.#getTokenTeleportUpdate(token, targetToken.position, false));
+        // }
+        //
+        // // Do the same for the party token (and render it visible)
+        // tokenUpdates.push(this.#getTokenTeleportUpdate(involvedTokens.partyToken, targetToken.position, false));
+        //
+        // // Finish step #1: Apply token updates all at once (to prevent race conditions)
+        // await game.scenes.active.updateEmbeddedDocuments('Token', tokenUpdates);
+
+        // Crunch step #2: Everybody, go invisible and move out of the way!
+        let tokenUpdates = [];
+        for (const token of involvedTokens.memberTokens) {
+            tokenUpdates.push(this.#getTokenTeleportUpdate(token, {x:0, y:0}, true));
         }
 
-        // Do the same for the party token (still invisible)
-        await this.#teleportToken(involvedTokens.partyToken, targetToken.position);
+        // Move the party token into view and render it visible
+        tokenUpdates.push(this.#getTokenTeleportUpdate(involvedTokens.partyToken, targetPosition, false));
 
-        // Reveal the party token
-        involvedTokens.partyToken.document.update({hidden: false});
+        // Finish step #2: Apply token updates all at once (to prevent race conditions)
+        await game.scenes.active.updateEmbeddedDocuments('Token', tokenUpdates);
 
-        // Hide member tokens, and move them once again, this time to a far-away corner of the map
-        for (const t of involvedTokens.memberTokens) {
-            t.document.update(
-                {hidden: true});
-            await this.#teleportToken(t, {_x:0, _y:0});
-        }
         // Don't forget to set back memberToken order
         involvedTokens.memberTokens.reverse();
 
@@ -751,47 +758,59 @@ export class PartyCruncher {
             }, true);
         }
 
-        // Everybody now, swarm out!!
-        let tokenCounter = 0;
+        let targetPosition = involvedTokens.partyToken.position;
 
+        // Explode step #1: Everybody, grab some drinks and show up at the "party center"
+        let tokenUpdates = [];
+        let tokenCounter = 0;
         for (const memberToken of involvedTokens.memberTokens) {
 
-            // Teleport to the partyToken's current position (=origin) - and wait for it to complete!
-            // Otherwise, our tokens would end up anywhere random on their way!
-            await this.#teleportToken(memberToken, targetToken.position);
-
-            // Hide the party token
-            involvedTokens.partyToken.document.update({hidden: true});
-
-            // Now show yourself!
-            memberToken.document.update({hidden: false});
-
-            // Set selection onto the token.
-            // Otherwise, movement by moveMany below won't have any effect
-            memberToken.control({releaseOthers: true});
-
-            // Position each token along an "outward spiral" around the origin (which is the party token)
-            let movementPath = PartyCruncher.#getMovementPathToExplodePosition(tokenCounter++);
-            Logger.debug(`(PartyCruncher.#explodeParty) [${memberToken.name}]: movementPath =>`, movementPath);
-
-            // Detect directions of this token's movement
-            let xdir = (movementPath.x >= 0) ? 1 : -1;
-            let ydir = (movementPath.y >= 0) ? 1 : -1;
-            Logger.debug('(PartyCruncher.#explodeParty) xdir, ydir', xdir, ydir);
-
-            let safetyCount = 0;
-
-            for (let x = 0; x !== movementPath.x && safetyCount++ < 10; x += xdir) {
-                // take one step along movementPath.x
-                await this.#pushTokenByOneStep(tokenLayer, xdir, 0, memberToken);
-                await Config.sleep(200);
+            const movementPath = PartyCruncher.#getMovementPathToExplodePosition(tokenCounter++);
+            targetPosition = {
+                x: involvedTokens.partyToken.position.x + movementPath.x,
+                y: involvedTokens.partyToken.position.y + movementPath.y,
             }
-            for (let y = 0; y !== movementPath.y && safetyCount++ < 10; y += ydir) {
-                // take one step along movementPath.y
-                await this.#pushTokenByOneStep(tokenLayer, 0, ydir, memberToken);
-                await Config.sleep(200);
-            }
+
+            // Teleport to the "party center" and render visible
+            tokenUpdates.push(this.#getTokenTeleportUpdate(memberToken, targetPosition, false));
         }
+
+
+        // Move the party token out of the way and render it invisible ("WE are the party now!")
+        tokenUpdates.push(this.#getTokenTeleportUpdate(involvedTokens.partyToken, {x: 0, y: 0}, true));
+
+        // Finish step #1: Apply token updates all at once (to prevent race conditions)
+        await game.scenes.active.updateEmbeddedDocuments('Token', tokenUpdates);
+
+        // // Explode step #2: Swarm out and take your places
+        // let tokenCounter = 0;
+        // for (const memberToken of involvedTokens.memberTokens) {
+        //     //Set selection onto the token.
+        //     //Otherwise, movement by moveMany below won't have any effect
+        //     memberToken.control({releaseOthers: true});
+        //
+        //     // Position each token along an "outward spiral" around the origin (which is the party token)
+        //     let movementPath = PartyCruncher.#getMovementPathToExplodePosition(tokenCounter++);
+        //     Logger.debug(`(PartyCruncher.#explodeParty) [${memberToken.name}]: movementPath =>`, movementPath);
+        //
+        //     // Detect directions of this token's movement
+        //     let xdir = (movementPath.x >= 0) ? 1 : -1;
+        //     let ydir = (movementPath.y >= 0) ? 1 : -1;
+        //     Logger.debug('(PartyCruncher.#explodeParty) xdir, ydir', xdir, ydir);
+        //
+        //     let safetyCount = 0;
+        //
+        //     for (let x = 0; x !== movementPath.x && safetyCount++ < 10; x += xdir) {
+        //         // take one step along movementPath.x
+        //         await this.#pushTokenByOneStep(tokenLayer, xdir, 0, memberToken);
+        //         await Config.sleep(200);
+        //     }
+        //     for (let y = 0; y !== movementPath.y && safetyCount++ < 10; y += ydir) {
+        //         // take one step along movementPath.y
+        //         await this.#pushTokenByOneStep(tokenLayer, 0, ydir, memberToken);
+        //         await Config.sleep(200);
+        //     }
+        // }
 
         // Now we need to loop over all members once more to select them all
         // If we had done this within the first loop, together with the moving, the tokens movements
@@ -799,30 +818,17 @@ export class PartyCruncher {
         for (const memberToken of involvedTokens.memberTokens) {
             memberToken.control({releaseOthers: false});
         }
-
-        // Hide the party token
-        involvedTokens.partyToken.document.update({hidden: true});
-
-        // Finally, move the party token to a far-away corner of the map
-        await this.#teleportToken(involvedTokens.partyToken, {_x:0, _y:0});
     }
 
-    async #teleportToken(token, targetPosition) {
-        return new Promise( resolve => {
-            resolve(
-                token.document.update(
-                {
-                    // Take your position
-                    x: targetPosition._x,
-                    y: targetPosition._y
-                },
-                {
-                    // BUT... do NOT animate... AAAAArRGGGH!
-                    // Otherwise, tokens will be "floating" across the scene, revealing any hidden secrets ;-)
-                    animate: false
-                })
-            );
-        });
+    #getTokenTeleportUpdate(token, targetPosition, hidden) {
+        const effectiveTargetPosition = (targetPosition != null) ? targetPosition : token.position; // NULL target means: don't move, stay where you are!
+        return {
+            _id: token.document._id,
+            x: effectiveTargetPosition.x,
+            y: effectiveTargetPosition.y,
+            animate: false, // NEVER animate... AAAAArRGGGH! Otherwise, tokens will be "floating" across the scene, revealing any hidden secrets.
+            hidden: hidden
+        };
     }
 
     /**
