@@ -22,7 +22,7 @@
 - Do you REALLY like my work?
 - Could you even imagine to DONATE?
 
-Feel free to head over to this mod on Forge, where you can even pay for it what you like: https://eu.forge-vtt.com/bazaar/package/crunch-my-party
+Feel free to [head over to this mod on Forge](https://eu.forge-vtt.com/bazaar/package/crunch-my-party), where you can even pay for it what you like.
 
 This is absolutely optional! Don't feel obliged in any way to do so. My mod is and will remain available for free.
 

@@ -692,7 +692,7 @@ export class PartyCruncher {
         tokenUpdates.push(this.#getTokenTeleportUpdate(involvedTokens.partyToken, targetToken.position, true));
 
         // Finish step #1: Apply token updates all at once (to prevent race conditions)
-        await game.scenes.active.updateEmbeddedDocuments(
+        await game.scenes.viewed.updateEmbeddedDocuments(
             'Token',
             tokenUpdates,
             {animate: false} // NEVER animate... AAAAArRGGGH! Otherwise, tokens will be "floating" across the scene, revealing any hidden secrets.});
@@ -708,7 +708,7 @@ export class PartyCruncher {
         tokenUpdates.push(this.#getTokenTeleportUpdate(involvedTokens.partyToken, targetPosition, false));
 
         // Finish step #2: Apply token updates all at once (to prevent race conditions)
-        await game.scenes.active.updateEmbeddedDocuments(
+        await game.scenes.viewed.updateEmbeddedDocuments(
             'Token',
             tokenUpdates,
             {animate: false} // NEVER animate... AAAAArRGGGH! Otherwise, tokens will be "floating" across the scene, revealing any hidden secrets.});
@@ -777,7 +777,7 @@ export class PartyCruncher {
         tokenUpdates.push(this.#getTokenTeleportUpdate(involvedTokens.partyToken, {x: 0, y: 0}, true));
 
         // Finish step #1: Apply token updates all at once (to prevent race conditions)
-        await game.scenes.active.updateEmbeddedDocuments(
+        await game.scenes.viewed.updateEmbeddedDocuments(
             'Token',
             tokenUpdates,
             {animate: false} // NEVER animate... AAAAArRGGGH! Otherwise, tokens will be "floating" across the scene, revealing any hidden secrets.});
