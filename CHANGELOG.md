@@ -1,9 +1,12 @@
 The **major** version number in my modules (like "11") always reflects the
 Foundry VTT **core** version it is compatible with (and recommended for).
 
-## 11.?.?
-### 202?-??-?? - ???
-- ???
+## 11.0.6
+### 2023-12-22 - Bugfix for [issue #2](https://github.com/coffiarts/FoundryVTT-crunch-my-party/issues/2)
+Fixes a [stupid little bug](https://github.com/coffiarts/FoundryVTT-crunch-my-party/issues/2) that has been in there since the beginning.<br/>
+Whenever one was trying to crunch/explode a party in a scene that was only _viewed_, but not the _active_ scene, an incomprehensible error was thrown onto the screen.
+<br/>Now you can use it safely both in active and viewed-only scenes.
+<br/>Thanks to github user [cwlithgow](https://github.com/cwlithgow) for spotting this!
 
 ## 11.0.5
 ### 2023-12-19 - Hotfix for 11.0.4
