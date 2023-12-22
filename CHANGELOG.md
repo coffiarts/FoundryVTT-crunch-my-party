@@ -1,6 +1,11 @@
 The **major** version number in my modules (like "11") always reflects the
 Foundry VTT **core** version it is compatible with (and recommended for).
 
+## 11.0.6.?
+### 202?-??-?? - ???
+- ???
+
+
 ## 11.0.6
 ### 2023-12-22 - Bugfix for [issue #2](https://github.com/coffiarts/FoundryVTT-crunch-my-party/issues/2)
 Fixes a [stupid little bug](https://github.com/coffiarts/FoundryVTT-crunch-my-party/issues/2) that has been in there since the beginning.<br/>
