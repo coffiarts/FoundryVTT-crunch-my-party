@@ -1,10 +1,10 @@
 The **major** version number in my modules (like "11") always reflects the
 Foundry VTT **core** version it is compatible with (and recommended for).
 
-## 11.0.6.?
-### 202?-??-?? - ???
-- ???
-
+## 11.0.7
+### 2024-04-02 - Keybinding support
+- Adds optional keybindings for toggling and finding groups (gamemasters only).
+- "Optional" means: There are no preassigned key combinations. Assign them to your liking in the game settings (or ignore it if you don't want to use it). My personal preference is **SHIFT + 1/2/3/4/5** for finding and **CTRL + SHIFT + 1/2/3/4/5** for toggling groups.
 
 ## 11.0.6
 ### 2023-12-22 - Bugfix for [issue #2](https://github.com/coffiarts/FoundryVTT-crunch-my-party/issues/2)

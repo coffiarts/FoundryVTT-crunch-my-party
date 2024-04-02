@@ -69,6 +69,8 @@
     "promptForPartyTokenNameText": "Name des Gruppen-Tokens, der diese Auswahl repräsentieren soll<br/>(muss unter exakt diesem Namen in der Szene existieren!)",
     "saveButton": "Übernehmen",
     "cancelButton": "Abbrechen",
-    "groupingConfirmation": "Die folgenden Tokens sind nun der <strong>Gruppe #{partyNo} [Token: {partyTokenName}]</strong> zugewiesen"
+    "groupingConfirmation": "Die folgenden Tokens sind nun der <strong>Gruppe #{partyNo} [Token: {partyTokenName}]</strong> zugewiesen",
+    "keybindingMenuLabelFind": "Gruppe # finden",
+    "keybindingMenuLabelToggle": "Gruppe # umschalten (vereinigen/trennen)"
   }
 }

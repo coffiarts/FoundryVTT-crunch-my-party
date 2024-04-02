@@ -48,6 +48,7 @@ This is absolutely optional! Don't feel obliged in any way to do so. My mod is a
   * [TOGGLE - EXPLODE a collapsed party into separate member tokens](#toggle---explode-a-collapsed-party-into-separate-member-tokens)
   * [FIND - Jump to an already defined party in the scene](#find---jump-to-an-already-defined-party-in-the-scene)
 - [Known restrictions](#known-restrictions)
+- [Find and toggle by hotkeys](#find-and-toggle-by-hotkeys)
 - [Control it by macro](#control-it-by-macro)
 - [Adjustable module settings](#adjustable-module-settings)
 - [Recommended modules in combination with this one](#recommended-modules-in-combination-with-this-one)
@@ -114,6 +115,15 @@ That's it. Your canvas view moves automatically to the scene location of that pa
 ## Known restrictions
 - Token names may not (currently) have ***commas*** (comma is used as delimiter for the token names list stored in user prefs). If many people should comply about it, I'll try to make the delimiter char configurable (see [Upcoming features](#upcoming-features))
 - The "EXPLODE" animation of large groups appears somewhat clumsy and slow. That is known and by design. I had to build in a 200 msec timeout between every two tokens, to improve stability (no better solution found yet). If you are eager to contribute, have a look at the [related disussion on Discord](https://discord.com/channels/170995199584108546/722559135371231352/1080590427012485211)
+
+## Find and toggle by hotkeys
+You (gamemasters only) can assign custom hotkeys for finding and toggling groups in the game settings (by default it is empty to prevent unwanted key collisions). My personal preference is **SHIFT + 1/2/3/4/5** for finding and **CTRL + SHIFT + 1/2/3/4/5** for toggling.
+
+<img src="src/crunch-my-party/artwork/crunch-my-party-keybinding-step1.png" alt="Crunch My Party! assign keybinding - step 1"/>
+
+<img src="src/crunch-my-party/artwork/crunch-my-party-keybinding-step2.png" alt="Crunch My Party! assign keybinding - step 2"/>
+
+<img src="src/crunch-my-party/artwork/crunch-my-party-keybinding-step3.png" alt="Crunch My Party! assign keybinding - step 3"/>
 
 ## Control it by macro
 Use the exposed `class PartyCruncher` - just like this, it's a no-brainer:

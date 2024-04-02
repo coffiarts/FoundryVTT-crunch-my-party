@@ -1,4 +1,5 @@
 import {Logger} from './logger.js';
+import {PartyCruncher} from "./main.js";
 
 /// keep values in sync with module.json!
 const MOD_ID = "crunch-my-party";
@@ -65,6 +66,42 @@ export class Config {
         }
 
         Config.registerSettings(data);
+
+        // Add the keybindings for FIND
+        for(let index = 1; index <= NO_OF_PARTIES; index++) {
+            game.keybindings.register("crunch-my-party", `find${index}`, {
+                name: Config.localize('keybindingMenuLabelFind').replace('#', index),
+                editable: [
+                    //{ key: "Key1/2/3/4", modifiers: [KeyboardManager.MODIFIER_KEYS.SHIFT] }
+                ],
+                restricted: true,
+                onDown: () => {
+                    if (!game.user.isGM) {
+                        return;
+                    }
+                    PartyCruncher.findParty(index);
+                }
+            });
+        }
+        Logger.info(`${NO_OF_PARTIES} empty keybindings for FIND registered. Assign it to your liking in the game settings.`);
+
+        // Add the keybindings for TOGGLE
+        for(let index = 1; index <= NO_OF_PARTIES; index++) {
+            game.keybindings.register("crunch-my-party", `toggle${index}`, {
+                name: Config.localize('keybindingMenuLabelToggle').replace('#', index),
+                editable: [
+                    //{ key: "Key1/2/3/4", modifiers: [KeyboardManager.MODIFIER_KEYS.SHIFT, KeyboardManager.MODIFIER_KEYS.CONTROL] }
+                ],
+                restricted: true,
+                onDown: () => {
+                    if (!game.user.isGM) {
+                        return;
+                    }
+                    PartyCruncher.toggleParty(index);
+                }
+            });
+        }
+        Logger.info(`${NO_OF_PARTIES} empty keybindings for TOGGLE registered. Assign it to your liking in the game settings.`);
     }
 
     static registerSettings(settingsData) {

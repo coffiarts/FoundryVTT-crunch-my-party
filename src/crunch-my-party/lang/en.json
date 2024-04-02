@@ -69,6 +69,8 @@
     "promptForPartyTokenNameText": "Name of the party token that shall represent selected members<br/>(must exist with this exact name in current scene!)",
     "saveButton": "Save",
     "cancelButton": "Cancel",
-    "groupingConfirmation": "The following tokens have been assigned to <strong>party #{partyNo} [token: {partyTokenName}]</strong>"
+    "groupingConfirmation": "The following tokens have been assigned to <strong>party #{partyNo} [token: {partyTokenName}]</strong>",
+    "keybindingMenuLabelFind": "Find Party #",
+    "keybindingMenuLabelToggle": "Toggle Party # (collapse/explode)"
   }
 }
