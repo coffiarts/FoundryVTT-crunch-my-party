@@ -1,6 +1,6 @@
 ![](https://img.shields.io/badge/Foundry-v11-informational) 
 ![GitHub All Releases](https://img.shields.io/github/downloads/coffiarts/FoundryVTT-crunch-my-party/latest/total?label=Downloads+latest+release)
-![GitHub All Releases](https://img.shields.io/github/downloads/coffiarts/FoundryVTT-crunch-my-party/11.0.6/total?label=previous+release+[11.0.6])
+![GitHub All Releases](https://img.shields.io/github/downloads/coffiarts/FoundryVTT-crunch-my-party/11.0.7/total?label=previous+release+[11.0.7])
 
 # Crunch My Party! for Foundry VTT
 <table style="border:0">

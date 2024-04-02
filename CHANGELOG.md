@@ -1,6 +1,10 @@
 The **major** version number in my modules (like "11") always reflects the
 Foundry VTT **core** version it is compatible with (and recommended for).
 
+## 11.0.?
+### 2024-??-?? - ???
+- ???
+
 ## 11.0.7
 ### 2024-04-02 - Keybinding support
 - Adds optional keybindings for toggling and finding groups (gamemasters only).
