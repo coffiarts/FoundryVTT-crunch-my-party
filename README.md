@@ -2,6 +2,8 @@
 ![GitHub All Releases](https://img.shields.io/github/downloads/coffiarts/FoundryVTT-crunch-my-party/latest/module.zip?label=Downloads+latest+release)
 ![GitHub All Releases](https://img.shields.io/github/downloads/coffiarts/FoundryVTT-crunch-my-party/11.0.7/module.zip?label=previous+release+[11.0.7])
 [![Forge Installs](https://img.shields.io/badge/dynamic/json?label=Forge%20Installs&query=package.installs&suffix=%25&url=https%3A%2F%2Fforge-vtt.com%2Fapi%2Fbazaar%2Fpackage%2Fcrunch-my-party&colorB=03ff1c)](https://forge-vtt.com/bazaar#package=crunch-my-party)
+[![GitHub issues](https://img.shields.io/github/issues/coffiarts/FoundryVTT-crunch-my-party/bug)](https://github.com/coffiarts/FoundryVTT-crunch-my-party/issues)
+[![The Forge](https://img.shields.io/badge/The%20Forge-Pay%20What%20You%20Want-success?style=flat-square)](https://eu.forge-vtt.com/bazaar#package=crunch-my-party)
 
 # Crunch My Party! for Foundry VTT
 <table style="border:0">
