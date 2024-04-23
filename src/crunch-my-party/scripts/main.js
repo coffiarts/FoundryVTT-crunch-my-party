@@ -8,7 +8,7 @@ const SUBMODULES = {
     chatinfo: ChatInfo
 };
 
-const optionalDependencies = ['hot-pan', 'JB2A_DnD5e', 'autoanimations'];
+const optionalDependencies = ['hot-pan', 'JB2A_DnD5e', 'jb2a_patreon', 'autoanimations'];
 let optionalDependenciesAvailable = [];
 
 let ready2play;
@@ -655,7 +655,7 @@ export class PartyCruncher {
         // If JB2A_DnD5e && AA are installed, play the animation
         let audioPath = Config.setting('playAudio4Crunch') ? `../${Config.setting('audioFile4Crunch').trim()}` : Config.NO_AUDIO_FILE;
         if (!audioPath) audioPath = Config.NO_AUDIO_FILE;
-        if (optionalDependenciesAvailable.includes('JB2A_DnD5e') && optionalDependenciesAvailable.includes('autoanimations')) {
+        if ((optionalDependenciesAvailable.includes('JB2A_DnD5e') || optionalDependenciesAvailable.includes('jb2a_patreon')) && optionalDependenciesAvailable.includes('autoanimations')) {
             let animationPath = Config.setting('animation4Crunch');
             if (animationPath) {
                 Logger.debug(`(PartyCruncher.#crunchParty) playing CRUNCH animation: ${animationPath}`);
@@ -743,7 +743,7 @@ export class PartyCruncher {
         // If JB2A_DnD5e && AA are installed, play the animation
         let audioPath = Config.setting('playAudio4Explode') ? `../${Config.setting('audioFile4Explode').trim()}` : Config.NO_AUDIO_FILE;
         if (!audioPath) audioPath = Config.NO_AUDIO_FILE;
-        if (optionalDependenciesAvailable.includes('JB2A_DnD5e') && optionalDependenciesAvailable.includes('autoanimations')) {
+        if ((optionalDependenciesAvailable.includes('JB2A_DnD5e') || optionalDependenciesAvailable.includes('jb2a_patreon')) && optionalDependenciesAvailable.includes('autoanimations')) {
             let animationPath = Config.setting('animation4Explode');
             if (animationPath) {
                 Logger.debug(`(PartyCruncher.#explodeParty) playing EXPLODE animation: ${animationPath}`);
