@@ -1,9 +1,9 @@
 The **major** version number in my modules (like "11") always reflects the
 Foundry VTT **core** version it is compatible with (and recommended for).
 
-## 11.0.?
-### 2024-??-?? - ?
-- ?
+## 11.0.8
+### 2024-04-24 - Optimized JB2A compatibility by Syrious
+- Thanks to a pull request provided by github member [Syrious](https://github.com/Syrious), JB2A animations now also work with the Patreon version of JB2A, not only with the free version. See [Pull Request #5](https://github.com/coffiarts/FoundryVTT-crunch-my-party/pull/5).
 
 ## 11.0.7
 ### 2024-04-02 - Keybinding support
