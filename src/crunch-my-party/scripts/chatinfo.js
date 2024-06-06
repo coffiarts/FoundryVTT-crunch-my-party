@@ -7,8 +7,10 @@ export class ChatInfo {
         <div style="text-align: justify; color: #000000; padding: 10px; background-color: #CCD0CC; border: 2px solid #FFFFFF; border-radius: 15px;">
             <p style="text-align: center;">
                 <a href="${Config.data.modlink}">
-                    <img src="modules/crunch-my-party/artwork/cmp-logo.png" alt="${Config.data.modTitle} - Logo" style="border:0"/>
+                    <img src="modules/${Config.data.modID}/artwork/${Config.data.modID}-logo.png" alt="${Config.data.modTitle} - Logo" style="border:0"/>
                 </a>
+                <br/>
+                Version: chatInfoContent.version [<a href="modules/${Config.data.modID}/CHANGELOG.MD/">Changelog</a>]
             </p>
             <hr><div>
                 <h2 style="text-align: justify">chatInfoContent.title</h2>
@@ -31,6 +33,11 @@ export class ChatInfo {
     </div>`;
 
     static init() {
+        // create separator and title at the beginning of this settings section
+        Hooks.on('renderSettingsConfig', (app,[html]) => {
+            html.querySelector(`[data-setting-id="${Config.data.modID}.hideChatInfo"]`).insertAdjacentHTML('beforeBegin', `<h3>Chat Info</h3>`)
+        })
+
         // Register game settings relevant to this class specifically (all globally relevant settings are maintained by class Config)
         const settingsData = {
             hideChatInfo: {
@@ -44,14 +51,16 @@ export class ChatInfo {
                 if (Config.setting('hideChatInfo') === false) {
                     // Create Chat Message
                     await ChatMessage.create({
+                        whisper:ChatMessage.getWhisperRecipients("GM"),
                         user: game.user.id ?? game.user._id,
-                        speaker: ChatMessage.getSpeaker(),
+                        speaker: ChatMessage.getSpeaker({alias: Config.data.modTitle}),
                         content: ChatInfo.contentCardHTML
                             .replace('chatInfoContent.title', Config.localize('chatInfoContent.title'))
                             .replace('chatInfoContent.text1', Config.localize('chatInfoContent.text1'))
                             .replace('chatInfoContent.text2', Config.localize('chatInfoContent.text2'))
                             .replace('chatInfoContent.text3', Config.localize('chatInfoContent.text3'))
                             .replace('chatInfoContent.footer', Config.localize('chatInfoContent.footer'))
+                            .replace('chatInfoContent.version', Config.setting('modVersion'))
                         ,
                     }, {});
                     Logger.debug("(ChatInfo.init) Chat message created");

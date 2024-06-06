@@ -23,8 +23,7 @@ export class Config {
 
     static init() {
 
-        // Register all globally relevant game settings here
-        const data = {
+        const settingsData1 = {
             modVersion: {
                 scope: 'client', config: true, type: String, default: game.modules.get(MOD_ID).version,
                 onChange: value => {
@@ -34,7 +33,33 @@ export class Config {
                         game.settings.set(Config.data.modID, `modVersion`, game.modules.get(MOD_ID).version);
                     }
                 }
-            },
+            }
+        };
+        Config.registerSettings(settingsData1);
+
+        // create separator and title at the beginning of this settings section
+        Hooks.on('renderSettingsConfig', (app, [html]) => {
+            html.querySelector(`[data-setting-id="${Config.data.modID}.memberTokenNames1"]`).insertAdjacentHTML('beforeBegin', `<h3>${Config.localize('settingsMenu.membersSection')}</h3>`)
+        })
+
+        const settingsData2 = [];
+        // Special treatment for generic "party settings" (dynamically add as many individual entries as defined by NO_OF_PARTIES)
+        for (let index = 1; index <= NO_OF_PARTIES; index++) {
+            settingsData2[`memberTokenNames${index}`] = {
+                scope: 'world', config: true, type: String, default: ""
+            };
+            settingsData2[`partyTokenName${index}`] = {
+                scope: 'world', config: true, type: String, default: ""
+            }
+        }
+        Config.registerSettings(settingsData2);
+
+        // create separator and title at the beginning of this settings section
+        Hooks.on('renderSettingsConfig', (app, [html]) => {
+            html.querySelector(`[data-setting-id="${Config.data.modID}.animation4Crunch"]`).insertAdjacentHTML('beforeBegin', `<h3>${Config.localize('settingsMenu.animationsSection')}</h3>`)
+        });
+
+        const settingsData3 = {
             animation4Crunch: {
                 scope: 'world', config: true, type: String, default: "jb2a.extras.tmfx.inpulse.circle.02.normal"
             },
@@ -42,7 +67,11 @@ export class Config {
                 scope: 'world', config: true, type: Boolean, default: true
             },
             audioFile4Crunch: {
-                scope: 'world', config: true, type: String, filePicker: "audio", default: "modules/crunch-my-party/audio/audio_crunch.wav"
+                scope: 'world',
+                config: true,
+                type: String,
+                filePicker: "audio",
+                default: "modules/crunch-my-party/audio/audio_crunch.wav"
             },
             animation4Explode: {
                 scope: 'world', config: true, type: String, default: "jb2a.extras.tmfx.outpulse.circle.02.normal"
@@ -51,24 +80,17 @@ export class Config {
                 scope: 'world', config: true, type: Boolean, default: true
             },
             audioFile4Explode: {
-                scope: 'world', config: true, type: String, filePicker: "audio", default: "modules/crunch-my-party/audio/audio_explode.wav"
+                scope: 'world',
+                config: true,
+                type: String,
+                filePicker: "audio",
+                default: "modules/crunch-my-party/audio/audio_explode.wav"
             }
         };
-
-        // Special treatment for generic "party settings" (dynamically add as many individual entries as defined by NO_OF_PARTIES)
-        for(let index = 1; index <= NO_OF_PARTIES; index++) {
-            data[`memberTokenNames${index}`] = {
-                scope: 'world', config: true, type: String, default: ""
-            };
-            data[`partyTokenName${index}`] = {
-                scope: 'world', config: true, type: String, default: ""
-            }
-        }
-
-        Config.registerSettings(data);
+        Config.registerSettings(settingsData3);
 
         // Add the keybindings for FIND
-        for(let index = 1; index <= NO_OF_PARTIES; index++) {
+        for (let index = 1; index <= NO_OF_PARTIES; index++) {
             game.keybindings.register("crunch-my-party", `find${index}`, {
                 name: Config.localize('keybindingMenuLabelFind').replace('#', index),
                 editable: [
@@ -86,7 +108,7 @@ export class Config {
         Logger.info(`${NO_OF_PARTIES} empty keybindings for FIND registered. Assign it to your liking in the game settings.`);
 
         // Add the keybindings for TOGGLE
-        for(let index = 1; index <= NO_OF_PARTIES; index++) {
+        for (let index = 1; index <= NO_OF_PARTIES; index++) {
             game.keybindings.register("crunch-my-party", `toggle${index}`, {
                 name: Config.localize('keybindingMenuLabelToggle').replace('#', index),
                 editable: [

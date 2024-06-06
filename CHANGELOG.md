@@ -1,9 +1,13 @@
-The **major** version number in my modules (like "11") always reflects the
+The **major** version number in my modules (like "12") always reflects the
 Foundry VTT **core** version it is compatible with (and recommended for).
+
+## 12.?.?
+### 2024-??-?? - Fixes isse #7 (sounds not working in specific setup)
+- A technical adjustments to audio file paths that fixes broken audio for certain users 
 
 ## 12.0.0
 ### 2024-06-06 - v12 compatibility release
-- Self-explaining. No functional changes. 
+- Self-explaining. No functional changes.
 - Still backward-compatible with v11.
 
 ## 11.0.8

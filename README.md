@@ -1,15 +1,18 @@
 ![](https://img.shields.io/badge/Foundry-v11-informational)
 ![](https://img.shields.io/badge/Foundry-v12-informational)
-![GitHub All Releases](https://img.shields.io/github/downloads/coffiarts/FoundryVTT-crunch-my-party/latest/module.zip?label=Downloads+latest+release)
-![GitHub All Releases](https://img.shields.io/github/downloads/coffiarts/FoundryVTT-crunch-my-party/11.0.8/module.zip?label=previous+release+[11.0.8])
 [![Forge Installs](https://img.shields.io/badge/dynamic/json?label=Forge%20Installs&query=package.installs&suffix=%25&url=https%3A%2F%2Fforge-vtt.com%2Fapi%2Fbazaar%2Fpackage%2Fcrunch-my-party)](https://forge-vtt.com/bazaar#package=crunch-my-party)
-[![GitHub issues](https://img.shields.io/github/issues/coffiarts/FoundryVTT-crunch-my-party/bug)](https://github.com/coffiarts/FoundryVTT-crunch-my-party/issues)
 [![The Forge](https://img.shields.io/badge/The%20Forge-Pay%20What%20You%20Want-success?style=flat-square)](https://eu.forge-vtt.com/bazaar#package=crunch-my-party)
+
+![GitHub All Releases](https://img.shields.io/github/downloads/coffiarts/FoundryVTT-crunch-my-party/module.zip?label=All+time+downloads)
+![GitHub All Releases](https://img.shields.io/github/downloads/coffiarts/FoundryVTT-crunch-my-party/latest/module.zip?label=Latest+release)
+
+[![GitHub issues](https://img.shields.io/github/issues/coffiarts/FoundryVTT-crunch-my-party/bug)](https://github.com/coffiarts/FoundryVTT-crunch-my-party/issues)
+
 
 # Crunch My Party! for Foundry VTT
 <table style="border:0">
   <tr>
-    <td><img src="src/crunch-my-party/artwork/cmp-logo.png" alt="Hot Pan & Zoom! Logo"/></td>
+    <td><img src="src/crunch-my-party/artwork/crunch-my-party-logo.png" alt="Hot Pan & Zoom! Logo"/></td>
     <td>
         <p style="color:#da6502">
           *The* perfect utility for the game master handling multiple tokens as one party. Easily collapse arbitrary groups of scene tokens (representing parties) into an easy-to-use single "party token", and vice versa. Manage up to 5 separate parties with up to 25 members each!
