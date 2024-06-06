@@ -1,4 +1,5 @@
-![](https://img.shields.io/badge/Foundry-v11-informational) 
+![](https://img.shields.io/badge/Foundry-v11-informational)
+![](https://img.shields.io/badge/Foundry-v12-informational)
 ![GitHub All Releases](https://img.shields.io/github/downloads/coffiarts/FoundryVTT-crunch-my-party/latest/module.zip?label=Downloads+latest+release)
 ![GitHub All Releases](https://img.shields.io/github/downloads/coffiarts/FoundryVTT-crunch-my-party/11.0.8/module.zip?label=previous+release+[11.0.8])
 [![Forge Installs](https://img.shields.io/badge/dynamic/json?label=Forge%20Installs&query=package.installs&suffix=%25&url=https%3A%2F%2Fforge-vtt.com%2Fapi%2Fbazaar%2Fpackage%2Fcrunch-my-party)](https://forge-vtt.com/bazaar#package=crunch-my-party)
@@ -188,7 +189,7 @@ Installing these 3 optional mods (strongly recommended!) will play atmospheric a
 You may choose to override the default animation with another one of your choice by adjusting the game setting **"Explode animation (optional)"**. See [Adjustable module settings](#adjustable-module-settings).
 
 ## Compatibility and Dependencies
-- Tested on Foundry VTT 11.2xx and higher in world system "dsa5" / "tde5" (The Dark Eye). But I consider it system-agnostic.
+- Tested on Foundry VTT 11.2xx and higher (including v12) in world system "dsa5" / "tde5" (The Dark Eye). But I consider it system-agnostic.
 - No hard dependencies, but some warmly recommended *optional* 3rd-party modules are listed further above (see there to understand why I recommend them).
 
 ## Upcoming features

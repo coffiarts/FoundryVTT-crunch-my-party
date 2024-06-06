@@ -1,9 +1,10 @@
 The **major** version number in my modules (like "11") always reflects the
 Foundry VTT **core** version it is compatible with (and recommended for).
 
-## 11.0.?
-### 2024-??-?? - ?
-- ?
+## 12.0.0
+### 2024-06-01 - v12 compatibility release
+- Self-explaining. No functional changes. 
+- Still backward-compatible with v11.
 
 ## 11.0.8
 ### 2024-04-24 - Optimized JB2A compatibility by Syrious
