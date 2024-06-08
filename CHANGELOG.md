@@ -1,4 +1,4 @@
-The **major** version number in my modules (like "11") always reflects the
+The **major** version number in my modules (like "12") always reflects the
 Foundry VTT **core** version it is compatible with (and recommended for).
 
 ## 12.?.?
