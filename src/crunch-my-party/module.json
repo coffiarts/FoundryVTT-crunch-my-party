@@ -18,8 +18,8 @@
   "media": [
     {
       "type": "setup",
-      "url": "modules/crunch-my-party/artwork/cmp-logo.png",
-      "thumbnail": "modules/crunch-my-party/artwork/cmp-logo.png"
+      "url": "modules/crunch-my-party/artwork/crunch-my-party-logo.png",
+      "thumbnail": "modules/crunch-my-party/artwork/crunch-my-party-logo.png"
     }
   ],
   "authors": [

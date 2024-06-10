@@ -71,6 +71,10 @@
     "cancelButton": "Abbrechen",
     "groupingConfirmation": "Die folgenden Tokens sind nun der <strong>Gruppe #{partyNo} [Token: {partyTokenName}]</strong> zugewiesen",
     "keybindingMenuLabelFind": "Gruppe # finden",
-    "keybindingMenuLabelToggle": "Gruppe # umschalten (vereinigen/trennen)"
+    "keybindingMenuLabelToggle": "Gruppe # umschalten (vereinigen/trennen)",
+    "settingsMenu": {
+      "membersSection": "Gruppen-Konfiguration",
+      "animationsSection": "Animationseinstellungen (erfordert JB2A & Automated Animations)"
+    }
   }
 }

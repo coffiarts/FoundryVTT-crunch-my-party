@@ -71,6 +71,10 @@
     "cancelButton": "Cancel",
     "groupingConfirmation": "The following tokens have been assigned to <strong>party #{partyNo} [token: {partyTokenName}]</strong>",
     "keybindingMenuLabelFind": "Find Party #",
-    "keybindingMenuLabelToggle": "Toggle Party # (collapse/explode)"
+    "keybindingMenuLabelToggle": "Toggle Party # (collapse/explode)",
+    "settingsMenu": {
+      "membersSection": "Party Member Configuration",
+      "animationsSection": "Animation Settings (requires JB2A & Automated Animations)"
+    }
   }
 }
