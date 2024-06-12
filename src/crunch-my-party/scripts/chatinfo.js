@@ -10,7 +10,7 @@ export class ChatInfo {
                     <img src="modules/${Config.data.modID}/artwork/${Config.data.modID}-logo.png" alt="${Config.data.modTitle} - Logo" style="border:0"/>
                 </a>
                 <br/>
-                Version: chatInfoContent.version
+                Version: chatInfoContent.version [<a href="modules/${Config.data.modID}/CHANGELOG.MD/">Changelog</a>]
             </p>
             <hr><div>
                 <h2 style="text-align: justify">chatInfoContent.title</h2>
