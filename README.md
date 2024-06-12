@@ -1,10 +1,14 @@
 ![](https://img.shields.io/badge/Foundry-v11-informational)
 ![](https://img.shields.io/badge/Foundry-v12-informational)
-![GitHub All Releases](https://img.shields.io/github/downloads/coffiarts/FoundryVTT-crunch-my-party/latest/module.zip?label=Downloads+latest+release+[12.?.?])
-![GitHub All Releases](https://img.shields.io/github/downloads/coffiarts/FoundryVTT-crunch-my-party/12.0.0/module.zip?label=previous+release+[12.0.0])
 [![Forge Installs](https://img.shields.io/badge/dynamic/json?label=Forge%20Installs&query=package.installs&suffix=%25&url=https%3A%2F%2Fforge-vtt.com%2Fapi%2Fbazaar%2Fpackage%2Fcrunch-my-party)](https://forge-vtt.com/bazaar#package=crunch-my-party)
-[![GitHub issues](https://img.shields.io/github/issues/coffiarts/FoundryVTT-crunch-my-party/bug)](https://github.com/coffiarts/FoundryVTT-crunch-my-party/issues)
 [![The Forge](https://img.shields.io/badge/The%20Forge-Pay%20What%20You%20Want-success?style=flat-square)](https://eu.forge-vtt.com/bazaar#package=crunch-my-party)
+
+![GitHub All Releases](https://img.shields.io/github/downloads/coffiarts/FoundryVTT-crunch-my-party/module.zip?label=All+time+downloads)
+![GitHub All Releases](https://img.shields.io/github/downloads/coffiarts/FoundryVTT-crunch-my-party/latest/module.zip?label=Latest+release+[12.?.?])
+![GitHub All Releases](https://img.shields.io/github/downloads/coffiarts/FoundryVTT-crunch-my-party/12.0.0/module.zip?label=previous+release+[12.0.0])
+
+[![GitHub issues](https://img.shields.io/github/issues/coffiarts/FoundryVTT-crunch-my-party/bug)](https://github.com/coffiarts/FoundryVTT-crunch-my-party/issues)
+
 
 # Crunch My Party! for Foundry VTT
 <table style="border:0">
