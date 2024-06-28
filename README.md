@@ -4,8 +4,7 @@
 [![The Forge](https://img.shields.io/badge/The%20Forge-Pay%20What%20You%20Want-success?style=flat-square)](https://eu.forge-vtt.com/bazaar#package=crunch-my-party)
 
 ![GitHub All Releases](https://img.shields.io/github/downloads/coffiarts/FoundryVTT-crunch-my-party/module.zip?label=All+time+downloads)
-![GitHub All Releases](https://img.shields.io/github/downloads/coffiarts/FoundryVTT-crunch-my-party/latest/module.zip?label=Latest+release+[12.?.?])
-![GitHub All Releases](https://img.shields.io/github/downloads/coffiarts/FoundryVTT-crunch-my-party/12.0.0/module.zip?label=previous+release+[12.0.0])
+![GitHub All Releases](https://img.shields.io/github/downloads/coffiarts/FoundryVTT-crunch-my-party/latest/module.zip?label=Latest+release)
 
 [![GitHub issues](https://img.shields.io/github/issues/coffiarts/FoundryVTT-crunch-my-party/bug)](https://github.com/coffiarts/FoundryVTT-crunch-my-party/issues)
 
