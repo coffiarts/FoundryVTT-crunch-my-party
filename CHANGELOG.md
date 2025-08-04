@@ -1,9 +1,9 @@
-The **major** version number in my modules (like "12") always reflects the
+The **major** version number in my modules (like "13") always reflects the
 Foundry VTT **core** version it is compatible with (and recommended for).
 
-## 12.?.?
-### 2024-??-?? - ?
-- ?
+## 13.0.0
+### 2025-08-05 - v13 compatibility
+- Just this. No changes in functionality. Fixes request for compatibility [#9](https://github.com/coffiarts/FoundryVTT-crunch-my-party/issues/9)
 
 ## 12.0.1
 ### 2024-07-22 - Fixes issue #7 (sounds not working in specific setup)
