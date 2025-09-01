@@ -186,4 +186,19 @@ export class Config {
         Logger.debug(`(Config.sleep) Waiting for ${msec} msec. Zzzzzz....`)
         return new Promise(resolve => setTimeout(resolve, msec));
     }
+
+    static isV13plus() {
+        if (foundry?.utils?.isNewerVersion) {
+            Logger.debug(`Foundry Version: ${game.version}`);
+            // Check if we're on v13.x or higher.
+            // Note the "newer than 13" comparison below may seem unintuitive, but it is actually correct, not "12":
+            // Any 12x version like "12.3.4.3" would be treated as "newer" than "12", so we need to compare agains "13".
+            // Also, there's never a "blank 13" version (without any subversion), so any 13.x will always be "newer" than 13.
+            return foundry.utils.isNewerVersion(game.version, "13");
+        } else {
+            // v12 fallback: no foundry.utils namespace, so definitely not v13
+            Logger.debug(`Foundry Version: ${game.data.version}`);
+            return false;
+        }
+    }
 }
