@@ -34,9 +34,11 @@ export class ChatInfo {
 
     static init() {
         // create separator and title at the beginning of this settings section
-        Hooks.on('renderSettingsConfig', (app,[html]) => {
-            html.querySelector(`[data-setting-id="${Config.data.modID}.hideChatInfo"]`).insertAdjacentHTML('beforeBegin', `<h3>Chat Info</h3>`)
-        })
+        if (!Config.isV13plus()) { // stop using this as of v13. It's horribly complicated and neglectable anyway!
+            Hooks.on('renderSettingsConfig', (app, [html]) => {
+                html.querySelector(`[data-setting-id="${Config.data.modID}.hideChatInfo"]`).insertAdjacentHTML('beforeBegin', `<h3>Chat Info</h3>`)
+            });
+        }
 
         // Register game settings relevant to this class specifically (all globally relevant settings are maintained by class Config)
         const settingsData = {

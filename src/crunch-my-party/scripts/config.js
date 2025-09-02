@@ -38,9 +38,11 @@ export class Config {
         Config.registerSettings(settingsData1);
 
         // create separator and title at the beginning of this settings section
-        Hooks.on('renderSettingsConfig', (app, [html]) => {
-            html.querySelector(`[data-setting-id="${Config.data.modID}.memberTokenNames1"]`).insertAdjacentHTML('beforeBegin', `<h3>${Config.localize('settingsMenu.membersSection')}</h3>`)
-        })
+        if (!Config.isV13plus()) { // stop using this as of v13. It's horribly complicated and neglectable anyway!
+            Hooks.on('renderSettingsConfig', (app, [html]) => {
+                html.querySelector(`[data-setting-id="${Config.data.modID}.memberTokenNames1"]`).insertAdjacentHTML('beforeBegin', `<h3>${Config.localize('settingsMenu.membersSection')}</h3>`)
+            });
+        }
 
         const settingsData2 = [];
         // Special treatment for generic "party settings" (dynamically add as many individual entries as defined by NO_OF_PARTIES)
@@ -55,9 +57,11 @@ export class Config {
         Config.registerSettings(settingsData2);
 
         // create separator and title at the beginning of this settings section
-        Hooks.on('renderSettingsConfig', (app, [html]) => {
-            html.querySelector(`[data-setting-id="${Config.data.modID}.animation4Crunch"]`).insertAdjacentHTML('beforeBegin', `<h3>${Config.localize('settingsMenu.animationsSection')}</h3>`)
-        });
+        if (!Config.isV13plus()) { // stop using this as of v13. It's horribly complicated and neglectable anyway!
+            Hooks.on('renderSettingsConfig', (app, [html]) => {
+                html.querySelector(`[data-setting-id="${Config.data.modID}.animation4Crunch"]`).insertAdjacentHTML('beforeBegin', `<h4>${Config.localize('settingsMenu.animationsSection')}</h4>`)
+            });
+        }
 
         const settingsData3 = {
             animation4Crunch: {
