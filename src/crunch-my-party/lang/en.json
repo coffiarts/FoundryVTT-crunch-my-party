@@ -64,7 +64,7 @@
       "cannotDetermineAction": "Cannot determine action!",
       "membersAndPartyAllHidden": "None of the involved tokens are currently visible (active).",
       "pleaseWaitStillBusy": "Please wait for current action to complete ...",
-      "pleaseActivateTokenLayer": "Please active the Token Layer to use this function.",
+      "pleaseSelectToken": "Please select at least one scene token to use this function.",
       "movementActionNotFound": "Unable to move token: The following movement action was not found in CONFIG.Token.movement.actions: ",
       "pleaseReportThisError": "Please report this error to the mod author on https://github.com/coffiarts/FoundryVTT-crunch-my-party."
     },

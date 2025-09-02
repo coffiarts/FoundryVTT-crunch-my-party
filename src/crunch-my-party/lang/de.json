@@ -64,7 +64,7 @@
       "cannotDetermineAction": "Aktion kann nicht ermittelt werden!",
       "membersAndPartyAllHidden": "Keiner der involvierten Tokens ist aktuell sichtbar (aktiviert).",
       "pleaseWaitStillBusy": "Bitte warten, bis laufende Aktion beendet ist ...",
-      "pleaseActivateTokenLayer": "Für diese Funktion muss der Token Layer aktiviert sein.",
+      "pleaseSelectToken": "Für diese Funktion muss mindestens ein Token ausgewählt sein.",
       "movementActionNotFound": "Token kann nicht verschoben werden: Die folgende Movement Action ist nicht in CONFIG.Token.movement.actions vorhanden: ",
       "pleaseReportThisError": "Bitte melde dieses Problem an den Author des Moduls auf https://github.com/coffiarts/FoundryVTT-crunch-my-party."
     },
