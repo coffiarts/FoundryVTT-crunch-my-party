@@ -706,7 +706,7 @@ export class PartyCruncher {
         tokenUpdates.push(this.#getTokenTeleportUpdate(involvedTokens.partyToken, targetToken.position, true));
 
         // Finish step #1: Teleport!
-        await this.#teleportAll(tokenUpdates);
+        await this.#teleport(tokenUpdates);
 
         // Crunch step #2: Everybody, go invisible and move out of the way!
         tokenUpdates = [];
@@ -718,7 +718,7 @@ export class PartyCruncher {
         tokenUpdates.push(this.#getTokenTeleportUpdate(involvedTokens.partyToken, targetPosition, false));
 
         // Finish step #2: Teleport!
-        await this.#teleportAll(tokenUpdates);
+        await this.#teleport(tokenUpdates);
 
         // Don't forget to set back memberToken order
         involvedTokens.memberTokens.reverse();
@@ -727,7 +727,7 @@ export class PartyCruncher {
         involvedTokens.partyToken.control({releaseOthers: true});
     }
 
-    async #teleportAll(tokenUpdates) {
+    async #teleport(tokenUpdates) {
         if (Config.getGameMajorVersion() >= 13) {
             for (const update of tokenUpdates) {
                 const tokenDoc = canvas.scene.tokens.get(update._id);
@@ -823,7 +823,7 @@ export class PartyCruncher {
         tokenUpdates.push(this.#getTokenTeleportUpdate(involvedTokens.partyToken, {x: 0, y: 0}, true));
 
             // Finish step #1: Teleport!
-            await this.#teleportAll(tokenUpdates);
+            await this.#teleport(tokenUpdates);
 
         // // Explode step #2: Swarm out and take your places
         let tokenCounter = 0;
@@ -851,17 +851,43 @@ export class PartyCruncher {
                 targetX = snapped.x;
                 targetY = snapped.y;
 
-                // Move token along the full path
+                let finalX = tokenDoc.x;
+                let finalY = tokenDoc.y;
+
+                const steps = Math.max(Math.abs(relative.x), Math.abs(relative.y));
+
+                for (let i = 1; i <= steps; i++) {
+                    const stepX = tokenDoc.x + (targetX - tokenDoc.x) * (i / steps);
+                    const stepY = tokenDoc.y + (targetY - tokenDoc.y) * (i / steps);
+
+                    const tokenCenter = memberToken.center;
+                    const stepCenter = { x: stepX + memberToken.w / 2, y: stepY + memberToken.h / 2 };
+
+                    const collision = CONFIG.Canvas.polygonBackends.move.testCollision(
+                        tokenCenter, stepCenter, {
+                            type: "move", // This is effectively a value of CONST.WALL_RESTRICTION_TYPES
+                            mode: "any"
+                    });
+
+                    if (collision) {
+                        break; // stop BEFORE wall
+                    }
+
+                    const snappedStep = canvas.grid.getSnappedPosition(stepX, stepY, 0);
+                    finalX = snappedStep.x;
+                    finalY = snappedStep.y;
+                }
+
                 await tokenDoc.move(
-                    [{ x: targetX, y: targetY }],
+                    [{ x: finalX, y: finalY }],
                     {
-                        method: "api",             // programmatic movement
-                        showRuler: true,           // display movement ruler
-                        //autoRotate: false,         // optional: don't rotate token
-                        constrainOptions: {ignoreWalls: false}, // respect walls / collisions
-                        animation: {duration: 400} // adjust duration to speed up / slow down
+                        method: "api",
+                        showRuler: true,
+                        constrainOptions: { ignoreWalls: false },
+                        animation: { duration: 400 }
                     }
                 );
+
             } else { // v12 or older}
 
                 // Detect directions of this token's movement
