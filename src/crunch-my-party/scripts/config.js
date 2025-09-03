@@ -38,7 +38,14 @@ export class Config {
         Config.registerSettings(settingsData1);
 
         // create separator and title at the beginning of this settings section
-        if (!Config.isV13plus()) { // stop using this as of v13. It's horribly complicated and neglectable anyway!
+        if (Config.getGameMajorVersion() >= 13) {
+            Hooks.on('renderSettingsConfig', (app, html) => {
+                const inputEl = html.querySelector(`#settings-config-${Config.data.modID.replace(/\./g, "\\.")}\\.memberTokenNames1`);
+                const formGroup = inputEl.closest(".form-group");
+                formGroup.insertAdjacentHTML("beforebegin", `<h4 style="margin-top: 0; border-bottom: 1px solid #888; padding-bottom: 4px; margin-bottom: 6px;">${Config.localize('settingsMenu.membersSection')}</h4>`);
+            });
+        }
+        else {
             Hooks.on('renderSettingsConfig', (app, [html]) => {
                 html.querySelector(`[data-setting-id="${Config.data.modID}.memberTokenNames1"]`).insertAdjacentHTML('beforeBegin', `<h3>${Config.localize('settingsMenu.membersSection')}</h3>`)
             });
@@ -57,9 +64,16 @@ export class Config {
         Config.registerSettings(settingsData2);
 
         // create separator and title at the beginning of this settings section
-        if (!Config.isV13plus()) { // stop using this as of v13. It's horribly complicated and neglectable anyway!
+        if (Config.getGameMajorVersion() >= 13) {
+            Hooks.on('renderSettingsConfig', (app, html) => {
+                const inputEl = html.querySelector(`#settings-config-${Config.data.modID}\\.animation4Crunch`);
+                const formGroup = inputEl.closest(".form-group");
+                formGroup.insertAdjacentHTML("beforebegin", `<h4 style="margin-top: 0; border-bottom: 1px solid #888; padding-bottom: 4px; margin-bottom: 6px;">${Config.localize('settingsMenu.animationsSection')}</h4>`);
+            });
+        }
+        else {
             Hooks.on('renderSettingsConfig', (app, [html]) => {
-                html.querySelector(`[data-setting-id="${Config.data.modID}.animation4Crunch"]`).insertAdjacentHTML('beforeBegin', `<h4>${Config.localize('settingsMenu.animationsSection')}</h4>`)
+                html.querySelector(`[data-setting-id="${Config.data.modID}.animation4Crunch"]`).insertAdjacentHTML('beforeBegin', `<h3>${Config.localize('settingsMenu.animationsSection')}</h3>`)
             });
         }
 
@@ -191,18 +205,7 @@ export class Config {
         return new Promise(resolve => setTimeout(resolve, msec));
     }
 
-    static isV13plus() {
-        if (foundry?.utils?.isNewerVersion) {
-            Logger.debug(`Foundry Version: ${game.version}`);
-            // Check if we're on v13.x or higher.
-            // Note the "newer than 13" comparison below may seem unintuitive, but it is actually correct, not "12":
-            // Any 12x version like "12.3.4.3" would be treated as "newer" than "12", so we need to compare agains "13".
-            // Also, there's never a "blank 13" version (without any subversion), so any 13.x will always be "newer" than 13.
-            return foundry.utils.isNewerVersion(game.version, "13");
-        } else {
-            // v12 fallback: no foundry.utils namespace, so definitely not v13
-            Logger.debug(`Foundry Version: ${game.data.version}`);
-            return false;
-        }
+    static getGameMajorVersion() {
+        return game.version.split('.')[0];
     }
 }

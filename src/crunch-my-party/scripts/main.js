@@ -211,7 +211,7 @@ export class PartyCruncher {
 
     static #getTokenCenter(targetToken) {
         let x = targetToken.x, y = targetToken.y;
-        return Config.isV13plus()
+        return Config.getGameMajorVersion() >= 12
             ? targetToken.getCenterPoint({x, y})
             : targetToken.getCenter(x, y);
     }
@@ -728,7 +728,7 @@ export class PartyCruncher {
     }
 
     async #teleportAll(tokenUpdates) {
-        if (Config.isV13plus()) {
+        if (Config.getGameMajorVersion() >= 13) {
             for (const update of tokenUpdates) {
                 const tokenDoc = canvas.scene.tokens.get(update._id);
                 if (!tokenDoc) return;
@@ -836,7 +836,7 @@ export class PartyCruncher {
             let movementPath = PartyCruncher.#getMovementPathToExplodePosition(tokenCounter++);
             Logger.debug(`(PartyCruncher.#explodeParty) [${memberToken.name}]: movementPath =>`, movementPath);
 
-            if (Config.isV13plus()) {
+            if (Config.getGameMajorVersion() >= 13) {
                 const tokenDoc = memberToken.document; // or canvas.scene.tokens.get(memberToken.id)
                 if (!tokenDoc) return;
 

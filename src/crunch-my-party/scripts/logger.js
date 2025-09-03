@@ -4,7 +4,14 @@ export class Logger {
 
     static init(){
         // create separator and title at the beginning of this settings section
-        if (!Config.isV13plus()) { // stop using this as of v13. It's horribly complicated and neglectable anyway!
+        if (Config.getGameMajorVersion() >= 13) {
+            Hooks.on('renderSettingsConfig', (app, html) => {
+                const inputEl = html.querySelector(`#settings-config-${Config.data.modID.replace(/\./g, "\\.")}\\.debug`);
+                const formGroup = inputEl.closest(".form-group");
+                formGroup.insertAdjacentHTML("beforebegin", `<h4 style="margin-top: 0; border-bottom: 1px solid #888; padding-bottom: 4px; margin-bottom: 6px;">Logging</h4>`);
+            });
+        }
+        else {
             Hooks.on('renderSettingsConfig', (app, [html]) => {
                 html.querySelector(`[data-setting-id="${Config.data.modID}.debug"]`).insertAdjacentHTML('beforeBegin', `<h3>Logging</h3>`)
             });
