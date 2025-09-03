@@ -33,7 +33,7 @@
         "type": "module",
         "manifest": "https://github.com/Jules-Bens-Aa/JB2A_DnD5e/releases/latest/download/module.json",
         "compatibility": {
-          "verified": "0.8.1"
+          "verified": "0.8.2"
         }
       },
       {
@@ -41,7 +41,7 @@
         "type": "module",
         "manifest": "https://github.com/theripper93/autoanimations/releases/download/6.2.3/module.json",
         "compatibility": {
-          "verified": "6.2.3"
+          "verified": "6.2.5"
         }
       },
       {
@@ -49,7 +49,7 @@
         "type": "module",
         "manifest": "https://github.com/fantasycalendar/FoundryVTT-Sequencer/releases/latest/download/module.json",
         "compatibility": {
-          "verified": "3.6.9"
+          "verified": "3.6.10"
         }
       },
       {

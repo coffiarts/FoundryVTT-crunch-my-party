@@ -8,7 +8,7 @@ export class Logger {
             Hooks.on('renderSettingsConfig', (app, html) => {
                 const inputEl = html.querySelector(`#settings-config-${Config.data.modID.replace(/\./g, "\\.")}\\.debug`);
                 const formGroup = inputEl.closest(".form-group");
-                formGroup.insertAdjacentHTML("beforebegin", `<h4 style="margin-top: 0; border-bottom: 1px solid #888; padding-bottom: 4px; margin-bottom: 6px;">Logging</h4>`);
+                formGroup.insertAdjacentHTML("beforebegin", `<div><h4 style="margin-top: 0; border-bottom: 1px solid #888; padding-bottom: 4px; margin-bottom: 6px;">Logging</h4></div>`);
             });
         }
         else {
