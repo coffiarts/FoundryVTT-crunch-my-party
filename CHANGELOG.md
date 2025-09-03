@@ -1,6 +1,11 @@
 The **major** version number in my modules (like "13") always reflects the
 Foundry VTT **core** version it is compatible with (and recommended for).
 
+## 13.0.1
+### 2025-09-03 - Two v13 compatibility fixes
+- Fixes [#10](https://github.com/coffiarts/FoundryVTT-crunch-my-party/issues/10): Error when opening Settings menu
+- Fixes [#11](https://github.com/coffiarts/FoundryVTT-crunch-my-party/issues/11): Tokens cannot be grouped/ungrouped in different rooms (blocked by walls)
+
 ## 13.0.0
 ### 2025-08-05 - v13 compatibility
 - Just this. No changes in functionality. Fixes request for compatibility [#9](https://github.com/coffiarts/FoundryVTT-crunch-my-party/issues/9)
