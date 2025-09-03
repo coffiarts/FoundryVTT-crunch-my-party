@@ -103,11 +103,11 @@ export class PartyCruncher {
 
     static #instances = [null, null, null];
 
-    static #getInstance(partNo) {
-        if (this.#instances[partNo] == null) {
-            this.#instances[partNo] = new PartyCruncher();
+    static #getInstance(partyNo) {
+        if (this.#instances[partyNo] == null) {
+            this.#instances[partyNo] = new PartyCruncher();
         }
-        return this.#instances[partNo];
+        return this.#instances[partyNo];
     }
 
     static Actions = Object.freeze({
@@ -166,14 +166,18 @@ export class PartyCruncher {
             // Step 5 - auto-determine target token (depending on requiredAction), and focus on it
             // ==================================================================================================
             let targetToken = instance.#getTarget(requiredAction, involvedTokens, partyNo);
+            if (targetToken?.name === undefined) {
+                Logger.warn(false, Config.localize("errMsg.pleaseActivateTokenLayer"));
+                return;
+            }
             Logger.debug(`(PartyCruncher.toggleParty) target token: [${targetToken.name}]`);
             canvas.tokens.releaseAll();
             if (useHotPanIfAvailable && optionalDependenciesAvailable.includes('hot-pan')) {
                 Logger.debug(`(PartyCruncher.toggleParty) switching HotPan ON (useHotPan: ${useHotPanIfAvailable})`);
                 HotPan.switchOn(true); // true means: silentMode (no UI message)
             }
-            targetToken.control({releaseOthers: true})
-            canvas.animatePan(targetToken.getCenter(targetToken.x, targetToken.y));
+            targetToken.control({releaseOthers: true});
+            canvas.animatePan(this.#getTokenCenter(targetToken));
             if (useHotPanIfAvailable && optionalDependenciesAvailable.includes('hot-pan')) {
                 setTimeout(function () {
                     Logger.debug(`(PartyCruncher.toggleParty) switching HotPan BACK (useHotPan: ${useHotPanIfAvailable})`);
@@ -190,7 +194,7 @@ export class PartyCruncher {
                     await instance.#crunchParty(involvedTokens, targetToken);
                     break;
                 case PartyCruncher.Actions.EXPLODE:
-                    Logger.info(`Exploding party ${partyNo} ...`);
+                    Logger.info(`Exploding party ${partyNo} - instance: ${instance}...`);
                     await instance.#explodeParty(involvedTokens, targetToken);
             }
 
@@ -203,6 +207,13 @@ export class PartyCruncher {
 
         Logger.info(`... Toggling of party #${partyNo} complete.`);
         await PartyCruncher.setBusy(false);
+    }
+
+    static #getTokenCenter(targetToken) {
+        let x = targetToken.x, y = targetToken.y;
+        return Config.getGameMajorVersion() >= 12
+            ? targetToken.getCenterPoint({x, y})
+            : targetToken.getCenter(x, y);
     }
 
     /**
@@ -694,12 +705,8 @@ export class PartyCruncher {
         // Do the same for the party token (still invisible)
         tokenUpdates.push(this.#getTokenTeleportUpdate(involvedTokens.partyToken, targetToken.position, true));
 
-        // Finish step #1: Apply token updates all at once (to prevent race conditions)
-        await game.scenes.viewed.updateEmbeddedDocuments(
-            'Token',
-            tokenUpdates,
-            {animate: false} // NEVER animate... AAAAArRGGGH! Otherwise, tokens will be "floating" across the scene, revealing any hidden secrets.});
-        );
+        // Finish step #1: Teleport!
+        await this.#teleport(tokenUpdates);
 
         // Crunch step #2: Everybody, go invisible and move out of the way!
         tokenUpdates = [];
@@ -710,12 +717,8 @@ export class PartyCruncher {
         // Move the party token into view and render it visible
         tokenUpdates.push(this.#getTokenTeleportUpdate(involvedTokens.partyToken, targetPosition, false));
 
-        // Finish step #2: Apply token updates all at once (to prevent race conditions)
-        await game.scenes.viewed.updateEmbeddedDocuments(
-            'Token',
-            tokenUpdates,
-            {animate: false} // NEVER animate... AAAAArRGGGH! Otherwise, tokens will be "floating" across the scene, revealing any hidden secrets.});
-        );
+        // Finish step #2: Teleport!
+        await this.#teleport(tokenUpdates);
 
         // Don't forget to set back memberToken order
         involvedTokens.memberTokens.reverse();
@@ -724,7 +727,51 @@ export class PartyCruncher {
         involvedTokens.partyToken.control({releaseOthers: true});
     }
 
-    /**
+    async #teleport(tokenUpdates) {
+        if (Config.getGameMajorVersion() >= 13) {
+            for (const update of tokenUpdates) {
+                const tokenDoc = canvas.scene.tokens.get(update._id);
+                if (!tokenDoc) return;
+
+                await tokenDoc.update({hidden: update.hidden});
+
+                // temporarily change the token's movementAction to a type supporting teleport (i.e. "displace" or "blink", to avoid wall collisions
+                const actionKey = "blink";
+                const actionConfig = CONFIG.Token?.movement?.actions?.[actionKey];
+                if (!actionConfig) {
+                    Logger.error(false, `${Config.localize("errMsg.movementActionNotFound")}: ${actionKey}.\n${Config.localize("errMsg.pleaseReportThisError")}`);
+                    return;
+                }
+                const previousAction = tokenDoc.movementAction;
+
+                try {
+                    // set the token to use the teleport-capable action
+                    if (previousAction !== actionKey) await tokenDoc.update({movementAction: actionKey});
+
+                    await tokenDoc.move([{x: update.x, y: update.y}], // waypoints array
+                        {
+                            method: "config", // this enforces that the movementAction set above is used, and nothing else
+                            showRuler: false,    // don’t display a path ruler
+                            autoRotate: false,   // don’t rotate token to face the move direction
+                            constrainOptions: {ignoreWalls: true} // documented option; the action's teleport flag is what really matters
+                        });
+                } finally {
+                    try {
+                        // restore previous movementAction if we changed it
+                        await tokenDoc.update({movementAction: previousAction});
+                    } catch (err) {
+                        Logger.error(false, "Failed to restore previous movementAction:", err);
+                    }
+                }
+            }
+        } else { // v12 and older
+            await canvas.scene.updateEmbeddedDocuments("Token", tokenUpdates, {
+                animate: false, // no sliding animation
+            });
+        }
+    }
+
+        /**
      *
      * @param involvedTokens
      * @param targetToken - Here this is always the party token itself, providing the anchor point for the member tokens
@@ -732,13 +779,6 @@ export class PartyCruncher {
     async #explodeParty(involvedTokens, targetToken) {
 
         if (!canvas.ready) return false;
-
-        // Force activation of the Token Layer in the UI
-        // Otherwise, the moveMany() calls further below won't work
-        canvas.tokens.activate();
-
-        const tokenLayer = canvas.activeLayer;
-        if (!(tokenLayer instanceof TokenLayer)) return false;
 
         // Release any currently active tokens
         canvas.tokens.releaseAll();
@@ -782,12 +822,8 @@ export class PartyCruncher {
         // Move the party token out of the way and render it invisible ("WE are the party now!")
         tokenUpdates.push(this.#getTokenTeleportUpdate(involvedTokens.partyToken, {x: 0, y: 0}, true));
 
-        // Finish step #1: Apply token updates all at once (to prevent race conditions)
-        await game.scenes.viewed.updateEmbeddedDocuments(
-            'Token',
-            tokenUpdates,
-            {animate: false} // NEVER animate... AAAAArRGGGH! Otherwise, tokens will be "floating" across the scene, revealing any hidden secrets.});
-        );
+            // Finish step #1: Teleport!
+            await this.#teleport(tokenUpdates);
 
         // // Explode step #2: Swarm out and take your places
         let tokenCounter = 0;
@@ -800,22 +836,77 @@ export class PartyCruncher {
             let movementPath = PartyCruncher.#getMovementPathToExplodePosition(tokenCounter++);
             Logger.debug(`(PartyCruncher.#explodeParty) [${memberToken.name}]: movementPath =>`, movementPath);
 
-            // Detect directions of this token's movement
-            let xdir = (movementPath.x >= 0) ? 1 : -1;
-            let ydir = (movementPath.y >= 0) ? 1 : -1;
-            Logger.debug('(PartyCruncher.#explodeParty) xdir, ydir', xdir, ydir);
+            if (Config.getGameMajorVersion() >= 13) {
+                const tokenDoc = memberToken.document; // or canvas.scene.tokens.get(memberToken.id)
+                if (!tokenDoc) return;
 
-            let safetyCount = 0;
+                const relative = movementPath;      // {x: dx, y: dy} from your matrix
+                const gridSize = canvas.grid.size;
 
-            for (let x = 0; x !== movementPath.x && safetyCount++ < 10; x += xdir) {
-                // take one step along movementPath.x
-                await this.#pushTokenByOneStep(tokenLayer, xdir, 0, memberToken);
-                await Config.sleep(200);
-            }
-            for (let y = 0; y !== movementPath.y && safetyCount++ < 10; y += ydir) {
-                // take one step along movementPath.y
-                await this.#pushTokenByOneStep(tokenLayer, 0, ydir, memberToken);
-                await Config.sleep(200);
+                let targetX = tokenDoc.x + relative.x * gridSize;
+                let targetY = tokenDoc.y + relative.y * gridSize;
+
+                // Snap to nearest grid
+                const snapped = canvas.grid.getSnappedPosition(targetX, targetY, 0);
+                targetX = snapped.x;
+                targetY = snapped.y;
+
+                let finalX = tokenDoc.x;
+                let finalY = tokenDoc.y;
+
+                const steps = Math.max(Math.abs(relative.x), Math.abs(relative.y));
+
+                for (let i = 1; i <= steps; i++) {
+                    const stepX = tokenDoc.x + (targetX - tokenDoc.x) * (i / steps);
+                    const stepY = tokenDoc.y + (targetY - tokenDoc.y) * (i / steps);
+
+                    const tokenCenter = memberToken.center;
+                    const stepCenter = { x: stepX + memberToken.w / 2, y: stepY + memberToken.h / 2 };
+
+                    const collision = CONFIG.Canvas.polygonBackends.move.testCollision(
+                        tokenCenter, stepCenter, {
+                            type: "move", // This is effectively a value of CONST.WALL_RESTRICTION_TYPES
+                            mode: "any"
+                    });
+
+                    if (collision) {
+                        break; // stop BEFORE wall
+                    }
+
+                    const snappedStep = canvas.grid.getSnappedPosition(stepX, stepY, 0);
+                    finalX = snappedStep.x;
+                    finalY = snappedStep.y;
+                }
+
+                await tokenDoc.move(
+                    [{ x: finalX, y: finalY }],
+                    {
+                        method: "api",
+                        showRuler: true,
+                        constrainOptions: { ignoreWalls: false },
+                        animation: { duration: 400 }
+                    }
+                );
+
+            } else { // v12 or older}
+
+                // Detect directions of this token's movement
+                let xdir = (movementPath.x >= 0) ? 1 : -1;
+                let ydir = (movementPath.y >= 0) ? 1 : -1;
+                Logger.debug('(PartyCruncher.#explodeParty) xdir, ydir', xdir, ydir);
+
+                let safetyCount = 0;
+
+                for (let x = 0; x !== movementPath.x && safetyCount++ < 10; x += xdir) {
+                    // take one step along movementPath.x
+                    await this.#pushTokenByOneStep(xdir, 0, memberToken);
+                    await Config.sleep(200);
+                }
+                for (let y = 0; y !== movementPath.y && safetyCount++ < 10; y += ydir) {
+                    // take one step along movementPath.y
+                    await this.#pushTokenByOneStep(0, ydir, memberToken);
+                    await Config.sleep(200);
+                }
             }
         }
 
@@ -838,15 +929,21 @@ export class PartyCruncher {
     }
 
     /**
-     *
-     * @param tokenLayer
+     * Works with v12 and older only
      * @param x
      * @param y
      * @param token
      * @returns {Promise<unknown>}
      */
-    async #pushTokenByOneStep(tokenLayer, x, y, token) {
-        return new Promise( resolve => {
+    async #pushTokenByOneStep(x, y, token) {
+        return new Promise(resolve => {
+            // v12 or older
+            // Force activation of the Token Layer in the UI
+            // Otherwise, the moveMany() calls further below won't work
+            canvas.tokens.activate();
+            let tokenLayer = canvas.activeLayer;
+            if (!(tokenLayer instanceof TokenLayer)) return false;
+
             Logger.debug('(PartyCruncher.#pushTokenByOneStep) tokenLayer, x, y, token.name', tokenLayer, x, y, token.name);
             resolve(tokenLayer.moveMany(
                 {dx: x, dy: y, rotate: false, ids: token.id}));

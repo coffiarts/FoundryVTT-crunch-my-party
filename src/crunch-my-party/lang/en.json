@@ -63,7 +63,10 @@
       "tokensMissingInScene": "Tokens missing in scene",
       "cannotDetermineAction": "Cannot determine action!",
       "membersAndPartyAllHidden": "None of the involved tokens are currently visible (active).",
-      "pleaseWaitStillBusy": "Please wait for current action to complete ..."
+      "pleaseWaitStillBusy": "Please wait for current action to complete ...",
+      "pleaseSelectToken": "Please select at least one scene token to use this function.",
+      "movementActionNotFound": "Unable to move token: The following movement action was not found in CONFIG.Token.movement.actions: ",
+      "pleaseReportThisError": "Please report this error to the mod author on https://github.com/coffiarts/FoundryVTT-crunch-my-party."
     },
     "promptForPartyTokenNameTitle": "What's the name of the party token?",
     "promptForPartyTokenNameText": "Name of the party token that shall represent selected members<br/>(must exist with this exact name in current scene!)",
