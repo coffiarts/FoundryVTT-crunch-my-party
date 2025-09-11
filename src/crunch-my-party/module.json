@@ -13,7 +13,6 @@
     "minimum": "12",
     "verified": "13"
   },
-  "minimumCoreVersion": "12",
   "media": [
     {
       "type": "setup",
