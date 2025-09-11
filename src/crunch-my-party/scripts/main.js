@@ -39,7 +39,7 @@ async function allPrerequisitesReady() {
 async function areDependenciesReady() {
     return new Promise(resolve => {
         Hooks.once('setup', () => {
-            resolve(initDependencies());
+            resolve(initSubmodules());
             resolve(initExposedClasses());
         });
     });
@@ -53,10 +53,10 @@ async function areOptionalDependenciesReady() {
     });
 }
 
-async function initDependencies() {
+async function initSubmodules() {
     Object.values(SUBMODULES).forEach(function (cl) {
         cl.init(); // includes loading each module's settings
-        Logger.debug("(initDependencies) Submodule loaded:", cl.name);
+        Logger.debug("(initSubmodules) Submodule loaded:", cl.name);
     });
 }
 
