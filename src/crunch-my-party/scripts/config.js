@@ -42,12 +42,12 @@ export class Config {
             Hooks.on('renderSettingsConfig', (app, html) => {
                 const inputEl = html.querySelector(`#settings-config-${Config.data.modID.replace(/\./g, "\\.")}\\.memberTokenNames1`);
                 const formGroup = inputEl.closest(".form-group");
-                formGroup.insertAdjacentHTML("beforebegin", `<div><h4 style="margin-top: 0; border-bottom: 1px solid #888; padding-bottom: 4px; margin-bottom: 6px;">${Config.localize('settingsMenu.membersSection')}</h4></div>`);
+                formGroup?.insertAdjacentHTML("beforebegin", `<div><h4 style="margin-top: 0; border-bottom: 1px solid #888; padding-bottom: 4px; margin-bottom: 6px;">${Config.localize('settingsMenu.membersSection')}</h4></div>`);
             });
         }
         else {
             Hooks.on('renderSettingsConfig', (app, [html]) => {
-                html.querySelector(`[data-setting-id="${Config.data.modID}.memberTokenNames1"]`).insertAdjacentHTML('beforeBegin', `<h3>${Config.localize('settingsMenu.membersSection')}</h3>`)
+                html.querySelector(`[data-setting-id="${Config.data.modID}.memberTokenNames1"]`)?.insertAdjacentHTML('beforeBegin', `<h3>${Config.localize('settingsMenu.membersSection')}</h3>`)
             });
         }
 
@@ -68,12 +68,12 @@ export class Config {
             Hooks.on('renderSettingsConfig', (app, html) => {
                 const inputEl = html.querySelector(`#settings-config-${Config.data.modID}\\.animation4Crunch`);
                 const formGroup = inputEl.closest(".form-group");
-                formGroup.insertAdjacentHTML("beforebegin", `<div><h4 style="margin-top: 0; border-bottom: 1px solid #888; padding-bottom: 4px; margin-bottom: 6px;">${Config.localize('settingsMenu.animationsSection')}</h4></div>`);
+                formGroup?.insertAdjacentHTML("beforebegin", `<div><h4 style="margin-top: 0; border-bottom: 1px solid #888; padding-bottom: 4px; margin-bottom: 6px;">${Config.localize('settingsMenu.animationsSection')}</h4></div>`);
             });
         }
         else {
             Hooks.on('renderSettingsConfig', (app, [html]) => {
-                html.querySelector(`[data-setting-id="${Config.data.modID}.animation4Crunch"]`).insertAdjacentHTML('beforeBegin', `<h3>${Config.localize('settingsMenu.animationsSection')}</h3>`)
+                html.querySelector(`[data-setting-id="${Config.data.modID}.animation4Crunch"]`)?.insertAdjacentHTML('beforeBegin', `<h3>${Config.localize('settingsMenu.animationsSection')}</h3>`)
             });
         }
 
