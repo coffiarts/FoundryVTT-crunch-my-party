@@ -41,7 +41,7 @@ export class Config {
         if (Config.getGameMajorVersion() >= 13) {
             Hooks.on('renderSettingsConfig', (app, html) => {
                 const inputEl = html.querySelector(`#settings-config-${Config.data.modID.replace(/\./g, "\\.")}\\.memberTokenNames1`);
-                const formGroup = inputEl.closest(".form-group");
+                const formGroup = inputEl?.closest(".form-group");
                 formGroup?.insertAdjacentHTML("beforebegin", `<div><h4 style="margin-top: 0; border-bottom: 1px solid #888; padding-bottom: 4px; margin-bottom: 6px;">${Config.localize('settingsMenu.membersSection')}</h4></div>`);
             });
         }
@@ -67,7 +67,7 @@ export class Config {
         if (Config.getGameMajorVersion() >= 13) {
             Hooks.on('renderSettingsConfig', (app, html) => {
                 const inputEl = html.querySelector(`#settings-config-${Config.data.modID}\\.animation4Crunch`);
-                const formGroup = inputEl.closest(".form-group");
+                const formGroup = inputEl?.closest(".form-group");
                 formGroup?.insertAdjacentHTML("beforebegin", `<div><h4 style="margin-top: 0; border-bottom: 1px solid #888; padding-bottom: 4px; margin-bottom: 6px;">${Config.localize('settingsMenu.animationsSection')}</h4></div>`);
             });
         }
