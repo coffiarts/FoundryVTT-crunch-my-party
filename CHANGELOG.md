@@ -1,6 +1,12 @@
 The **major** version number in my modules (like "13") always reflects the
 Foundry VTT **core** version it is compatible with (and recommended for).
 
+## 13.0.3
+### 2025-09-16 - Maintenance release, fixing a couple of fancy technical details no one would ever have noticed ;-)
+- Some more post-polishing for the minor [#10](https://github.com/coffiarts/FoundryVTT-crunch-my-party/issues/10) issue (which kept returning again and again like hungry cat ;-))
+- Chat message optimizations
+- Silent removal of deprecated, unnoticed rubbish ("nothing to see here, please pass along")
+
 ## 13.0.2
 ### 2025-09-03 - v13 compatibility fix
 - Another post-fix for [#10](https://github.com/coffiarts/FoundryVTT-crunch-my-party/issues/10): Error when opening Settings menu, preventing titles in the config menu to appear squashed
