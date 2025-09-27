@@ -1,6 +1,11 @@
 The **major** version number in my modules (like "13") always reflects the
 Foundry VTT **core** version it is compatible with (and recommended for).
 
+## 13.1.0
+### 2025-09-27 - Adding support for elevations (implementing feature request [#12](https://github.com/coffiarts/FoundryVTT-crunch-my-party/issues/12))
+- Different elevations of group members in "vertical" maps are now handled properly: When "crunching" your party, everyone now gets teleported to the same elevation as the selected target token. This prevents tokens to unintendedly end up in places they shouldn't see.
+- A new config option "Force target token selection" allows fine-control for this.
+
 ## 13.0.3
 ### 2025-09-16 - Maintenance release, fixing a couple of fancy technical details no one would ever have noticed ;-)
 - Some more post-polishing for the minor [#10](https://github.com/coffiarts/FoundryVTT-crunch-my-party/issues/10) issue (which kept returning again and again like hungry cat ;-))

@@ -165,6 +165,10 @@ export class PartyCruncher {
             // ==================================================================================================
             // Step 5 - auto-determine target token (depending on requiredAction), and focus on it
             // ==================================================================================================
+            if (requiredAction === PartyCruncher.Actions.CRUNCH && canvas.tokens.controlled.length !== 1 && Config.setting("forceUniqueTargetToken")) {
+                Logger.warn(false, Config.localize("errMsg.pleaseSelectTargetToken")); // This will also print an error msg to the screen
+                return;
+            }
             let targetToken = instance.#getTarget(requiredAction, involvedTokens, partyNo);
             if (targetToken?.name === undefined) {
                 Logger.warn(false, Config.localize("errMsg.pleaseActivateTokenLayer"));
@@ -692,18 +696,17 @@ export class PartyCruncher {
             }, true);
         }
 
-        const targetPosition = targetToken.position;
         // Crunch step #1: Everybody gather at the target now!!
         // We're reversing the order temporarily, because this is visually much nicer (especially with large groups).
-        // It processes outer tokens first and inner ones last.
+        // It processes outer tokens first, inner ones last.
         let tokenUpdates = [];
         for (const token of involvedTokens.memberTokens.reverse()) {
             // Teleport to the target (which is the party's "center")
-            tokenUpdates.push(this.#getTokenTeleportUpdate(token, targetToken.position, false));
+            tokenUpdates.push(this.#getTokenTeleportUpdate(token, targetToken.position, targetToken.document.elevation, false));
         }
 
-        // Do the same for the party token (still invisible)
-        tokenUpdates.push(this.#getTokenTeleportUpdate(involvedTokens.partyToken, targetToken.position, true));
+        // Then teleport the party token to the crunch target's position (still invisible)
+        tokenUpdates.push(this.#getTokenTeleportUpdate(involvedTokens.partyToken, targetToken.position, targetToken.document.elevation, true));
 
         // Finish step #1: Teleport!
         await this.#teleport(tokenUpdates);
@@ -711,11 +714,11 @@ export class PartyCruncher {
         // Crunch step #2: Everybody, go invisible and move out of the way!
         tokenUpdates = [];
         for (const token of involvedTokens.memberTokens) {
-            tokenUpdates.push(this.#getTokenTeleportUpdate(token, {x:0, y:0}, true));
+            tokenUpdates.push(this.#getTokenTeleportUpdate(token, {x:0, y:0}, null, true));
         }
 
         // Move the party token into view and render it visible
-        tokenUpdates.push(this.#getTokenTeleportUpdate(involvedTokens.partyToken, targetPosition, false));
+        tokenUpdates.push(this.#getTokenTeleportUpdate(involvedTokens.partyToken, targetToken.position, null, false));
 
         // Finish step #2: Teleport!
         await this.#teleport(tokenUpdates);
@@ -728,12 +731,13 @@ export class PartyCruncher {
     }
 
     async #teleport(tokenUpdates) {
+        // Logger.debug(`(PartyCruncher.#teleport) tokenUpdates: `, tokenUpdates);
         if (Config.getGameMajorVersion() >= 13) {
             for (const update of tokenUpdates) {
                 const tokenDoc = canvas.scene.tokens.get(update._id);
                 if (!tokenDoc) return;
 
-                await tokenDoc.update({hidden: update.hidden});
+                await tokenDoc.update({hidden: update.hidden, elevation: update.elevation});
 
                 // temporarily change the token's movementAction to a type supporting teleport (i.e. "displace" or "blink", to avoid wall collisions
                 const actionKey = "blink";
@@ -815,15 +819,15 @@ export class PartyCruncher {
         // Explode step #1: Everybody, grab some drinks and show up at the "party center"
         let tokenUpdates = [];
         for (const memberToken of involvedTokens.memberTokens) {
-            // Teleport to the "party center", but remain invisible for now (waiting for each token's glamorous entry later in step #2)
-            tokenUpdates.push(this.#getTokenTeleportUpdate(memberToken, involvedTokens.partyToken.position, false));
+            // Then teleport them to the "party center", but remain invisible for now (waiting for each token's glamorous entry later in step #2)
+            tokenUpdates.push(this.#getTokenTeleportUpdate(memberToken, involvedTokens.partyToken.position, involvedTokens.partyToken.document.elevation, false));
         }
 
         // Move the party token out of the way and render it invisible ("WE are the party now!")
-        tokenUpdates.push(this.#getTokenTeleportUpdate(involvedTokens.partyToken, {x: 0, y: 0}, true));
+        tokenUpdates.push(this.#getTokenTeleportUpdate(involvedTokens.partyToken, {x: 0, y: 0}, null, true));
 
-            // Finish step #1: Teleport!
-            await this.#teleport(tokenUpdates);
+        // Finish step #1: Teleport!
+        await this.#teleport(tokenUpdates);
 
         // // Explode step #2: Swarm out and take your places
         let tokenCounter = 0;
@@ -918,12 +922,14 @@ export class PartyCruncher {
         }
     }
 
-    #getTokenTeleportUpdate(token, targetPosition, hidden) {
+    #getTokenTeleportUpdate(token, targetPosition, targetElevation, hidden) {
         const effectiveTargetPosition = (targetPosition != null) ? targetPosition : token.position; // NULL target means: don't move, stay where you are!
+        const effectiveTargetElevation = (targetElevation != null) ? targetElevation : token.document.elevation;
         return {
             _id: token.document._id,
             x: effectiveTargetPosition.x,
             y: effectiveTargetPosition.y,
+            elevation: effectiveTargetElevation,
             hidden: hidden
         };
     }

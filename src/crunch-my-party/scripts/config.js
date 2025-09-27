@@ -66,6 +66,27 @@ export class Config {
         // create separator and title at the beginning of this settings section
         if (Config.getGameMajorVersion() >= 13) {
             Hooks.on('renderSettingsConfig', (app, html) => {
+                const inputEl = html.querySelector(`#settings-config-${Config.data.modID.replace(/\./g, "\\.")}\\.forceUniqueTargetToken`);
+                const formGroup = inputEl?.closest(".form-group");
+                formGroup?.insertAdjacentHTML("beforebegin", `<div><h4 style="margin-top: 0; border-bottom: 1px solid #888; padding-bottom: 4px; margin-bottom: 6px;">${Config.localize('settingsMenu.behaviourSection')}</h4></div>`);
+            });
+        }
+        else {
+            Hooks.on('renderSettingsConfig', (app, [html]) => {
+                html.querySelector(`[data-setting-id="${Config.data.modID}.forceUniqueTargetToken"]`)?.insertAdjacentHTML('beforeBegin', `<h3>${Config.localize('settingsMenu.behaviourSection')}</h3>`)
+            });
+        }
+
+        const settingsData3 = {
+            forceUniqueTargetToken: {
+                scope: 'world', config: true, type: Boolean, default: true
+            }
+        };
+        Config.registerSettings(settingsData3);
+
+        // create separator and title at the beginning of this settings section
+        if (Config.getGameMajorVersion() >= 13) {
+            Hooks.on('renderSettingsConfig', (app, html) => {
                 const inputEl = html.querySelector(`#settings-config-${Config.data.modID}\\.animation4Crunch`);
                 const formGroup = inputEl?.closest(".form-group");
                 formGroup?.insertAdjacentHTML("beforebegin", `<div><h4 style="margin-top: 0; border-bottom: 1px solid #888; padding-bottom: 4px; margin-bottom: 6px;">${Config.localize('settingsMenu.animationsSection')}</h4></div>`);
@@ -77,7 +98,7 @@ export class Config {
             });
         }
 
-        const settingsData3 = {
+        const settingsData4 = {
             animation4Crunch: {
                 scope: 'world', config: true, type: String, default: "jb2a.extras.tmfx.inpulse.circle.02.normal"
             },
@@ -105,7 +126,7 @@ export class Config {
                 default: "modules/crunch-my-party/audio/audio_explode.wav"
             }
         };
-        Config.registerSettings(settingsData3);
+        Config.registerSettings(settingsData4);
 
         // Add the keybindings for FIND
         for (let index = 1; index <= NO_OF_PARTIES; index++) {

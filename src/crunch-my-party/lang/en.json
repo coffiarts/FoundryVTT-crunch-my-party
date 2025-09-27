@@ -9,6 +9,10 @@
         "name": "Debug mode",
         "hint": "Client-side setting enabling extended debug logging."
       },
+      "forceUniqueTargetToken": {
+        "name": "Force target token selection",
+        "hint": "Prevent \"crunching\" when no unique group member has been preselected as the target. Most relevant for scenes that use levels and elevation (\"vertical\" maps): By \"crunching\" your party, all group members get teleported to the same position (and elevation!) as the preselected target. Whithout a unique target, a RANDOM member will be used, which may not always be intended (especially when it comes to elevations!). This option prevents that by a warning message."
+      },
       "memberTokenNames#": {
         "name": "Party # - List of members",
         "hint": "Names of all tokens belonging to Party # (comma-separated)."
@@ -19,7 +23,7 @@
       },
       "hideChatInfo": {
         "name": "Hide module info in chat window",
-        "hint": "Hides the info text about this module in the chat window on game start (deactivate this option to see it again)."
+        "hint": "Hides the info text about this module in the chat window on game start, so that it doesn't show up over and over again (deactivate this option to see it again)."
       },
       "animation4Crunch": {
         "name": "\"Crunch\" animation (optional)",
@@ -66,7 +70,9 @@
       "pleaseWaitStillBusy": "Please wait for current action to complete ...",
       "pleaseSelectToken": "Please select at least one scene token to use this function.",
       "movementActionNotFound": "Unable to move token: The following movement action was not found in CONFIG.Token.movement.actions: ",
-      "pleaseReportThisError": "Please report this error to the mod author on https://github.com/coffiarts/FoundryVTT-crunch-my-party."
+      "pleaseReportThisError": "Please report this error to the mod author on https://github.com/coffiarts/FoundryVTT-crunch-my-party.",
+      "pleaseActivateTokenLayer": "Please activate the token layer (menu button on top left) to use this function.",
+      "pleaseSelectTargetToken": "Please select a unique group member to define the target position and elevation for this action."
     },
     "promptForPartyTokenNameTitle": "What's the name of the party token?",
     "promptForPartyTokenNameText": "Name of the party token that shall represent selected members<br/>(must exist with this exact name in current scene!)",
@@ -76,6 +82,7 @@
     "keybindingMenuLabelFind": "Find Party #",
     "keybindingMenuLabelToggle": "Toggle Party # (collapse/explode)",
     "settingsMenu": {
+      "behaviourSection": "Behaviour",
       "membersSection": "Party Member Configuration",
       "animationsSection": "Animation Settings (requires JB2A & Automated Animations)"
     }

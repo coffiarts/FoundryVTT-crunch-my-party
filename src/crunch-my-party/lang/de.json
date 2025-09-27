@@ -9,6 +9,10 @@
         "name": "Debug-Modus",
         "hint": "Aktiviert das Debug Logging."
       },
+      "forceUniqueTargetToken": {
+        "name": "Zieltoken-Auswahl erzwingen",
+        "hint": "Verhindert \"Crunching\" ohne eindeutigen vorselektierten Zieltoken. V.a. relevant bei Verwendung von Ebenen (Levels) und Höhe (Elevation) in Szenen (\"vertikale\" Karten): Beim \"Crunch\" werden immer alle Gruppenmitglieder auf dieselbe Position (und Höhe!) teleportiert wie das Ziel. Ohne eindeutiges Ziel wird ein ZUFÄLLIG ausgewähltes Gruppenmitglied verwendet, was nicht immer wünschenswert ist (v.a. bei der Höhe!). Durch diese Option wird das per Warnmeldung abgefangen."
+      },
       "memberTokenNames#": {
         "name": "Gruppe # - Mitgliederliste",
         "hint": "Tokennamen aller Mitglieder von Gruppe # (durch Komma getrennt)."
@@ -19,7 +23,7 @@
       },
       "hideChatInfo": {
         "name": "Modulinfo im Chat ausblenden",
-        "hint": "Blendet beim Start den Chat-Infotext zu diesem Modul wieder ein (zum Wiederanzeigen hier deaktivieren)."
+        "hint": "Unterdrückt beim Start von Foundry den Chat-Infotext zu diesem Modul, damit er nicht immer wieder erscheint (zum einmaligen Wiederanzeigen hier deaktivieren)."
       },
       "animation4Crunch": {
         "name": "\"Crunch\"-Animation (optional)",
@@ -66,7 +70,9 @@
       "pleaseWaitStillBusy": "Bitte warten, bis laufende Aktion beendet ist ...",
       "pleaseSelectToken": "Für diese Funktion muss mindestens ein Token ausgewählt sein.",
       "movementActionNotFound": "Token kann nicht verschoben werden: Die folgende Movement Action ist nicht in CONFIG.Token.movement.actions vorhanden: ",
-      "pleaseReportThisError": "Bitte melde dieses Problem an den Author des Moduls auf https://github.com/coffiarts/FoundryVTT-crunch-my-party."
+      "pleaseReportThisError": "Bitte melde dieses Problem an den Author des Moduls auf https://github.com/coffiarts/FoundryVTT-crunch-my-party.",
+      "pleaseActivateTokenLayer": "Bitte aktiviere für diese Funktion den Token Layer (Menübutton links oben).",
+      "pleaseSelectTargetToken": "Bitte ein einzelnes Gruppenmitglied auswählen, welches Zielposition und -höhe (Elevation) für diese Aktion festlegt."
     },
     "promptForPartyTokenNameTitle": "Wie heisst der Gruppentoken?",
     "promptForPartyTokenNameText": "Name des Gruppen-Tokens, der diese Auswahl repräsentieren soll<br/>(muss unter exakt diesem Namen in der Szene existieren!)",
@@ -76,6 +82,7 @@
     "keybindingMenuLabelFind": "Gruppe # finden",
     "keybindingMenuLabelToggle": "Gruppe # umschalten (vereinigen/trennen)",
     "settingsMenu": {
+      "behaviourSection": "Verhalten",
       "membersSection": "Gruppen-Konfiguration",
       "animationsSection": "Animationseinstellungen (erfordert JB2A & Automated Animations)"
     }

@@ -96,7 +96,7 @@ The main functions, briefly explained:
 => You're done. Your party is defined! HURRAY!!
 
 ### TOGGLE - CRUNCH an exploded party into one single party token
-1. Optional: If you want to control exactly where the party token should appear, select one (exactly ONE!) of your member tokens as the target.
+1. Optional: If you want to control exactly where the party token should appear (both in terms of position and elevation), select one (exactly ONE!) of your member tokens as the target.
 2. Run the related "Toggle Party #x" macro (see section [Control it by macro](#control-it-by-macro))
 
 That's it: 
