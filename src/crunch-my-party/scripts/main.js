@@ -22,9 +22,12 @@ let ready2play;
 
         await allPrerequisitesReady();
 
-        ready2play = true;
-        Logger.infoGreen(`Ready to play! Version: ${game.modules.get(Config.data.modID).version}`);
-        Logger.infoGreen(Config.data.modDescription);
+        Hooks.once("ready", () => {
+            Config.modifySetting(`modVersion`, game.modules.get("crunch-my-party").version);
+            ready2play = true;
+            Logger.infoGreen(`Ready to play! Version: ${Config.setting("modVersion")}`);
+            Logger.infoGreen(Config.data.modDescription);
+        });
     }
 )
 ();

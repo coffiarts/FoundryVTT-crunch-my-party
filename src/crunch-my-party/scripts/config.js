@@ -29,7 +29,7 @@ export class Config {
                 onChange: value => {
                     if (value !== game.modules.get(MOD_ID).version) {
                         // This "pseudo-setting" is meant for display only.
-                        // So we always want to snap back to its default on change
+                        // So we always want it to snap back to its default on change
                         game.settings.set(Config.data.modID, `modVersion`, game.modules.get(MOD_ID).version);
                     }
                 }
