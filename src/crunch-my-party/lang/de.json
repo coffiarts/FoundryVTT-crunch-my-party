@@ -60,9 +60,9 @@
     "errMsg": {
       "pleaseCheckYourTokenSelection": "Bitte Gruppenkonfiguration prüfen",
       "invalidTokenCount": "Erforderlich: Genau EIN Gruppen-Token und MEHR ALS EIN Mitglieder-Token.",
-      "groupAndMembersIntersect": "Ein Name darf nicht sowohl Mitglied als auch Gruppe sein.",
+      "groupAndMembersIntersect": "Der Stellvertreter-Token darf nicht so heissen wie ein Gruppenmitglied.",
       "tooManyMemberTokens": "Mitgliederliste ist zu lang",
-      "invalidNumberOfMemberTokens": "Ungültige Anzahl an Tokens ausgewählt! Eine Gruppe muss aus mindestens 2 und maximal 25 Mitgliedern bestehen.",
+      "invalidNumberOfMemberTokens": "Ungültige Anzahl an Tokens ausgewählt! Eine Gruppe muss aus mindestens 2 und maximal {maxMembers} Mitgliedern bestehen.",
       "notUniqueInScene": "existiert mehrfach in der Szene!",
       "tokensMissingInScene": "Folgende Tokens fehlen in der Szene",
       "cannotDetermineAction": "Aktion kann nicht ermittelt werden!",
@@ -74,11 +74,21 @@
       "pleaseActivateTokenLayer": "Bitte aktiviere für diese Funktion den Token Layer (Menübutton links oben).",
       "pleaseSelectTargetToken": "Bitte ein einzelnes Gruppenmitglied auswählen, welches Zielposition und -höhe (Elevation) für diese Aktion festlegt."
     },
-    "promptForPartyTokenNameTitle": "Wie heisst der Gruppentoken?",
-    "promptForPartyTokenNameText": "Name des Gruppen-Tokens, der diese Auswahl repräsentieren soll<br/>(muss unter exakt diesem Namen in der Szene existieren!)",
+    "promptForPartyToken": {
+      "title": "Gruppenkonfiguration",
+      "text": "Welcher der ausgewählten Tokens soll als gemeinsamer Gruppentoken verwendet werden?",
+      "partyTokenMode": {
+        "text": "Ist dieser Token ein separater Stellvertreter, oder selbst ein Mitglied der Gruppe?",
+        "placeholder": "Stellvertreter",
+        "member": "Gruppenmitglied"
+      },
+      "partyNo": {
+        "text": "Welcher Gruppe möchtest du diese Auswahl zuweisen?"
+      }
+    },
     "saveButton": "Übernehmen",
     "cancelButton": "Abbrechen",
-    "groupingConfirmation": "Die folgenden Tokens sind nun der <strong>Gruppe #{partyNo} [Token: {partyTokenName}]</strong> zugewiesen",
+    "groupingConfirmation": "Die folgenden Tokens sind nun der <strong>Gruppe #{partyNo} [{partyTokenName}]</strong> zugewiesen",
     "keybindingMenuLabelFind": "Gruppe # finden",
     "keybindingMenuLabelToggle": "Gruppe # umschalten (vereinigen/trennen)",
     "settingsMenu": {

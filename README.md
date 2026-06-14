@@ -15,7 +15,7 @@
     <td><img src="src/crunch-my-party/artwork/crunch-my-party-logo.png" alt="Hot Pan & Zoom! Logo"/></td>
     <td>
         <p style="color:#da6502">
-          *The* perfect utility for the game master handling multiple tokens as one party. Easily collapse arbitrary groups of scene tokens (representing parties) into an easy-to-use single "party token", and vice versa. Manage up to 5 separate parties with up to 25 members each!
+          A neat little utility for the game master handling multiple tokens as one party. Easily collapse arbitrary groups of scene tokens (representing parties) into an easy-to-use single "party token", and vice versa. Manage up to 5 separate parties with up to 25 members each!
         </p>
         <p style="font-style: italic; font-weight: bold">
           "Once there were three little goblins ...<br/>

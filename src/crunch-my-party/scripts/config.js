@@ -7,8 +7,9 @@ const MOD_PATH = `/modules/${MOD_ID}`;
 const MOD_TITLE = "Crunch My Party!";
 const MOD_DESCRIPTION = "*The* perfect utility for the game master handling multiple tokens as one party. Easily collapse arbitrary groups of scene tokens (representing parties) into an easy-to-use single \"party token\", and vice versa. Manage up to 5 separate parties with up to 25 members each!";
 const MOD_LINK = `https://github.com/coffiarts/FoundryVTT-${MOD_ID}`;
+const MAX_NO_OF_PARTIES = 5;
+const MAX_MEMBERS_PER_PARTY = 25;
 
-const NO_OF_PARTIES = 5;
 
 export class Config {
     static data = {
@@ -17,7 +18,9 @@ export class Config {
         modPath: MOD_PATH,
         modTitle: MOD_TITLE,
         modDescription: MOD_DESCRIPTION,
-        modlink: MOD_LINK
+        modlink: MOD_LINK,
+        maxNoOfParties: MAX_NO_OF_PARTIES,
+        maxMembersPerParty: MAX_MEMBERS_PER_PARTY
     };
     static NO_AUDIO_FILE = '../modules/crunch-my-party/audio/audio_null.wav';
 
@@ -51,16 +54,28 @@ export class Config {
             });
         }
 
-        const settingsData2 = [];
-        // Special treatment for generic "party settings" (dynamically add as many individual entries as defined by NO_OF_PARTIES)
-        for (let index = 1; index <= NO_OF_PARTIES; index++) {
-            settingsData2[`memberTokenNames${index}`] = {
-                scope: 'world', config: true, type: String, default: ""
-            };
-            settingsData2[`partyTokenName${index}`] = {
-                scope: 'world', config: true, type: String, default: ""
+        const settingsData2_v13 = [];
+
+        // until v13
+        // TODO - exclude from initialization in v14 (once it is not needed anymore)
+        //if (Config.getGameMajorVersion() >= 13) {
+            // Special treatment for generic "party settings" (dynamically add as many individual entries as defined by MAX_NO_OF_PARTIES)
+            for (let index = 1; index <= MAX_NO_OF_PARTIES; index++) {
+                settingsData2_v13[`memberTokenNames${index}`] = {
+                    scope: 'world', config: true, type: String, default: ""
+                };
+                settingsData2_v13[`partyTokenName${index}`] = {
+                    scope: 'world', config: true, type: String, default: ""
+                }
             }
-        }
+            Config.registerSettings(settingsData2_v13);
+        //}
+        //v14 and higher
+        const settingsData2 = {
+            partyConfigs: {
+                scope: 'world', config: false, type: Object, default: {}
+            }
+        };
         Config.registerSettings(settingsData2);
 
         // create separator and title at the beginning of this settings section
@@ -129,7 +144,7 @@ export class Config {
         Config.registerSettings(settingsData4);
 
         // Add the keybindings for FIND
-        for (let index = 1; index <= NO_OF_PARTIES; index++) {
+        for (let index = 1; index <= MAX_NO_OF_PARTIES; index++) {
             game.keybindings.register("crunch-my-party", `find${index}`, {
                 name: Config.localize('keybindingMenuLabelFind').replace('#', index),
                 editable: [
@@ -144,10 +159,10 @@ export class Config {
                 }
             });
         }
-        Logger.info(`${NO_OF_PARTIES} empty keybindings for FIND registered. Assign it to your liking in the game settings.`);
+        Logger.info(`${MAX_NO_OF_PARTIES} empty keybindings for FIND registered. Assign it to your liking in the game settings.`);
 
         // Add the keybindings for TOGGLE
-        for (let index = 1; index <= NO_OF_PARTIES; index++) {
+        for (let index = 1; index <= MAX_NO_OF_PARTIES; index++) {
             game.keybindings.register("crunch-my-party", `toggle${index}`, {
                 name: Config.localize('keybindingMenuLabelToggle').replace('#', index),
                 editable: [
@@ -162,27 +177,27 @@ export class Config {
                 }
             });
         }
-        Logger.info(`${NO_OF_PARTIES} empty keybindings for TOGGLE registered. Assign it to your liking in the game settings.`);
+        Logger.info(`${MAX_NO_OF_PARTIES} empty keybindings for TOGGLE registered. Assign it to your liking in the game settings.`);
     }
 
     static registerSettings(settingsData) {
         Object.entries(settingsData).forEach(([key, data]) => {
 
             // Special treatment for the generic "party settings": Use ony localization key for all
+            // TODO - v13 only. Encapsulate or remove oce possible.
             let localizeKey = key;
             const isPartySetting = (key.startsWith('memberTokenNames') || key.startsWith('partyTokenName'));
             if (isPartySetting) {
                 localizeKey = localizeKey.replace(/\d+/, '#'); // maps any setting like partyTokenName2 to partyTokenName#
             }
-
             let name = Config.localize(`setting.${localizeKey}.name`);
             let hint = Config.localize(`setting.${localizeKey}.hint`);
-
             // Another special treatment for the generic "party settings": replace "#" by index number
             if (isPartySetting) {
                 name = name.replace('#', `#${key.match(/\d+/)}`);
                 hint = hint.replace('#', `#${key.match(/\d+/)}`);
             }
+
             game.settings.register(
                 Config.data.modID, key, {
                     name: name,

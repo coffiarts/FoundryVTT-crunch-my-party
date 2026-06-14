@@ -145,13 +145,14 @@ export class PartyCruncher {
             // Step 1 - Parse & validate party definitions from module settings
             // ==================================================================================================
             // grab raw input values from user prefs
+            // TODO - This step will only be required when storing tokens for the first time
             let validatedNames = instance.#collectValidatedTokenNamesFromModuleSettings(partyNo);
             Logger.debug("(PartyCruncher.toggleParty) validatedNames: ", validatedNames);
 
             // ==================================================================================================
             // Step 2 - Update user prefs in module settings with the now cleaned lists
             // ==================================================================================================
-            PartyCruncher.#updateSettings(partyNo, validatedNames);
+            PartyCruncher.updatePartyConfig(partyNo, validatedNames);
 
             // ==================================================================================================
             // Step 3 - gather and validate all the involved tokens from current scene
@@ -253,20 +254,22 @@ export class PartyCruncher {
             // ==================================================================================================
             // grab names from all currently selected tokens
             let namesFromSelection = instance.#collectNamesFromTokenSelection();
-            // ask the GM for the name of the party token to use
-            let partyTokenNameInput = await PartyCruncher.#promptForPartyTokenName(partyNo);
-            if (partyTokenNameInput.cancelled) {
+            // ask the GM for the name and mode of the party token to use
+            let partyConfigInput = await PartyCruncher.#promptForPartyConfigDetails(partyNo);
+            if (partyConfigInput.cancelled) {
                 return;
             } else {
-                namesFromSelection.partyTokenNames = [partyTokenNameInput];
+                namesFromSelection.partyTokenName = partyConfigInput.tokenName;
+                namesFromSelection.partyTokenMode = partyConfigInput.mode;
+                partyNo = partyConfigInput.partyNo;
                 Logger.debug(`(PartyCruncher.groupParty) namesFromSelection for grouping party #${partyNo}:`, namesFromSelection);
             }
-            let validatedNames = instance.#validateNames(partyNo, namesFromSelection);
+            let partyConfig = instance.#createPartyConfig(partyNo, namesFromSelection);
 
             // ==================================================================================================
             // Step 2 - Update user prefs in module settings with detected names lists
             // ==================================================================================================
-            PartyCruncher.#updateSettings(partyNo, validatedNames);
+            PartyCruncher.updatePartyConfig(partyConfig);
 
             // ==================================================================================================
             // Step 3 - Confirm in UI that group assignment was successful
@@ -274,11 +277,18 @@ export class PartyCruncher {
             let msg =
                 `${Config.localize('groupingConfirmation')
                     .replace('{partyNo}', partyNo)
-                    .replace('{partyTokenName}', validatedNames.partyTokenName)}:</br>` +
+                    .replace('{partyTokenName}', partyConfig.partyTokenName
+                    )}:` +
                 `<ul><li>` +
-                validatedNames.memberTokenNames.join(`</li><li>`) +
+                partyConfig.memberTokenNames.join(`</li><li>`) +
                 `</li></ul>`;
             ui.notifications.info(msg);
+            await ChatMessage.create({
+                whisper:ChatMessage.getWhisperRecipients("GM"),
+                user: game.user.id ?? game.user._id,
+                speaker: ChatMessage.getSpeaker({alias: Config.data.modTitle}),
+                content: msg
+            }, {});
             Logger.info(msg);
 
         } catch (e) {
@@ -290,6 +300,10 @@ export class PartyCruncher {
 
         Logger.info(`... Grouping of party #${partyNo} complete.`);
         await PartyCruncher.setBusy(false);
+    }
+
+    static toInitCap(string) {
+        return string.substring(0, 1).toUpperCase() + string.substring(1);
     }
 
     /**
@@ -367,7 +381,7 @@ export class PartyCruncher {
         let memberTokenNamesString = Config.setting(`memberTokenNames${partyNo}`);
         let partyTokenNameString = Config.setting(`partyTokenName${partyNo}`);
         let namesFromSettings = this.#collectNamesFromStrings(partyNo, memberTokenNamesString, partyTokenNameString);
-        return this.#validateNames(partyNo, namesFromSettings);
+        return this.#createPartyConfig(partyNo, namesFromSettings);
     }
 
     /**
@@ -383,11 +397,9 @@ export class PartyCruncher {
         // Parse & split given list of party names from module settings
         let memberTokenNames = memberTokenNamesString
             .split(",")
-            .map(name => name.trim().toLowerCase())
             .filter(name => name.length > 0); // ignore empty strings resulting from input like ",," or ", ,"
         let partyTokenNames = partyTokenNameString
             .split(",")
-            .map(name => name.trim().toLowerCase())
             .filter(name => name.length > 0); // ignore empty strings resulting from input like ",," oder ", ,"
 
         Logger.debug("(PartyCruncher.#collectNamesFromStrings) ",
@@ -396,45 +408,48 @@ export class PartyCruncher {
 
         return {
             memberTokenNames: memberTokenNames,
-            partyTokenNames: partyTokenNames
+            partyTokenName: partyTokenNames
         };
     }
 
     #collectNamesFromTokenSelection() {
-        let tokenNamesFound = Array.from(canvas.tokens.controlled.map(t => t.name.toLowerCase()));
+        let tokenNamesFound = Array.from(canvas.tokens.controlled.map(t => t.name));
         if (tokenNamesFound.length < 2) {
-            // TODO localize
             throw new Error(
-                Config.localize('errMsg.invalidNumberOfMemberTokens'));
+                Config.localize('errMsg.invalidNumberOfMemberTokens').replace("{maxMembers}", Config.data.maxMembersPerParty));
         }
-        return {
+
+        const namesFromSelection = {
             memberTokenNames: tokenNamesFound,
-            partyTokenName: null // Still unassigned. Will be set by user input prompt
+            partyTokenName: null, // Still unassigned. Will be set by user input prompt
+            partyTokenMode: null // Still unassigned. Will be set by user input prompt
         };
+        Logger.debug("(PartyCruncher.#collectNamesFromTokenSelection) namesFromSelection (1):", namesFromSelection);
+
+        return namesFromSelection;
     }
 
     /**
-     * Validate given list of token names from module settings.
-     * Throw meaningful UI errors if anything isn't valid.
+     * Gather all required info to build a partyConfig object
      * @param partyNo
      * @param names
-     * @returns {{partyTokenName: *, memberTokenNames: (*|any[])}}
+     * @returns {{partyNo: number, partyTokenName: null|*, partyTokenMode: null|*, memberTokenNames: *|any[]}}
      */
-    #validateNames(partyNo = 1, names) {
+    #createPartyConfig(partyNo = 1, names) {
 
-        Logger.debug("(PartyCruncher.#validateNames) names: ", names);
+        Logger.debug("(PartyCruncher.#createPartyConfig) names (before validation): ", names);
         let errMsg = "";
 
         // Check 1: Do we have enough tokens? Do we have not too many tokens?
         if (
             !names.memberTokenNames || names.memberTokenNames.length === 0 || names.memberTokenNames[0] === "" ||
-            !names.partyTokenNames || names.partyTokenNames.length !== 1 || names.partyTokenNames[0] === "") {
+            !names.partyTokenName || names.partyTokenName === "") {
             errMsg =
                 // Error: invalidTokenCount => Names do not represent exactly ONE group and MORE THAN ONE members.
                 Config.localize('errMsg.pleaseCheckYourTokenSelection') + ":<br/>" +
                 "<br/>" +
-                "- " + Config.localize(`setting.memberTokenNames${partyNo}.name`) + ": <strong>[ " + names.memberTokenNames + " ]</strong><br/>" +
-                "- " + Config.localize(`setting.partyTokenName${partyNo}.name`) + ": <strong>[ " + names.partyTokenNames + " ]</strong><br/>" +
+                "- " + Config.localize(`setting.memberTokenNames#.name`).replace("#", partyNo) + ": <strong>[ " + names.memberTokenNames + " ]</strong><br/>" +
+                "- " + Config.localize(`setting.partyTokenName#.name`).replace("#", partyNo) + ": <strong>[ " + names.partyTokenName + " ]</strong><br/>" +
                 "<br/>" +
                 "<strong>" + Config.localize(`errMsg.invalidTokenCount`) + "</strong>";
         }
@@ -443,44 +458,52 @@ export class PartyCruncher {
             throw new Error(errMsg);
         }
 
-        // Check 2: Are there intersecting names between members list and party?
-        const membersIncludeParty = names.partyTokenNames.some(element => {
-            return names.memberTokenNames.includes(element);
-        });
-        const partyIncludesMembers = names.memberTokenNames.some(element => {
-            return names.partyTokenNames.includes(element);
-        });
-        if (membersIncludeParty || partyIncludesMembers) {
-            errMsg =
-                // Error: groupAndMembersIntersect => Names must not exist both as member and as group.
-                Config.localize('errMsg.pleaseCheckYourTokenSelection') + ":<br/>" +
-                "<br/>" +
-                "- " + Config.localize(`setting.memberTokenNames${partyNo}.name`) + ": <strong>[ " + names.memberTokenNames + " ]</strong><br/>" +
-                "- " + Config.localize(`setting.partyTokenName${partyNo}.name`) + ": <strong>[ " + names.partyTokenNames + " ]</strong><br/>" +
-                "<br/>" +
-                "<strong>" + Config.localize(`errMsg.groupAndMembersIntersect`) + "</strong>";
-        }
+        // Check 2 (only up to v13): Are there party members with the same name as the party token?
+        if (Config.getGameMajorVersion() <= 13) {
+            const membersIncludeParty = names.memberTokenNames.some(element => {
+                return element === names.partyTokenName;
+            });
+            if (membersIncludeParty) {
+                errMsg =
+                    // Error: groupAndMembersIntersect => Names must not exist both as member and as group.
+                    Config.localize('errMsg.pleaseCheckYourTokenSelection') + ":<br/>" +
+                    "<br/>" +
+                    "- " + Config.localize(`setting.memberTokenNames#.name`).replace("#", partyNo) + ": <strong>[ " + names.memberTokenNames + " ]</strong><br/>" +
+                    "- " + Config.localize(`setting.partyTokenName#.name`).replace("#", partyNo) + ": <strong>[ " + names.partyTokenName + " ]</strong><br/>" +
+                    "<br/>" +
+                    "<strong>" + Config.localize(`errMsg.groupAndMembersIntersect`) + "</strong>";
+            }
 
-        if (errMsg) {
-            throw new Error(errMsg);
+            if (errMsg) {
+                throw new Error(errMsg);
+            }
         }
 
         // Remove duplicates
         names.memberTokenNames = [...new Set(names.memberTokenNames)];
-        let partyTokenName = names.partyTokenNames[0]; // there CAN be only one by now, so we can safely reduce it to its first & only member
+        Logger.debug("(PartyCruncher.#createPartyConfig) memberTokenNames after removing duplicates: ", names.memberTokenNames);
 
-        // Check 3: Is max number of 25 members per party exceeded?
+        // In "Placeholder" mode (as of v14), we need to expel the party token's name from the members list
+        if (names.partyTokenMode === "PLACEHOLDER") {
+            const removeIndex = names.memberTokenNames.indexOf(names.partyTokenName)
+            if (removeIndex > -1) {
+                names.memberTokenNames.splice(removeIndex, 1)
+            }
+            Logger.debug("(PartyCruncher.#createPartyConfig) memberTokenNames after removing party token: ", names.memberTokenNames);
+        }
+
+        // Check 3: Is max number of members per party exceeded?
         // For anyone interested: The max number is a hard limit (thus hard-coded)!
         // It is due to the problem of having to calculate "outward spiraling" spawn positions
         // around the party token on EXPLODE.
         // See #getMovementPathToExplodePosition() for details, if you're really into such brain-busting math stuff - as I am NOT :-D
-        if (names.memberTokenNames.length > 25) {
+        if (names.memberTokenNames.length > Config.data.maxMembersPerParty) {
             throw new Error(
                 // Error: groupAndMembersIntersect => Names must not exist both as member and as group.
                 Config.localize('errMsg.tooManyMemberTokens') + ` (${names.memberTokenNames.length})!<br/>` +
-                Config.localize('errMsg.invalidNumberOfMemberTokens') + `<br/>` +
+                Config.localize('errMsg.invalidNumberOfMemberTokens').replace("{maxMembers}", Config.data.maxMembersPerParty) + `<br/>` +
                 "<br/>" +
-                Config.localize(`setting.memberTokenNames${partyNo}.name`) + ": <strong>[ " + names.memberTokenNames + " ]</strong>"
+                Config.localize(`setting.memberTokenNames#.name`).replace("#", partyNo) + ": <strong>[ " + names.memberTokenNames + " ]</strong>"
             );
         }
 
@@ -489,20 +512,39 @@ export class PartyCruncher {
         this.#collectTokensByNamesIfUnique(names.memberTokenNames);
         this.#collectTokensByNamesIfUnique([names.partyTokenName])[0];
 
-        return {
-            memberTokenNames: names.memberTokenNames,
-            partyTokenName: partyTokenName
+        const partyConfig = {
+            partyNo: partyNo,
+            partyTokenName: names.partyTokenName,
+            partyTokenMode: names.partyTokenMode,
+            memberTokenNames: names.memberTokenNames
         };
+        Logger.debug("(PartyCruncher.#createPartyConfig) new partyConfig: ", partyConfig);
+        return partyConfig;
     }
 
     /**
-     * Stores token group configurations, passed as parameters, as game settings
-     * @param partyNo
-     * @param namesAsCommaSeparatedStrings memberTokenNames and partyTokenName values
+     * Stores token group configurations, passed as parameters
+     * @param partyConfig An object holding memberTokenNames, partyTokenName, partyTokenMode and potential other params
      */
-    static #updateSettings(partyNo, namesAsCommaSeparatedStrings) {
-        Config.modifySetting(`memberTokenNames${partyNo}`, namesAsCommaSeparatedStrings.memberTokenNames.join(`, `))
-        Config.modifySetting(`partyTokenName${partyNo}`, namesAsCommaSeparatedStrings.partyTokenName)
+    static async updatePartyConfig(partyConfig) {
+
+        const storedConfigs = this.#getStoredPartyConfigs();
+        if (storedConfigs[partyConfig.partyNo] !== undefined) {
+            storedConfigs[partyConfig.partyNo].config = partyConfig;
+            Logger.debug(`PartyCruncher.#updatePartyConfig - updating existing config for party #${partyConfig.partyNo}`, storedConfigs[partyConfig.partyNo]);
+        } else {
+            storedConfigs[partyConfig.partyNo] = {
+                config: partyConfig
+            }
+            Logger.debug(`PartyCruncher.#updatePartyConfig - creating new config for party #${partyConfig.partyNo}`, storedConfigs[partyConfig.partyNo]);
+        }
+        Logger.debug(`PartyCruncher.#updatePartyConfig - persisting config for party #${partyConfig.partyNo}`, storedConfigs[partyConfig.partyNo]);
+        Config.modifySetting("partyConfigs", storedConfigs);
+
+
+        // TODO: Can we drop the storing in mod settings completely (depends on whether new solution is backward-compatible with v13 - to be verified)
+        Config.modifySetting(`memberTokenNames${partyConfig.partyNo}`, partyConfig.memberTokenNames.join(`, `));
+        Config.modifySetting(`partyTokenName${partyConfig.partyNo}`, partyConfig.partyTokenName);
     }
 
 
@@ -523,12 +565,11 @@ export class PartyCruncher {
 
         // Check 2: Are there any tokens that could NOT be found?
         let missingTokens = names.memberTokenNames
-            .map(name => name.toUpperCase())
             .filter(() => false/*!memberTokens // (DEACTIVATED FEATURE as of 11.0.4)
                 .map(t => t.name.toUpperCase())
                 .includes((name))*/);
         if (!partyToken) {
-            missingTokens.push(names.partyTokenName.toUpperCase());
+            missingTokens.push(names.partyTokenName);
         }
 
         if (missingTokens.length > 0) {
@@ -540,9 +581,9 @@ export class PartyCruncher {
                 // Collect all errors into one biiiiig message
                 Config.localize('errMsg.pleaseCheckYourTokenSelection') + ":<br/>" +
                 "<br/>" +
-                "- " + Config.localize(`setting.memberTokenNames${partyNo}.name`) +
+                "- " + Config.localize(`setting.memberTokenNames#.name`).replace("#", partyNo) +
                 ": <strong>[ " + Config.setting(`memberTokenNames${partyNo}`) + " ]</strong><br/>" +
-                "- " + Config.localize(`setting.partyTokenName${partyNo}.name`) +
+                "- " + Config.localize(`setting.partyTokenName#.name`).replace("#", partyNo) +
                 ": <strong>[ " + Config.setting(`partyTokenName${partyNo}`) + " ]</strong><br/>" +
                 "<br/>" +
                 errMsg;
@@ -568,9 +609,9 @@ export class PartyCruncher {
 
         for (let token of canvas.tokens.ownedTokens) {
 
-            Logger.debug(`(PartyCruncher.#collectTokensByNamesIfUnique) Checking if scene token is in list: [${token.name}] ...`);
+            Logger.debug(`(PartyCruncher.#collectTokensByNamesIfUnique) Checking if scene token '${token.name}' is in list: ...`, names);
 
-            if (names.includes(token.name.toLowerCase())) {
+            if (names.map(n => n.trim().toLowerCase()).includes(token.name.trim().toLowerCase())) {
 
                 // Hurray, we've found a  token from the list!
                 if (tokensFound.filter(t => t.name === token.name).length === 0) { // not yet registered
@@ -624,8 +665,8 @@ export class PartyCruncher {
                 "<br/>" +
                 Config.localize('errMsg.pleaseCheckYourTokenSelection') + ":<br/>" +
                 "<br/>" +
-                "- " + Config.localize(`setting.memberTokenNames${partyNo}.name`) + ": <strong>[ " + Config.setting(`memberTokenNames${partyNo}`) + " ]</strong><br/>" +
-                "- " + Config.localize(`setting.partyTokenName${partyNo}.name`) + ": <strong>[ " + Config.setting(`partyTokenName${partyNo}`) + " ]</strong>";
+                "- " + Config.localize(`setting.memberTokenNames#.name`).replace("#", partyNo) + ": <strong>[ " + Config.setting(`memberTokenNames${partyNo}`) + " ]</strong><br/>" +
+                "- " + Config.localize(`setting.partyTokenName#.name`).replace("#", partyNo) + ": <strong>[ " + Config.setting(`partyTokenName${partyNo}`) + " ]</strong>";
             throw new Error(errMsg);
         }
 
@@ -852,9 +893,11 @@ export class PartyCruncher {
 
                 let targetX = tokenDoc.x + relative.x * gridSize;
                 let targetY = tokenDoc.y + relative.y * gridSize;
-
                 // Snap to nearest grid
-                const snapped = canvas.grid.getSnappedPosition(targetX, targetY, 0);
+                const point = {x: targetX, y: targetY, elevation: tokenDoc.elevation};
+                Logger.debug(`(PartyCruncher.#explodeParty) [${memberToken.name}]: point =>`, point);
+                const snapped = canvas.grid.getSnappedPoint(point, CONST.GRID_SNAPPING_MODES.CENTER);
+                Logger.debug(`(PartyCruncher.#explodeParty) [${memberToken.name}]: snapped =>`, snapped);
                 targetX = snapped.x;
                 targetY = snapped.y;
 
@@ -982,42 +1025,128 @@ export class PartyCruncher {
         return movementVector[counter];
     }
 
-    static async #promptForPartyTokenName(partyNo) {
-        return new Promise(resolve => {
-            const data = {
-                title: Config.localize('promptForPartyTokenNameTitle'),
-                content: `
-                <form>
+    static async #promptForPartyConfigDetails(partyNo = 1) {
+
+        const title = Config.localize('promptForPartyToken.title');
+        const checkIcon = "<i class='fas fa-check'></i>";
+        const cancelIcon = "<i class='fas fa-cancel'></i>";
+        const submitButtonLabel = Config.localize('saveButton');
+        const cancelButtonLabel = Config.localize('cancelButton');
+
+        if (Config.getGameMajorVersion() <= 13) {
+            const content =
+                `<form>
                   <div>
-                    <legend>${Config.localize('promptForPartyTokenNameText')}</legend>
-                    <input type='text' name='partyTokenName' value="${(Config.setting(`partyTokenName${partyNo}`))}"/>
+                    <legend>${Config.localize('promptForPartyToken.text')}</legend>
+                    <input type='text' name='partyTokenName' value="<name>"/>
                   </div>
-                </form>`,
-                buttons: {
-                    submit: {
-                        icon: "<i class='fas fa-check'></i>",
-                        label: Config.localize('saveButton'),
-                        callback: html => resolve(
-                            PartyCruncher.#resolvePromptForPartyTokenName(
-                                html[0].querySelector('form')))
+                </form>`;
+
+            return new Promise(resolve => {
+                const data = {
+                    title: title,
+                    content: content.replace("<name>", Config.setting(`partyTokenName${partyNo}`)),
+                    buttons: {
+                        submit: {
+                            icon: checkIcon,
+                            label: submitButtonLabel,
+                            callback: html => resolve(
+                                PartyCruncher.#resolvePromptForPartyToken(
+                                    html[0].querySelector('form').partyTokenName.value, null).tokenName)
+                        },
+                        cancel: {
+                            icon: cancelIcon,
+                            label: cancelButtonLabel,
+                            callback: () => resolve({cancelled: true})
+                        }
                     },
-                    cancel: {
-                        icon: "<i class='fas fa-cancel'></i>",
-                        label: Config.localize('cancelButton'),
-                        callback: () => resolve({cancelled: true})
-                    }
-                },
-                default: 'submit',
-                close: () => resolve({cancelled: true})
+                    default: 'submit',
+                    close: () => resolve({cancelled: true})
+                }
+                new Dialog(data, null).render(true);
+            });
+        }
+        // v14 or higher
+        else {
+            let content = `
+            <div style="max-height: 400px; overflow: scroll">
+            <p>${Config.localize('promptForPartyToken.text')}</p>
+            `;
+            for(const t of canvas.tokens.controlled) {
+                const checked = (canvas.tokens.controlled[0].name === t.name) ? " checked" : "";
+                content += `<label><input type="radio" name="tokenChoice" value="${t.name}"${checked}/>${t.name}</label><br/>`;
             }
-            new Dialog(data, null).render(true);
-        });
+            content += `
+                <hr>
+                <p>${Config.localize('promptForPartyToken.partyTokenMode.text')}</p>
+                <label><input type="radio" name="modeChoice" value="PLACEHOLDER" checked/>${Config.localize('promptForPartyToken.partyTokenMode.placeholder')}</label><br/>
+                <label><input type="radio" name="modeChoice" value="MEMBER"/>${Config.localize('promptForPartyToken.partyTokenMode.member')}</label><br/>`;
+            content += `
+                <hr>
+                <p>${Config.localize('promptForPartyToken.partyNo.text')}</p>`;
+
+            // ake partyNo selectable: Populate an option list from all stored configs, limited by MAX_NO_OF_PARTIES
+            const storedConfigs = this.#getStoredPartyConfigs();
+            for(let i = 1; i <= Config.data.maxNoOfParties; i++) {
+                let partyName, members;
+                if (storedConfigs[i] !== undefined) {
+                    partyName = storedConfigs[i].config.partyTokenName;
+                    members = " (" + storedConfigs[i].config.memberTokenNames.join(", ") + ")";
+                } else {
+                    partyName = "EMPTY";
+                    members = "";
+                }
+                const checked = (i === partyNo) ? " checked" : "";
+                content += `<label>
+                                <input type="radio" name="partyNoChoice" 
+                                       value="${i}"${checked}
+                                       alt="${partyName}"/>${i} - ${partyName}${members}
+                            </label><br/>`;
+            }
+            content += `</div>`;
+            Logger.debug("PartyCruncher.#promptForPartyConfigDetails - content", content);
+
+            return new Promise(resolve => {
+                new foundry.applications.api.DialogV2({
+                    window: { title: title },
+                    content: content,
+                    buttons: [
+                        {
+                            action: "submit",
+                            label: submitButtonLabel,
+                            default: true,
+                            callback: (event, button) => resolve(
+                                PartyCruncher.#resolvePromptForPartyToken(
+                                    button.form.elements.tokenChoice.value,
+                                    button.form.elements.modeChoice.value,
+                                    button.form.elements.partyNoChoice.value))
+                        },
+                        {
+                            action: "cancel",
+                            label: cancelButtonLabel,
+                            callback: () => resolve({cancelled: true})
+                        }]
+                }).render({ force: true });
+            });
+        }
     }
 
-    static #resolvePromptForPartyTokenName(form) {
-        Logger.debug('(PartyCuncher.#resolvePromptForPartyTokenName) form', form);
-        let result = form.partyTokenName.value.toLowerCase();
-        Logger.debug(`(PartyCuncher.#resolvePromptForPartyTokenName) partyTokenName from prompt input: ${result}`);
+    static #resolvePromptForPartyToken(tokenChoice, modeChoice, partyNoChoice) {
+        let result = {
+            tokenName: tokenChoice,
+            mode: modeChoice.toUpperCase(),
+            partyNo: partyNoChoice,
+        };
+        Logger.debug('(PartyCruncher.#resolvePromptForPartyTokenName) user chosen value: ', result);
         return result;
+    }
+
+    static #getStoredPartyConfigs() {
+        const partyConfigs = foundry.utils.deepClone(
+            Config.setting("partyConfigs")
+        );
+        const deserializedConfigs = {};
+        Logger.debug('(PartyCruncher.#getStoredPartyConfigs) reading partyConfigs: ', partyConfigs);
+        return partyConfigs;
     }
 }
