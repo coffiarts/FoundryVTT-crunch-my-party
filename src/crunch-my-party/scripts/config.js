@@ -58,10 +58,13 @@ export class Config {
             });
         }
 
+        /**
+         * @deprecated since v14
+         */
         const settingsData2_v13 = [];
 
         // until v13
-        // TODO - exclude from initialization in v14 (once it is not needed anymore)
+        // TODO - exclude from initialization (once it is not needed anymore)
         //if (Config.getGameMajorVersion() >= 13) {
             // Special treatment for generic "party settings" (dynamically add as many individual entries as defined by MAX_NO_OF_PARTIES)
             for (let index = 1; index <= MAX_NO_OF_PARTIES; index++) {
@@ -188,7 +191,7 @@ export class Config {
         Object.entries(settingsData).forEach(([key, data]) => {
 
             // Special treatment for the generic "party settings": Use ony localization key for all
-            // TODO - v13 only. Encapsulate or remove oce possible.
+            // TODO - v13 only. Encapsulate or remove once possible.
             let localizeKey = key;
             const isPartySetting = (key.startsWith('memberTokenNames') || key.startsWith('partyTokenName'));
             if (isPartySetting) {

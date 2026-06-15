@@ -145,7 +145,7 @@ export class PartyCruncher {
             // Step 1 - Parse & validate party definitions from module settings
             // ==================================================================================================
             // grab raw input values from user prefs
-            // TODO - This step will only be required when storing tokens for the first time
+            // TODO - Remove
             let validatedNames = instance.#collectValidatedTokenNamesFromModuleSettings(partyNo);
             Logger.debug("(PartyCruncher.toggleParty) validatedNames: ", validatedNames);
 
@@ -534,8 +534,8 @@ export class PartyCruncher {
     static async updatePartyConfig(partyNo, updates) {
 
         // Validate passed params
-        if (partyNo === undefined || isNaN(partyNo) || partyNo < 1) {
-            Logger.error(`PartyCruncher.#updatePartyConfig - unable to store Party Config updates: partyNo missing or invalid: `, partyNo, updates);
+        if (partyNo === undefined || isNaN(partyNo) || partyNo < 1 || partyNo > Config.globals.maxNoOfParties) {
+            Logger.error(`PartyCruncher.#updatePartyConfig - unable to store Party Config updates: partyNo missing or invalid (must be a number between 1 and ${Config.globals.maxNoOfParties}): `, partyNo, updates);
             return;
         }
 
@@ -726,14 +726,17 @@ export class PartyCruncher {
     static async #crunchParty(partyNo) {
 
         // Validate passed params
-        if (partyNo === undefined || isNaN(partyNo) || partyNo < 1) {
-            Logger.error(`PartyCruncher.#crunchParty - param partyNo missing or invalid: `, partyNo);
+        if (partyNo === undefined || isNaN(partyNo) || partyNo < 1 || partyNo > Config.globals.maxNoOfParties) {
+            Logger.error(`PartyCruncher.#crunchParty - unable to store Party Config updates: partyNo missing or invalid (must be a number between 1 and ${Config.globals.maxNoOfParties}): `, partyNo, updates);
             return;
         }
 
         // Retrieve stored partyConfig
         const partyConfig = PartyCruncher.#getPartyConfig(partyNo);
         Logger.debug(`PartyCruncher.#crunchParty(${partyNo}): partyConfig: `, partyConfig);
+
+        // TODO - Check if Party Token already exists in Scene
+        // ... If so: Prompt for replace, keep or abort
 
         // Gather member tokens in scene
         const memberTokensToRemove = [];
@@ -751,14 +754,18 @@ export class PartyCruncher {
             Logger.debug(`PartyCruncher.#crunchParty - member token '${memberName}' found => added to list for removal`, tokenFound);
         }
 
-        // TODO - Identify target token
+        // TODO - Move all members to center
 
-        // TODO - If Party Token already exists yet in Scene:
-        // ... Update position and relative scale to reflect target token
+        // TODO - Identify target token
+        // TODO - If "replace" was chosen above:
+        // ... Update position and relative scale of existing token to reflect target token
         // ... otherwise:
         // ... - read party token data from storage
-        // ... - update date to reflect target token's pos and scale
+        // ... - update to reflect target token's pos and scale
         // ... - create party token in scene
+
+        // TODO - Toggle Party Token on if it should be hidden
+
 
         // Store member tokens and remove tokens from scene
         if (memberTokensToRemove.length > 0) {
@@ -766,6 +773,9 @@ export class PartyCruncher {
                 memberTokens: memberTokensToRemove
             }
             await PartyCruncher.updatePartyConfig(partyNo, updates);
+
+            // TODO - Add sound and JB2A animation (encapsulate it in function!)
+
             Logger.debug(`PartyCruncher.#crunchParty - removing ${memberTokensToRemove.length} tokens from scene: `, memberTokensToRemove);
             for (const member of memberTokensToRemove) {
                 await member.delete();
@@ -775,8 +785,8 @@ export class PartyCruncher {
         }
     }
 
-    async
     /**
+     * @deprecated since v14
      * Do it: Crunch my party NOW!
      * @param involvedTokens
      * @param targetToken - Here this is the one member selected, providing the new position of the party token
@@ -807,7 +817,7 @@ export class PartyCruncher {
             }
         } else if (audioPath) // Play audio without JB2A && AA
         {
-            AudioHelper.play({
+            foundry.audio.AudioHelper.play({
                 src: audioPath,
                 volume: 1,
                 autoplay: true,
@@ -927,7 +937,7 @@ export class PartyCruncher {
             }
         } else if (audioPath) // Play audio without JB2A && AA
         {
-            AudioHelper.play({
+            foundry.audio.AudioHelper.play({
                 src: audioPath,
                 volume: 1,
                 autoplay: true,
