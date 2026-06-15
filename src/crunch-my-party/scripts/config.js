@@ -10,9 +10,11 @@ const MOD_LINK = `https://github.com/coffiarts/FoundryVTT-${MOD_ID}`;
 const MAX_NO_OF_PARTIES = 5;
 const MAX_MEMBERS_PER_PARTY = 25;
 
+const ICON_SUBMIT = "<i class='fas fa-check'></i>";
+const ICON_CANCEL = "<i class='fas fa-cancel'></i>";
 
 export class Config {
-    static data = {
+    static globals = {
         // keep these values in sync with your module.json!
         modID: MOD_ID,
         modPath: MOD_PATH,
@@ -20,7 +22,9 @@ export class Config {
         modDescription: MOD_DESCRIPTION,
         modlink: MOD_LINK,
         maxNoOfParties: MAX_NO_OF_PARTIES,
-        maxMembersPerParty: MAX_MEMBERS_PER_PARTY
+        maxMembersPerParty: MAX_MEMBERS_PER_PARTY,
+        iconSubmit: ICON_SUBMIT,
+        iconCancel: ICON_CANCEL
     };
     static NO_AUDIO_FILE = '../modules/crunch-my-party/audio/audio_null.wav';
 
@@ -33,7 +37,7 @@ export class Config {
                     if (value !== game.modules.get(MOD_ID).version) {
                         // This "pseudo-setting" is meant for display only.
                         // So we always want it to snap back to its default on change
-                        game.settings.set(Config.data.modID, `modVersion`, game.modules.get(MOD_ID).version);
+                        game.settings.set(Config.globals.modID, `modVersion`, game.modules.get(MOD_ID).version);
                     }
                 }
             }
@@ -43,14 +47,14 @@ export class Config {
         // create separator and title at the beginning of this settings section
         if (Config.getGameMajorVersion() >= 13) {
             Hooks.on('renderSettingsConfig', (app, html) => {
-                const inputEl = html.querySelector(`#settings-config-${Config.data.modID.replace(/\./g, "\\.")}\\.memberTokenNames1`);
+                const inputEl = html.querySelector(`#settings-config-${Config.globals.modID.replace(/\./g, "\\.")}\\.memberTokenNames1`);
                 const formGroup = inputEl?.closest(".form-group");
                 formGroup?.insertAdjacentHTML("beforebegin", `<div><h4 style="margin-top: 0; border-bottom: 1px solid #888; padding-bottom: 4px; margin-bottom: 6px;">${Config.localize('settingsMenu.membersSection')}</h4></div>`);
             });
         }
         else {
             Hooks.on('renderSettingsConfig', (app, [html]) => {
-                html.querySelector(`[data-setting-id="${Config.data.modID}.memberTokenNames1"]`)?.insertAdjacentHTML('beforeBegin', `<h3>${Config.localize('settingsMenu.membersSection')}</h3>`)
+                html.querySelector(`[data-setting-id="${Config.globals.modID}.memberTokenNames1"]`)?.insertAdjacentHTML('beforeBegin', `<h3>${Config.localize('settingsMenu.membersSection')}</h3>`)
             });
         }
 
@@ -81,14 +85,14 @@ export class Config {
         // create separator and title at the beginning of this settings section
         if (Config.getGameMajorVersion() >= 13) {
             Hooks.on('renderSettingsConfig', (app, html) => {
-                const inputEl = html.querySelector(`#settings-config-${Config.data.modID.replace(/\./g, "\\.")}\\.forceUniqueTargetToken`);
+                const inputEl = html.querySelector(`#settings-config-${Config.globals.modID.replace(/\./g, "\\.")}\\.forceUniqueTargetToken`);
                 const formGroup = inputEl?.closest(".form-group");
                 formGroup?.insertAdjacentHTML("beforebegin", `<div><h4 style="margin-top: 0; border-bottom: 1px solid #888; padding-bottom: 4px; margin-bottom: 6px;">${Config.localize('settingsMenu.behaviourSection')}</h4></div>`);
             });
         }
         else {
             Hooks.on('renderSettingsConfig', (app, [html]) => {
-                html.querySelector(`[data-setting-id="${Config.data.modID}.forceUniqueTargetToken"]`)?.insertAdjacentHTML('beforeBegin', `<h3>${Config.localize('settingsMenu.behaviourSection')}</h3>`)
+                html.querySelector(`[data-setting-id="${Config.globals.modID}.forceUniqueTargetToken"]`)?.insertAdjacentHTML('beforeBegin', `<h3>${Config.localize('settingsMenu.behaviourSection')}</h3>`)
             });
         }
 
@@ -102,14 +106,14 @@ export class Config {
         // create separator and title at the beginning of this settings section
         if (Config.getGameMajorVersion() >= 13) {
             Hooks.on('renderSettingsConfig', (app, html) => {
-                const inputEl = html.querySelector(`#settings-config-${Config.data.modID}\\.animation4Crunch`);
+                const inputEl = html.querySelector(`#settings-config-${Config.globals.modID}\\.animation4Crunch`);
                 const formGroup = inputEl?.closest(".form-group");
                 formGroup?.insertAdjacentHTML("beforebegin", `<div><h4 style="margin-top: 0; border-bottom: 1px solid #888; padding-bottom: 4px; margin-bottom: 6px;">${Config.localize('settingsMenu.animationsSection')}</h4></div>`);
             });
         }
         else {
             Hooks.on('renderSettingsConfig', (app, [html]) => {
-                html.querySelector(`[data-setting-id="${Config.data.modID}.animation4Crunch"]`)?.insertAdjacentHTML('beforeBegin', `<h3>${Config.localize('settingsMenu.animationsSection')}</h3>`)
+                html.querySelector(`[data-setting-id="${Config.globals.modID}.animation4Crunch"]`)?.insertAdjacentHTML('beforeBegin', `<h3>${Config.localize('settingsMenu.animationsSection')}</h3>`)
             });
         }
 
@@ -199,7 +203,7 @@ export class Config {
             }
 
             game.settings.register(
-                Config.data.modID, key, {
+                Config.globals.modID, key, {
                     name: name,
                     hint: hint,
                     ...data
@@ -211,11 +215,11 @@ export class Config {
 
     static setting(key, verbose = false) {
         if (verbose) Logger.debug(`(Config.setting) get setting: key = ${key}`);
-        return game.settings.get(Config.data.modID, key);
+        return game.settings.get(Config.globals.modID, key);
     }
 
     static async modifySetting(key, newValue) {
-        game.settings.set(Config.data.modID, key, newValue);
+        game.settings.set(Config.globals.modID, key, newValue);
         Logger.debug("(Config.modifySetting) Game Setting changed by module:", key, "=>", newValue);
     }
 
@@ -229,11 +233,11 @@ export class Config {
      * @memberof Config
      */
     static localize(key) {
-        return game.i18n.localize(`${Config.data.modID}.${key}`);
+        return game.i18n.localize(`${Config.globals.modID}.${key}`);
     }
 
     static format(key, data) {
-        return game.i18n.format(`${Config.data.modID}.${key}`, data);
+        return game.i18n.format(`${Config.globals.modID}.${key}`, data);
     }
 
     static async sleep(msec) {

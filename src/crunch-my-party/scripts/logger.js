@@ -6,14 +6,14 @@ export class Logger {
         // create separator and title at the beginning of this settings section
         if (Config.getGameMajorVersion() >= 13) {
             Hooks.on('renderSettingsConfig', (app, html) => {
-                const inputEl = html.querySelector(`#settings-config-${Config.data.modID.replace(/\./g, "\\.")}\\.debug`);
+                const inputEl = html.querySelector(`#settings-config-${Config.globals.modID.replace(/\./g, "\\.")}\\.debug`);
                 const formGroup = inputEl.closest(".form-group");
                 formGroup?.insertAdjacentHTML("beforebegin", `<div><h4 style="margin-top: 0; border-bottom: 1px solid #888; padding-bottom: 4px; margin-bottom: 6px;">Logging</h4></div>`);
             });
         }
         else {
             Hooks.on('renderSettingsConfig', (app, [html]) => {
-                html.querySelector(`[data-setting-id="${Config.data.modID}.debug"]`)?.insertAdjacentHTML('beforeBegin', `<h3>Logging</h3>`)
+                html.querySelector(`[data-setting-id="${Config.globals.modID}.debug"]`)?.insertAdjacentHTML('beforeBegin', `<h3>Logging</h3>`)
             });
         }
 
@@ -26,11 +26,11 @@ export class Logger {
         Config.registerSettings(settingsData);
     }
     static info(...args) {
-        console.log(`${Config?.data?.modTitle ?? "" } [${Config?.data?.modID ?? "" }] | `, ...args);
+        console.log(`${Config?.globals?.modTitle ?? "" } [${Config?.globals?.modID ?? "" }] | `, ...args);
     }
 
     static infoGreen(msg) {
-        console.log(`%c${Config?.data?.modTitle ?? "" } [${Config?.data?.modID ?? "" }] | ${msg}`, 'color: green');
+        console.log(`%c${Config?.globals?.modTitle ?? "" } [${Config?.globals?.modID ?? "" }] | ${msg}`, 'color: green');
     }
 
     static debug(...args) {
@@ -41,19 +41,19 @@ export class Logger {
             isDebugMode = Config.setting('debug');
         } catch {}
         if (isDebugMode)
-            console.debug(`${Config?.data?.modTitle ?? "" } [${Config?.data?.modID ?? "" }] | DEBUG | `, ...args);
+            console.debug(`${Config?.globals?.modTitle ?? "" } [${Config?.globals?.modID ?? "" }] | DEBUG | `, ...args);
     }
 
     static warn(suppressUIMsg = false, ...args) {
-        console.warn(`${Config?.data?.modTitle ?? "" } [${Config?.data?.modID ?? "" }] | WARNING | `, ...args);
+        console.warn(`${Config?.globals?.modTitle ?? "" } [${Config?.globals?.modID ?? "" }] | WARNING | `, ...args);
         if (!suppressUIMsg)
-            ui.notifications.warn(`[${Config?.data?.modTitle ?? "" }] ${args[0]}`);
+            ui.notifications.warn(`[${Config?.globals?.modTitle ?? "" }] ${args[0]}`);
     }
 
     static error(suppressUIMsg = false, ...args) {
-        console.error(`${Config?.data?.modTitle ?? "" } [${Config?.data?.modID ?? "" }] | ERROR | `, ...args);
+        console.error(`${Config?.globals?.modTitle ?? "" } [${Config?.globals?.modID ?? "" }] | ERROR | `, ...args);
         if (!suppressUIMsg)
-            ui.notifications.error(`[${Config?.data?.modTitle ?? "" }] ${args[0]}`);
+            ui.notifications.error(`[${Config?.globals?.modTitle ?? "" }] ${args[0]}`);
     }
 
     static catchThrow(thrown, toastMsg = undefined) {

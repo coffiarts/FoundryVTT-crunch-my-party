@@ -6,11 +6,11 @@ export class ChatInfo {
     <div class="div-styled" style= "padding: 5px;">
         <div style="color: #000000; padding: 10px; background-color: #CCD0CC; border: 2px solid #FFFFFF; border-radius: 15px;">
             <p style="text-align: center;">
-                <a href="${Config.data.modlink}">
-                    <img src="modules/${Config.data.modID}/artwork/${Config.data.modID}-logo.png" alt="${Config.data.modTitle} - Logo" style="border:0"/>
+                <a href="${Config.globals.modlink}">
+                    <img src="modules/${Config.globals.modID}/artwork/${Config.globals.modID}-logo.png" alt="${Config.globals.modTitle} - Logo" style="border:0"/>
                 </a>
                 <br/>
-                Version: chatInfoContent.version [<a href="modules/${Config.data.modID}/CHANGELOG.MD/">Changelog</a>]
+                Version: chatInfoContent.version [<a href="modules/${Config.globals.modID}/CHANGELOG.MD/">Changelog</a>]
             </p>
             <hr><div>
                 <h2 style="text-align: center">chatInfoContent.title</h2>
@@ -22,7 +22,7 @@ export class ChatInfo {
                 <p style="font-style: normal; font-weight: lighter">chatInfoContent.text2</p>
                 <p/>
                 <p style="font-style: normal; font-weight: lighter">chatInfoContent.text3:</p> 
-                <p style="text-align: center; font-style: normal; font-weight: lighter"><a href="${Config.data.modlink}">${Config.data.modlink}</a></p>
+                <p style="text-align: center; font-style: normal; font-weight: lighter"><a href="${Config.globals.modlink}">${Config.globals.modlink}</a></p>
             </div>
             <hr>
             <div class="div-styled" style="font-style: italic; font-weight: lighter">
@@ -36,14 +36,14 @@ export class ChatInfo {
         // create separator and title at the beginning of this settings section
         if (Config.getGameMajorVersion() >= 13) {
             Hooks.on('renderSettingsConfig', (app, html) => {
-                const inputEl = html.querySelector(`#settings-config-${Config.data.modID.replace(/\./g, "\\.")}\\.hideChatInfo`);
+                const inputEl = html.querySelector(`#settings-config-${Config.globals.modID.replace(/\./g, "\\.")}\\.hideChatInfo`);
                 const formGroup = inputEl?.closest(".form-group");
                 formGroup?.insertAdjacentHTML("beforebegin", `<div><h4 style="margin-top: 0; border-bottom: 1px solid #888; padding-bottom: 4px; margin-bottom: 6px;">Chat Info</h4></div>`);
             });
         }
         else {
             Hooks.on('renderSettingsConfig', (app, [html]) => {
-                html.querySelector(`[data-setting-id="${Config.data.modID}.hideChatInfo"]`)?.insertAdjacentHTML('beforeBegin', `<h3>Chat Info</h3>`)
+                html.querySelector(`[data-setting-id="${Config.globals.modID}.hideChatInfo"]`)?.insertAdjacentHTML('beforeBegin', `<h3>Chat Info</h3>`)
             });
         }
 
@@ -62,7 +62,7 @@ export class ChatInfo {
                     await ChatMessage.create({
                         whisper:ChatMessage.getWhisperRecipients("GM"),
                         user: game.user.id ?? game.user._id,
-                        speaker: ChatMessage.getSpeaker({alias: Config.data.modTitle}),
+                        speaker: ChatMessage.getSpeaker({alias: Config.globals.modTitle}),
                         content: ChatInfo.contentCardHTML
                             .replace('chatInfoContent.title', Config.localize('chatInfoContent.title'))
                             .replace('chatInfoContent.text1', Config.localize('chatInfoContent.text1'))

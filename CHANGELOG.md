@@ -1,6 +1,12 @@
 The **major** version number in my modules (like "13") always reflects the
 Foundry VTT **core** version it is compatible with (and recommended for).
 
+## 14.0.0
+### 2026-??-?? - v14 compatibility and technical revamp [#13](https://github.com/coffiarts/FoundryVTT-crunch-my-party/issues/13))
+- Complete redesign of the mechanics. Now definitely more robust and future proof: No more hiding tokens and shifting them inivisibly around the scene (which has been a bad design all along).
+- As a slight drawback, your existing party token assignments couldn't be migrated, so that you'll have to reassign them. But to make it easier, your assignments are still visible in your game settings. They don't have any function anymore and will be removed in upcoming versions.
+- Dropped v12 support
+
 ## 13.1.0
 ### 2025-09-27 - Adding support for elevations (implementing feature request [#12](https://github.com/coffiarts/FoundryVTT-crunch-my-party/issues/12))
 - Different elevations of group members in "vertical" maps are now handled properly: When "crunching" your party, everyone now gets teleported to the same elevation as the selected target token. This prevents tokens to unintendedly end up in places they shouldn't see.

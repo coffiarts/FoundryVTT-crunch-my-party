@@ -14,11 +14,11 @@
         "hint": "Prevent \"crunching\" when no unique group member has been preselected as the target. Most relevant for scenes that use levels and elevation (\"vertical\" maps): By \"crunching\" your party, all group members get teleported to the same position (and elevation!) as the preselected target. Whithout a unique target, a RANDOM member will be used, which may not always be intended (especially when it comes to elevations!). This option prevents that by a warning message."
       },
       "memberTokenNames#": {
-        "name": "Party # - List of members",
+        "name": "Party # - List of members (deprecated)",
         "hint": "Names of all tokens belonging to Party # (comma-separated)."
       },
       "partyTokenName#": {
-        "name": "Party # - Party name",
+        "name": "Party # - Party name (deprecated)",
         "hint": "Name of the shared tokens of Party #."
       },
       "hideChatInfo": {
@@ -74,7 +74,7 @@
       "pleaseActivateTokenLayer": "Please activate the token layer (menu button on top left) to use this function.",
       "pleaseSelectTargetToken": "Please select a unique group member to define the target position and elevation for this action."
     },
-    "promptForPartyToken": {
+    "promptForPartyConfig": {
       "title": "Party Configuration",
       "text": "Which of the selected tokens should serve as the shared party token?",
       "partyTokenMode": {
@@ -85,7 +85,14 @@
       "partyNo": {
         "text": "Which party do you want to assign?"
       }
-    },"saveButton": "Save",
+    },
+    "promptForCrunchAfterGrouping" : {
+      "title": "Apply immediately?",
+      "text": "Do you want to \"crunch\" the members of your new party right away?",
+      "yes": "Yes, crunch 'em!",
+      "no": "No, leave them separate."
+    },
+    "saveButton": "Save",
     "cancelButton": "Cancel",
     "groupingConfirmation": "The following tokens have been assigned to <strong>party #{partyNo} [{partyTokenName}]</strong>",
     "keybindingMenuLabelFind": "Find Party #",

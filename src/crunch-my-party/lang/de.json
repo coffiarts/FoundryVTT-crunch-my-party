@@ -14,11 +14,11 @@
         "hint": "Verhindert \"Crunching\" ohne eindeutigen vorselektierten Zieltoken. V.a. relevant bei Verwendung von Ebenen (Levels) und Höhe (Elevation) in Szenen (\"vertikale\" Karten): Beim \"Crunch\" werden immer alle Gruppenmitglieder auf dieselbe Position (und Höhe!) teleportiert wie das Ziel. Ohne eindeutiges Ziel wird ein ZUFÄLLIG ausgewähltes Gruppenmitglied verwendet, was nicht immer wünschenswert ist (v.a. bei der Höhe!). Durch diese Option wird das per Warnmeldung abgefangen."
       },
       "memberTokenNames#": {
-        "name": "Gruppe # - Mitgliederliste",
+        "name": "Gruppe # - Mitgliederliste (deprecated)",
         "hint": "Tokennamen aller Mitglieder von Gruppe # (durch Komma getrennt)."
       },
       "partyTokenName#": {
-        "name": "Gruppe # - Gruppenname",
+        "name": "Gruppe # - Gruppenname (deprecated)",
         "hint": "Name des gemeinsamen Tokens von Gruppe #."
       },
       "hideChatInfo": {
@@ -74,7 +74,7 @@
       "pleaseActivateTokenLayer": "Bitte aktiviere für diese Funktion den Token Layer (Menübutton links oben).",
       "pleaseSelectTargetToken": "Bitte ein einzelnes Gruppenmitglied auswählen, welches Zielposition und -höhe (Elevation) für diese Aktion festlegt."
     },
-    "promptForPartyToken": {
+    "promptForPartyConfig": {
       "title": "Gruppenkonfiguration",
       "text": "Welcher der ausgewählten Tokens soll als gemeinsamer Gruppentoken verwendet werden?",
       "partyTokenMode": {
@@ -85,6 +85,12 @@
       "partyNo": {
         "text": "Welcher Gruppe möchtest du diese Auswahl zuweisen?"
       }
+    },
+    "promptForCrunchAfterGrouping" : {
+      "title": "Gleich anwenden?",
+      "text": "Soll für die neue Gruppe gleich ein \"Crunching\" durchgeführt werden?",
+      "yes": "Ja, bitte crunchen!",
+      "no": "Nein, so stehen lassen."
     },
     "saveButton": "Übernehmen",
     "cancelButton": "Abbrechen",

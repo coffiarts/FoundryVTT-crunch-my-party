@@ -26,7 +26,7 @@ let ready2play;
             Config.modifySetting(`modVersion`, game.modules.get("crunch-my-party").version);
             ready2play = true;
             Logger.infoGreen(`Ready to play! Version: ${Config.setting("modVersion")}`);
-            Logger.infoGreen(Config.data.modDescription);
+            Logger.infoGreen(Config.globals.modDescription);
         });
     }
 )
@@ -89,7 +89,7 @@ export class PartyCruncher {
      * Syntax: PartyCruncher.healthCheck()
      */
     static healthCheck() {
-        alert(`Module '${Config.data.modTitle}' says: '${ready2play ? `I am alive!` : `I am NOT ready - something went wrong:(`}'`);
+        alert(`Module '${Config.globals.modTitle}' says: '${ready2play ? `I am alive!` : `I am NOT ready - something went wrong:(`}'`);
     }
 
     static #isBusy;
@@ -286,10 +286,15 @@ export class PartyCruncher {
             await ChatMessage.create({
                 whisper:ChatMessage.getWhisperRecipients("GM"),
                 user: game.user.id ?? game.user._id,
-                speaker: ChatMessage.getSpeaker({alias: Config.data.modTitle}),
+                speaker: ChatMessage.getSpeaker({alias: Config.globals.modTitle}),
                 content: msg
             }, {});
             Logger.info(msg);
+
+            // ==================================================================================================
+            // Step 4 - Ask the GM if new group should be crunched immediately
+            // ==================================================================================================
+            PartyCruncher.#promptForImmediateCrunch(partyNo);
 
         } catch (e) {
             Logger.error(false, e); // This will also print an error msg to the screen
@@ -416,7 +421,7 @@ export class PartyCruncher {
         let tokenNamesFound = Array.from(canvas.tokens.controlled.map(t => t.name));
         if (tokenNamesFound.length < 2) {
             throw new Error(
-                Config.localize('errMsg.invalidNumberOfMemberTokens').replace("{maxMembers}", Config.data.maxMembersPerParty));
+                Config.localize('errMsg.invalidNumberOfMemberTokens').replace("{maxMembers}", Config.globals.maxMembersPerParty));
         }
 
         const namesFromSelection = {
@@ -497,11 +502,11 @@ export class PartyCruncher {
         // It is due to the problem of having to calculate "outward spiraling" spawn positions
         // around the party token on EXPLODE.
         // See #getMovementPathToExplodePosition() for details, if you're really into such brain-busting math stuff - as I am NOT :-D
-        if (names.memberTokenNames.length > Config.data.maxMembersPerParty) {
+        if (names.memberTokenNames.length > Config.globals.maxMembersPerParty) {
             throw new Error(
                 // Error: groupAndMembersIntersect => Names must not exist both as member and as group.
                 Config.localize('errMsg.tooManyMemberTokens') + ` (${names.memberTokenNames.length})!<br/>` +
-                Config.localize('errMsg.invalidNumberOfMemberTokens').replace("{maxMembers}", Config.data.maxMembersPerParty) + `<br/>` +
+                Config.localize('errMsg.invalidNumberOfMemberTokens').replace("{maxMembers}", Config.globals.maxMembersPerParty) + `<br/>` +
                 "<br/>" +
                 Config.localize(`setting.memberTokenNames#.name`).replace("#", partyNo) + ": <strong>[ " + names.memberTokenNames + " ]</strong>"
             );
@@ -524,23 +529,33 @@ export class PartyCruncher {
 
     /**
      * Stores token group configurations, passed as parameters
+     * Also stores the party token as Object and, if it is a placeholder, removes it from the scene
      * @param partyConfig An object holding memberTokenNames, partyTokenName, partyTokenMode and potential other params
      */
     static async updatePartyConfig(partyConfig) {
 
+        const partyToken = canvas.scene.tokens.find(t => t.name === partyConfig.partyTokenName);
+        const partyTokenData = partyToken.toObject();
+
         const storedConfigs = this.#getStoredPartyConfigs();
         if (storedConfigs[partyConfig.partyNo] !== undefined) {
             storedConfigs[partyConfig.partyNo].config = partyConfig;
+            storedConfigs[partyConfig.partyNo].partyToken = partyTokenData;
             Logger.debug(`PartyCruncher.#updatePartyConfig - updating existing config for party #${partyConfig.partyNo}`, storedConfigs[partyConfig.partyNo]);
         } else {
             storedConfigs[partyConfig.partyNo] = {
-                config: partyConfig
+                config: partyConfig,
+                partyToken: partyTokenData
             }
             Logger.debug(`PartyCruncher.#updatePartyConfig - creating new config for party #${partyConfig.partyNo}`, storedConfigs[partyConfig.partyNo]);
         }
         Logger.debug(`PartyCruncher.#updatePartyConfig - persisting config for party #${partyConfig.partyNo}`, storedConfigs[partyConfig.partyNo]);
         Config.modifySetting("partyConfigs", storedConfigs);
 
+        // Remove party token from scene if necessary
+        if (partyConfig.partyTokenMode === "PLACEHOLDER") {
+            await partyToken.delete();
+        }
 
         // TODO: Can we drop the storing in mod settings completely (depends on whether new solution is backward-compatible with v13 - to be verified)
         Config.modifySetting(`memberTokenNames${partyConfig.partyNo}`, partyConfig.memberTokenNames.join(`, `));
@@ -1027,17 +1042,13 @@ export class PartyCruncher {
 
     static async #promptForPartyConfigDetails(partyNo = 1) {
 
-        const title = Config.localize('promptForPartyToken.title');
-        const checkIcon = "<i class='fas fa-check'></i>";
-        const cancelIcon = "<i class='fas fa-cancel'></i>";
-        const submitButtonLabel = Config.localize('saveButton');
-        const cancelButtonLabel = Config.localize('cancelButton');
+        const title = Config.localize('promptForPartyConfig.title');
 
         if (Config.getGameMajorVersion() <= 13) {
             const content =
                 `<form>
                   <div>
-                    <legend>${Config.localize('promptForPartyToken.text')}</legend>
+                    <legend>${Config.localize('promptForPartyConfig.text')}</legend>
                     <input type='text' name='partyTokenName' value="<name>"/>
                   </div>
                 </form>`;
@@ -1048,15 +1059,15 @@ export class PartyCruncher {
                     content: content.replace("<name>", Config.setting(`partyTokenName${partyNo}`)),
                     buttons: {
                         submit: {
-                            icon: checkIcon,
-                            label: submitButtonLabel,
+                            icon: Config.globals.iconSubmit,
+                            label: Config.localize('saveButton'),
                             callback: html => resolve(
-                                PartyCruncher.#resolvePromptForPartyToken(
+                                PartyCruncher.#resolvePromptForPartyConfig(
                                     html[0].querySelector('form').partyTokenName.value, null).tokenName)
                         },
                         cancel: {
-                            icon: cancelIcon,
-                            label: cancelButtonLabel,
+                            icon: Config.globals.iconCancel,
+                            label: Config.localize('cancelButton'),
                             callback: () => resolve({cancelled: true})
                         }
                     },
@@ -1070,7 +1081,7 @@ export class PartyCruncher {
         else {
             let content = `
             <div style="max-height: 400px; overflow: scroll">
-            <p>${Config.localize('promptForPartyToken.text')}</p>
+            <p>${Config.localize('promptForPartyConfig.text')}</p>
             `;
             for(const t of canvas.tokens.controlled) {
                 const checked = (canvas.tokens.controlled[0].name === t.name) ? " checked" : "";
@@ -1078,16 +1089,16 @@ export class PartyCruncher {
             }
             content += `
                 <hr>
-                <p>${Config.localize('promptForPartyToken.partyTokenMode.text')}</p>
-                <label><input type="radio" name="modeChoice" value="PLACEHOLDER" checked/>${Config.localize('promptForPartyToken.partyTokenMode.placeholder')}</label><br/>
-                <label><input type="radio" name="modeChoice" value="MEMBER"/>${Config.localize('promptForPartyToken.partyTokenMode.member')}</label><br/>`;
+                <p>${Config.localize('promptForPartyConfig.partyTokenMode.text')}</p>
+                <label><input type="radio" name="modeChoice" value="PLACEHOLDER" checked/>${Config.localize('promptForPartyConfig.partyTokenMode.placeholder')}</label><br/>
+                <label><input type="radio" name="modeChoice" value="MEMBER"/>${Config.localize('promptForPartyConfig.partyTokenMode.member')}</label><br/>`;
             content += `
                 <hr>
-                <p>${Config.localize('promptForPartyToken.partyNo.text')}</p>`;
+                <p>${Config.localize('promptForPartyConfig.partyNo.text')}</p>`;
 
-            // ake partyNo selectable: Populate an option list from all stored configs, limited by MAX_NO_OF_PARTIES
+            // Make partyNo selectable: Populate an option list from all stored configs, limited by MAX_NO_OF_PARTIES
             const storedConfigs = this.#getStoredPartyConfigs();
-            for(let i = 1; i <= Config.data.maxNoOfParties; i++) {
+            for(let i = 1; i <= Config.globals.maxNoOfParties; i++) {
                 let partyName, members;
                 if (storedConfigs[i] !== undefined) {
                     partyName = storedConfigs[i].config.partyTokenName;
@@ -1104,7 +1115,7 @@ export class PartyCruncher {
                             </label><br/>`;
             }
             content += `</div>`;
-            Logger.debug("PartyCruncher.#promptForPartyConfigDetails - content", content);
+            //Logger.debug("PartyCruncher.#promptForPartyConfigDetails - content", content);
 
             return new Promise(resolve => {
                 new foundry.applications.api.DialogV2({
@@ -1113,17 +1124,17 @@ export class PartyCruncher {
                     buttons: [
                         {
                             action: "submit",
-                            label: submitButtonLabel,
+                            label: Config.localize('saveButton'),
                             default: true,
                             callback: (event, button) => resolve(
-                                PartyCruncher.#resolvePromptForPartyToken(
+                                PartyCruncher.#resolvePromptForPartyConfig(
                                     button.form.elements.tokenChoice.value,
                                     button.form.elements.modeChoice.value,
                                     button.form.elements.partyNoChoice.value))
                         },
                         {
                             action: "cancel",
-                            label: cancelButtonLabel,
+                            label: Config.localize('cancelButton'),
                             callback: () => resolve({cancelled: true})
                         }]
                 }).render({ force: true });
@@ -1131,13 +1142,68 @@ export class PartyCruncher {
         }
     }
 
-    static #resolvePromptForPartyToken(tokenChoice, modeChoice, partyNoChoice) {
+    static async #promptForImmediateCrunch(partyNo) {
+
+        const content = `
+            <form>
+                <div>
+                    <legend>${Config.localize('promptForCrunchAfterGrouping.text')}</legend>
+                </div>
+            </form>`;
+
+        if (Config.getGameMajorVersion() <= 13) {
+            return new Promise(resolve => {
+                const data = {
+                    title: Config.localize('promptForCrunchAfterGrouping.title'),
+                    content: content,
+                    buttons: {
+                        yes: {
+                            icon: Config.globals.iconSubmit,
+                            label: Config.localize('promptForCrunchAfterGrouping.yes'),
+                            callback: partyNo => resolve(PartyCruncher.#getInstance(partyNo).#crunchParty(partyNo))
+                        },
+                        no: {
+                            icon: Config.globals.iconCancel,
+                            label: Config.localize('promptForCrunchAfterGrouping.no'),
+                            callback: () => resolve({cancelled: true})
+                        }
+                    },
+                    default: 'yes',
+                    close: () => resolve({cancelled: true})
+                }
+                new Dialog(data, null).render(true);
+            });
+        }
+        // v14 or higher
+        else {
+            return new Promise(resolve => {
+                new foundry.applications.api.DialogV2({
+                    window: { title: Config.localize('promptForCrunchAfterGrouping.title') },
+                    content: content,
+                    buttons: [
+                        {
+                            action: "yes",
+                            label: Config.localize('promptForCrunchAfterGrouping.yes'),
+                            default: true,
+                            callback: (partyNo) => resolve(PartyCruncher.#getInstance(partyNo).#crunchParty(partyNo))
+                        },
+                        {
+                            action: "no",
+                            label: Config.localize('promptForCrunchAfterGrouping.no'),
+                            callback: () => resolve({cancelled: true})
+                        }]
+                }).render({ force: true });
+            });
+        }
+    }
+
+    static #resolvePromptForPartyConfig(tokenChoice, modeChoice, partyNoChoice) {
         let result = {
             tokenName: tokenChoice,
             mode: modeChoice.toUpperCase(),
             partyNo: partyNoChoice,
         };
-        Logger.debug('(PartyCruncher.#resolvePromptForPartyTokenName) user chosen value: ', result);
+        Logger.debug('(PartyCruncher.#resolvePromptForPartyConfig) user chosen value: ', result);
         return result;
     }
 
