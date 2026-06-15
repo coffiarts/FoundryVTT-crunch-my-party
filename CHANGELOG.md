@@ -5,6 +5,7 @@ Foundry VTT **core** version it is compatible with (and recommended for).
 ### 2026-??-?? - v14 compatibility and technical revamp [#13](https://github.com/coffiarts/FoundryVTT-crunch-my-party/issues/13))
 - Complete redesign of the mechanics. Now definitely more robust and future proof: No more hiding tokens and shifting them inivisibly around the scene (which has been a bad design all along).
 - As a slight drawback, your existing party token assignments couldn't be migrated, so that you'll have to reassign them. But to make it easier, your assignments are still visible in your game settings. They don't have any function anymore and will be removed in upcoming versions.
+- TODO: New generic macro buttons (without Party No/index) => You will now be prompted to select a Party if none is passed
 - Dropped v12 support
 
 ## 13.1.0

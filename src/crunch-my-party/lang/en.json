@@ -74,8 +74,8 @@
       "pleaseActivateTokenLayer": "Please activate the token layer (menu button on top left) to use this function.",
       "pleaseSelectTargetToken": "Please select a unique group member to define the target position and elevation for this action."
     },
-    "promptForPartyConfig": {
-      "title": "Party Configuration",
+    "promptForPartyDefinition": {
+      "title": "Party Definitions",
       "text": "Which of the selected tokens should serve as the shared party token?",
       "partyTokenMode": {
         "text": "Is this token a separate placeholder, or is it a member of the party?",

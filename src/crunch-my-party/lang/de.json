@@ -74,8 +74,8 @@
       "pleaseActivateTokenLayer": "Bitte aktiviere für diese Funktion den Token Layer (Menübutton links oben).",
       "pleaseSelectTargetToken": "Bitte ein einzelnes Gruppenmitglied auswählen, welches Zielposition und -höhe (Elevation) für diese Aktion festlegt."
     },
-    "promptForPartyConfig": {
-      "title": "Gruppenkonfiguration",
+    "promptForPartyDefinition": {
+      "title": "Gruppendefinition",
       "text": "Welcher der ausgewählten Tokens soll als gemeinsamer Gruppentoken verwendet werden?",
       "partyTokenMode": {
         "text": "Ist dieser Token ein separater Stellvertreter, oder selbst ein Mitglied der Gruppe?",
@@ -89,7 +89,7 @@
     "promptForCrunchAfterGrouping" : {
       "title": "Gleich anwenden?",
       "text": "Soll für die neue Gruppe gleich ein \"Crunching\" durchgeführt werden?",
-      "yes": "Ja, bitte crunchen!",
+      "yes": "Ja, bitte \"crunchen\"!",
       "no": "Nein, so stehen lassen."
     },
     "saveButton": "Übernehmen",
