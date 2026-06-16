@@ -9,9 +9,9 @@
         "name": "Debug-Modus",
         "hint": "Aktiviert das Debug Logging."
       },
-      "forceUniqueTargetToken": {
-        "name": "Zieltoken-Auswahl erzwingen",
-        "hint": "Verhindert \"Crunching\" ohne eindeutigen vorselektierten Zieltoken. V.a. relevant bei Verwendung von Ebenen (Levels) und Höhe (Elevation) in Szenen (\"vertikale\" Karten): Beim \"Crunch\" werden immer alle Gruppenmitglieder auf dieselbe Position (und Höhe!) teleportiert wie das Ziel. Ohne eindeutiges Ziel wird ein ZUFÄLLIG ausgewähltes Gruppenmitglied verwendet, was nicht immer wünschenswert ist (v.a. bei der Höhe!). Durch diese Option wird das per Warnmeldung abgefangen."
+      "maxNoOfParties": {
+        "name": "Maximale Anzahl definierbarer Gruppen",
+        "hint": "Wieviele separate Gruppen (mit jeweils bis zu 25 Mitgliedern) sollen zeitgleich verwaltet werden können?"
       },
       "memberTokenNames#": {
         "name": "Gruppe # - Mitgliederliste",
@@ -60,17 +60,18 @@
     "errMsg": {
       "pleaseCheckYourTokenSelection": "Bitte Gruppenkonfiguration prüfen",
       "invalidTokenCount": "Erforderlich: Genau EIN Gruppen-Token und MEHR ALS EIN Mitglieder-Token.",
-      "duplicateTokens": "Gleichnamige Tokens in der Szene (auch versteckte) sind nicht erlaubt:",
+      "duplicateTokens": "Auswahl enthält Tokens mit gleichem Namen (evtl. ausgeblendet). Diese können nicht derselben Gruppe zugeordnet werden.",
       "tooManyMemberTokens": "Mitgliederliste ist zu lang",
       "invalidNumberOfMemberTokens": "Ungültige Anzahl an Tokens ausgewählt! Eine Gruppe muss aus mindestens 2 und maximal {maxMembers} Mitgliedern bestehen.",
       "notUniqueInScene": "existiert mehrfach in der Szene!",
+      "notUniqueInScenePlural": "Die folgenden Tokens existieren mehrfach in der Szene. Die gewählte Aktion unterstützt keine Tokens gleichen Namens",
       "tokensMissingInScene": "Folgende Tokens fehlen in der Szene",
       "cannotDetermineAction": "Aktion kann nicht ermittelt werden!",
       "membersAndPartyAllHidden": "Keiner der involvierten Tokens ist aktuell sichtbar (aktiviert).",
       "pleaseWaitStillBusy": "Bitte warten, bis laufende Aktion beendet ist ...",
       "pleaseSelectToken": "Für diese Funktion muss mindestens ein Token ausgewählt sein.",
       "movementActionNotFound": "Token kann nicht verschoben werden: Die folgende Movement Action ist nicht in CONFIG.Token.movement.actions vorhanden: ",
-      "pleaseReportThisError": "Bitte melde dieses Problem an den Author des Moduls auf https://github.com/coffiarts/FoundryVTT-crunch-my-party.",
+      "pleaseReportThisError": "Bitte melde dieses Problem an den Autor des Moduls auf https://github.com/coffiarts/FoundryVTT-crunch-my-party.",
       "pleaseActivateTokenLayer": "Bitte aktiviere für diese Funktion den Token Layer (Menübutton links oben).",
       "pleaseSelectTargetToken": "Bitte ein einzelnes Gruppenmitglied auswählen, welches Zielposition und -höhe (Elevation) für diese Aktion festlegt."
     },
@@ -92,22 +93,28 @@
       "yes": "Ja, bitte \"crunchen\"!",
       "no": "Nein, so stehen lassen."
     },
-    "promptForReplaceOrKeep" : {
+    "promptForDuplicateReplaceOrKeep" : {
       "title": "Tokens bereits vorhanden!",
-      "text": "Der Token {tokenName} existiert {count}in der Szene. Was möchtest Du tun?",
+      "text": "Der Token {tokenName} existiert {count}x in der Szene. Was möchtest Du tun?",
+      "disallowKeepText": "Da es mehr als einen Token gibt, ist ein automatisches \"Behalten\" nicht möglich. Bitte wähle entweder \"Ersetzen\", um alle {count} Tokens zu löschen, oder wähle \"Abbrechen\", entferne alle überflüssigen Tokens dieses Namens aus der Szene und wiederhole den Vorgang.",
       "replace": "Ersetzen",
-      "keep": "Behalten",
-      "applyToAll": "Auswahl auf alle anwenden!"
+      "keep": "Behalten"
     },
-    "saveButton": "Übernehmen",
+    "promptForDuplicateDelete" : {
+      "title": "Token bereits vorhanden!",
+      "text": "Der Token {tokenName} existiert {count}x in der Szene. Wenn du fortfährst, werden sie alle gelöscht. Was möchtest Du tun?",
+      "delete": "Löschen"
+    },
     "cancelButton": "Abbrechen",
     "groupingConfirmation": "Die folgenden Tokens sind nun der <strong>Gruppe #{partyNo} [{partyTokenName}]</strong> zugewiesen",
     "keybindingMenuLabelFind": "Gruppe # finden",
     "keybindingMenuLabelToggle": "Gruppe # umschalten (vereinigen/trennen)",
+    "applyToAll": "Auf alle anwenden!",
+    "saveButton": "Übernehmen",
     "settingsMenu": {
       "behaviourSection": "Verhalten",
       "membersSection": "Gruppen-Konfiguration",
-      "animationsSection": "Animationseinstellungen (erfordert JB2A & Automated Animations)"
+      "animationsSection": "Animation & Audio (erfordert JB2A & Automated Animations)"
     }
   }
 }

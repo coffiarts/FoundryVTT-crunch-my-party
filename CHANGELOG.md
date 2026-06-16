@@ -2,12 +2,14 @@ The **major** version number in my modules (like "13") always reflects the
 Foundry VTT **core** version it is compatible with (and recommended for).
 
 ## 14.0.0
-### 2026-??-?? - v14 compatibility and technical revamp [#13](https://github.com/coffiarts/FoundryVTT-crunch-my-party/issues/13))
-- Complete redesign of the mechanics. Now definitely more robust and future proof: No more hiding tokens and shifting them inivisibly around the scene (which has been a bad design all along).
-- As a slight drawback, your existing party token assignments couldn't be migrated, so that you'll have to reassign them. But to make it easier, your assignments are still visible in your game settings. They don't have any function anymore and will be removed in upcoming versions.
-- TODO: New generic macro buttons (without Party No/index) => You will now be prompted to select a Party if none is passed
-- Crunching and exploding parties is now tolerant: Tokens unexpectedly missing from or already existing in a Scene will be handled automtatically, or you'll be prompted for "replace or keep". 
-- Dropped v12 support
+### 2026-??-?? - v14 compatibility and BIG technical overhaul [#13](https://github.com/coffiarts/FoundryVTT-crunch-my-party/issues/13))
+- Hurray! v14 compatibility finally forced me to completely redesign the mechanics, making them much more robust and future-proof: No more clumsy shifting around of tokens and secretly hiding them in the top-left corner! That messy solution is gone for good and replaced by a clean logic of storing and retrieving metadata.
+- Defining groups is way more elegant now, with better prompt support
+- Now you can optionally pick any party member to serve as the party token - getting rid of the necessity to always have a separate "group token" at hand. 
+- Crunching and exploding parties is now tolerant in terms of missing tokens: You can work with incomplete groups. Whereas detection of unintended duplicate tokens in the scene has been improved and made better understandable.
+- As a tradeoff of these (hopefully) big improvements (my apologies for that), your previous group settings can't be migrated automatically - you'll have to recreate them by hand. BUT it's not THAT bad: Just refer to the lists in your mod settings (though out-of-function and deprecated, I'll leave them in for now so that your party definitions aren't lost. They'll be dropped in one of the future versions).
+- The predefined Macros / Macro Buttons (in the compendium) have been extended by "generic" versions without a fixed party number. They'll prompt you to pick the party you want to toggle, so that there's more flexibility.
+- And finally: v12 support has been dropped. I am confident that this should be fine by now. But of course we're still backward compatible with v13.
 
 ## 13.1.0
 ### 2025-09-27 - Adding support for elevations (implementing feature request [#12](https://github.com/coffiarts/FoundryVTT-crunch-my-party/issues/12))

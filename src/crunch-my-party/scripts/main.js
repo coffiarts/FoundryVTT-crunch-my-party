@@ -142,38 +142,24 @@ export class PartyCruncher {
             await PartyCruncher.setBusy(true);
 
             // ==================================================================================================
-            // Step 1 - Parse & validate party definitions from module settings
+            // Step 1 - Read partyConfig
             // ==================================================================================================
-            // grab raw input values from user prefs
-            // TODO - Remove
-            let validatedNames = instance.#collectValidatedTokenNamesFromModuleSettings(partyNo);
-            Logger.debug("(PartyCruncher.toggleParty) validatedNames: ", validatedNames);
+            const partyConfig = PartyCruncher.#getPartyConfig(partyNo);
+            PartyCruncher.
+            Logger.debug(`(PartyCruncher.toggleParty) partyConfig(${partyNo}): `, partyConfig);
 
             // ==================================================================================================
-            // Step 2 - Update user prefs in module settings with the now cleaned lists
+            // Step 2 - auto-determine target token (depending on currentState), and focus on it
             // ==================================================================================================
-            await PartyCruncher.updatePartyConfig(partyNo, validatedNames);
+            const requestedState = (partyConfig.state === Config.globals.states.SEPARATE)
+                ? Config.globals.states.GROUPED
+                : Config.globals.states.SEPARATE;
 
-            // ==================================================================================================
-            // Step 3 - gather and validate all the involved tokens from current scene
-            // ==================================================================================================
-            let involvedTokens = instance.#collectInvolvedTokens(validatedNames, partyNo);
-            Logger.debug("(PartyCruncher.toggleParty) involvedTokens: ", involvedTokens);
-
-            // ==================================================================================================
-            // Step 4 - auto-determine the required action (CRUNCH or EXPLODE?)
-            // ==================================================================================================
-            let requiredAction = instance.#determineRequiredAction(involvedTokens, partyNo);
-            Logger.debug(`(PartyCruncher.toggleParty) required action: ${requiredAction.toString()}`);
-
-            // ==================================================================================================
-            // Step 5 - auto-determine target token (depending on requiredAction), and focus on it
-            // ==================================================================================================
-            if (requiredAction === PartyCruncher.Actions.CRUNCH && canvas.tokens.controlled.length !== 1 && Config.setting("forceUniqueTargetToken")) {
+            if (requestedState === Config.globals.states.GROUPED && canvas.tokens.controlled.length !== 1 && Config.setting("forceUniqueTargetToken")) {
                 Logger.warn(false, Config.localize("errMsg.pleaseSelectTargetToken")); // This will also print an error msg to the screen
                 return;
             }
-            let targetToken = instance.#getTarget(requiredAction, involvedTokens, partyNo);
+            let targetToken = instance.#getTarget(requestedState, partyConfig);
             if (targetToken?.name === undefined) {
                 Logger.warn(false, Config.localize("errMsg.pleaseActivateTokenLayer"));
                 return;
@@ -194,16 +180,18 @@ export class PartyCruncher {
             }
 
             // ==================================================================================================
-            // Step 6 - And finallyyyyyyy.... just DO IT!!
+            // Step 3 - And fiiiiiiiiinally.... DO IT!!
             // ==================================================================================================
-            switch (requiredAction) {
-                case PartyCruncher.Actions.CRUNCH:
+            Logger.debug(`(PartyCruncher.toggleParty) - current state of party#${partyNo}: ${partyConfig.state}`);
+            switch (requestedState) {
+                case Config.globals.states.GROUPED:
                     Logger.info(`Crunching party ${partyNo} ...`);
-                    await instance.#crunchParty(involvedTokens, targetToken);
+                    await PartyCruncher.#crunchParty(partyNo);
                     break;
-                case PartyCruncher.Actions.EXPLODE:
+                case Config.globals.states.SEPARATE:
                     Logger.info(`Exploding party ${partyNo} - instance: ${instance}...`);
-                    await instance.#explodeParty(involvedTokens, targetToken);
+                    await PartyCruncher.#explodeParty(partyNo);
+                    break;
             }
 
         } catch (e) {
@@ -271,7 +259,8 @@ export class PartyCruncher {
             // ==================================================================================================
             const updates = {
                 definition: partyDefinition,
-                partyToken: partyToken
+                partyToken: partyToken,
+                state: Config.globals.states.SEPARATE
             };
             await PartyCruncher.updatePartyConfig(partyNo, updates);
 
@@ -457,12 +446,12 @@ export class PartyCruncher {
         return namesFromSelection;
     }
 
-    static #findTokenNamesByMinCount(names, count = 1) {
+    static #findTokenNamesByMinCount(namesArr, count = 1) {
 
-        Logger.debug("PartyCruncher.#findTokenNamesByMinCount: ", names.join(", "))
+        Logger.debug("PartyCruncher.#findTokenNamesByMinCount: ", namesArr.join(", "))
 
         const countByName = [];
-        names.forEach(name =>
+        namesArr.forEach(name =>
             countByName.push(
                 {
                     name: name,
@@ -539,8 +528,8 @@ export class PartyCruncher {
     static async updatePartyConfig(partyNo, updates) {
 
         // Validate passed params
-        if (partyNo === undefined || isNaN(partyNo) || partyNo < 1 || partyNo > Config.globals.maxNoOfParties) {
-            Logger.error(`PartyCruncher.#updatePartyConfig - unable to store Party Config updates: partyNo missing or invalid (must be a number between 1 and ${Config.globals.maxNoOfParties}): `, partyNo, updates);
+        if (partyNo === undefined || isNaN(partyNo) || partyNo < 1 || partyNo > Config.setting("maxNoOfParties")) {
+            Logger.error(`PartyCruncher.#updatePartyConfig - unable to store Party Config updates: partyNo missing or invalid (must be a number between 1 and ${Config.setting("maxNoOfParties")}): `, partyNo, updates);
             return;
         }
 
@@ -566,6 +555,12 @@ export class PartyCruncher {
             allConfigs[partyNo].memberTokens = updates.memberTokens.map(mt => mt.toObject());
             allConfigs[partyNo].timestamp = Date.now();
             Logger.debug(`PartyCruncher.#updatePartyConfig - new memberTokens: `, allConfigs[partyNo].memberTokens);
+        }
+
+        if (updates.state !== undefined) {
+            allConfigs[partyNo].state = updates.state;
+            allConfigs[partyNo].timestamp = Date.now();
+            Logger.debug(`PartyCruncher.#updatePartyConfig - new state: `, allConfigs[partyNo].state);
         }
 
         Config.modifySetting("partyConfigs", allConfigs);
@@ -703,12 +698,12 @@ export class PartyCruncher {
     /**
      *
      * @param requiredAction
-     * @param involvedTokens
+     * @param partyConfig
      */
-    #getTarget(requiredAction, involvedTokens) {
-        if (requiredAction === PartyCruncher.Actions.CRUNCH) {
+    #getTarget(requiredAction, partyConfig) {
+        if (requiredAction === Config.globals.states.GROUPED) {
 
-            if (canvas.tokens.controlled.length === 1 && involvedTokens.memberTokens.includes(canvas.tokens.controlled[0])) {
+            if (canvas.tokens.controlled.length === 1 && partyConfig.definition.memberTokenNames.includes(canvas.tokens.controlled[0].name)) {
                 // If only one of the members is selected, use it as the target
                 // That way the GM can decide where to place the party token
                 let targetToken = canvas.tokens.controlled[0];
@@ -719,20 +714,38 @@ export class PartyCruncher {
             // Release any currently active tokens
             canvas.tokens.releaseAll();
 
-            // select all the member tokens, and use the first one as the target
-            involvedTokens.memberTokens.forEach(t => t.control({releaseOthers: false}));
+            // select all the member tokens
+            partyConfig.definition.memberTokenNames.forEach(name => {
+                const token = canvas.scene.tokens.find(t => t.name === name);
+                if (t !== undefined) {
+                    token.control({releaseOthers: false})
+                }
+            });
+            // Use the first one as the target
             return canvas.tokens.controlled[0];
 
         } else { // EXPLODE
-            return involvedTokens.partyToken;
+            if (PartyCruncher.#hasPartyToken(partyConfig)) {
+                return partyConfig.partyToken;
+            }
+            else {
+                const t = canvas.scene.tokens.find(t => t.name === partyConfig.definition.partyToken);
+                if (t !== undefined) {
+                    PartyCruncher.updatePartyConfig(partyNo, {partyToken: t});
+                    return t;
+                }
+                else {
+                    Logger.error(false, `${Config.localize('errMsg."tokensMissingInScene"')}<br/>${partyConfig.definition.partyToken}`);
+                }
+            }
         }
     }
 
     static async #crunchParty(partyNo) {
 
         // Validate passed params
-        if (partyNo === undefined || isNaN(partyNo) || partyNo < 1 || partyNo > Config.globals.maxNoOfParties) {
-            Logger.error(`PartyCruncher.#crunchParty - unable to store Party Config updates: partyNo missing or invalid (must be a number between 1 and ${Config.globals.maxNoOfParties}): `, partyNo, updates);
+        if (partyNo === undefined || isNaN(partyNo) || partyNo < 1 || partyNo > Config.setting("maxNoOfParties")) {
+            Logger.error(`PartyCruncher.#crunchParty - unable to store Party Config updates: partyNo missing or invalid (must be a number between 1 and ${Config.setting("maxNoOfParties")}): `, partyNo, updates);
             return;
         }
 
@@ -747,12 +760,32 @@ export class PartyCruncher {
         }
         Logger.debug(`PartyCruncher.#crunchParty(${partyNo}): found valid partyConfig: `, partyConfig);
 
-        // Check if Party Token already exists in Scene
-        const partyTokensInScene = PartyCruncher.#findTokenNamesByMinCount([partyConfig.definition.partyTokenName], 1);
-        if (partyTokensInScene.length > 0) {
-            const tokenConflictResolution = await PartyCruncher.#promptForReplaceOrKeep(partyTokensInScene[0], false);
-            Logger.debug(`PartyCruncher.#crunchParty - tokenConflictResolution: `, tokenConflictResolution);
-            // TODO - apply conflict resolution
+        // Check if we need to abort because of duplicate member tokens in the scene
+        const memberTokenDuplicates = PartyCruncher.#findTokenNamesByMinCount(partyConfig.definition.memberTokenNames, 2);
+        Logger.debug(`PartyCruncher.#crunchParty - the following members have duplicates in scene: ${memberTokenDuplicates.map(c => c.name + ": " + c.count + "x").join(", ")}`);
+        if (memberTokenDuplicates.length > 0) {
+            Logger.error(false, `${Config.localize('errMsg.notUniqueInScenePlural')}:<br/><br/>
+                ${memberTokenDuplicates.map(c => c.name + ": " + c.count + "x").join("<br/>")}`);
+            return;
+        }
+
+        // Check if Party Token already exists in Scene, and prompt for action if needed
+        let effectivePartyToken;
+        const partyTokenCount = PartyCruncher.#findTokenNamesByMinCount([partyConfig.definition.partyTokenName], 1);
+        if (partyTokenCount.length > 0 && partyTokenCount[0].count > 1) {
+            const partyTokenConflictResolution = await PartyCruncher.#promptForDuplicateReplaceOrKeep(partyTokenCount[0], false);
+            Logger.debug(`PartyCruncher.#crunchParty - tokenConflictResolution: `, partyTokenConflictResolution);
+
+            // Apply the chosen conflict resolution
+            if (partyTokenConflictResolution.replace) {
+                for(const t of canvas.scene.tokens.filter(t => t.name === partyConfig.definition.partyTokenName)) {
+                    await t.delete();
+                }
+            } else if (partyTokenConflictResolution.keep) {
+                effectivePartyToken =  canvas.scene.tokens.find(t => t.name === partyConfig.definition.partyTokenName);
+            } else { // partyTokenConflictResolution.cancelled
+                return false;
+            }
         }
 
         // Gather member tokens in scene
@@ -771,9 +804,8 @@ export class PartyCruncher {
             Logger.debug(`PartyCruncher.#crunchParty - member token '${memberName}' found => added to list for removal`, tokenFound);
         }
 
-        // TODO - Move all members to center
+        // TODO - Move all members to towards target token
 
-        // TODO - Identify target token
         // TODO - If "replace" was chosen above:
         // ... Update position and relative scale of existing token to reflect target token
         // ... otherwise:
@@ -784,12 +816,11 @@ export class PartyCruncher {
         // TODO - Toggle Party Token on if it should be hidden
 
 
+        const updates = {};
+
         // Store member tokens and remove tokens from scene
         if (memberTokensToRemove.length > 0) {
-            const updates = {
-                memberTokens: memberTokensToRemove
-            }
-            await PartyCruncher.updatePartyConfig(partyNo, updates);
+            updates.memberTokens = memberTokensToRemove;
 
             // TODO - Add sound and JB2A animation (encapsulate it in function!)
 
@@ -800,6 +831,9 @@ export class PartyCruncher {
         } else {
             Logger.warn(`PartyCruncher.#crunchParty - No member tokens found in Scene for Party #${partyNo} [${partyConfig.definition.partyTokenName}]`);
         }
+
+        updates.state = Config.globals.states.GROUPED;
+        await PartyCruncher.updatePartyConfig(partyNo, updates);
     }
 
     /**
@@ -1105,7 +1139,7 @@ export class PartyCruncher {
         const title = Config.localize('promptForPartyDefinition.title');
 
         let content = `
-        <div style="max-height: 400px; overflow: scroll">
+        <div style="max-height: 450px; max-width: 450px; overflow: scroll">
         <p>${Config.localize('promptForPartyDefinition.text')}</p>`;
         for(const t of canvas.tokens.controlled) {
             const checked = (t === canvas.tokens.controlled[0]) ? " checked" : "";
@@ -1122,7 +1156,7 @@ export class PartyCruncher {
 
         // Make partyNo selectable: Populate an option list from all stored configs, limited by MAX_NO_OF_PARTIES
         const allConfigs = PartyCruncher.#getAllPartyConfigs();
-        for(let i = 1; i <= Config.globals.maxNoOfParties; i++) {
+        for(let i = 1; i <= Config.setting("maxNoOfParties"); i++) {
             let partyName, members;
             if (allConfigs[i] !== undefined) {
                 partyName = allConfigs[i].definition.partyTokenName;
@@ -1194,22 +1228,25 @@ export class PartyCruncher {
         });
     }
 
-    static async #promptForReplaceOrKeep(duplicate, allowApplyToAll = false) {
+    static async #promptForDuplicateReplaceOrKeep(duplicateData, allowApplyToAll = false) {
 
         let content = `
             <form>
-                <div>
-                    <legend>${Config.localize('promptForReplaceOrKeep.text')
-                                .replace("{tokenName}", duplicate.name)
-                                .replace("{count}", duplicate.count + "x ")}
-                    </legend>`;
+                <div style="max-height: 450px; max-width: 450px; overflow: scroll">
+                    <legend>${Config.localize('#promptForDuplicateReplaceOrKeep.text')
+                                .replace("{tokenName}", duplicateData.name)
+                                .replace("{count}", duplicateData.count)}</legend><br/>`;
+        if (duplicateData.count > 1) {
+            content += `
+                    <label>${Config.localize('#promptForDuplicateReplaceOrKeep.disallowKeepText')
+                .replace("{count}", duplicateData.count)}</label><br/>`;
+        }
         if (allowApplyToAll) {
             content += `
                     <label>
                         <input type="checkbox" name="applyToAll" checked 
-                               alt="${Config.localize('promptForReplaceOrKeep.applyToAll')}"/>
-                               ${Config.localize('promptForReplaceOrKeep.allowApplyToAll')}
-                    </label><br/>`;
+                               alt="${Config.localize('#applyToAll')}"/>
+                               ${Config.localize('#applyToAll')}</label><br/>`;
         }
         content += `
                 </div>
@@ -1217,12 +1254,12 @@ export class PartyCruncher {
 
         return new Promise(resolve => {
             new foundry.applications.api.DialogV2({
-                window: { title: Config.localize('promptForReplaceOrKeep.title') },
+                window: { title: Config.localize('#promptForDuplicateReplaceOrKeep.title') },
                 content: content,
                 buttons: [
                     {
                         action: "replace",
-                        label: Config.localize('promptForReplaceOrKeep.replace'),
+                        label: Config.localize('#promptForDuplicateReplaceOrKeep.replace'),
                         default: true,
                         callback: (event, button) => resolve({
                             replace: true,
@@ -1231,10 +1268,52 @@ export class PartyCruncher {
                     },
                     {
                         action: "keep",
-                        label: Config.localize('promptForReplaceOrKeep.keep'),
+                        label: Config.localize('#promptForDuplicateReplaceOrKeep.keep'),
                         default: true,
+                        disabled: (duplicateData.count > 1),
                         callback: (event, button) => resolve({
                             keep: true,
+                            applyToAll: (allowApplyToAll && button.form.elements.applyToAll.checked)
+                        })
+                    },{
+                        action: "cancel",
+                        label: Config.localize('cancelButton'),
+                        callback: () => resolve({cancelled: true})
+                    }]
+            }).render({ force: true });
+        });
+    }
+
+    static async #promptForDuplicateDelete(duplicateData, allowApplyToAll = false) {
+
+        let content = `
+            <form>
+                <div style="max-height: 450px; max-width: 450px; overflow: scroll">
+                    <legend>${Config.localize('#promptForDuplicateDelete.text')
+            .replace("{tokenName}", duplicateData.name)
+            .replace("{count}", duplicateData.count)}</legend><br/>`;
+        if (allowApplyToAll) {
+            content += `
+                    <label>
+                        <input type="checkbox" name="applyToAll" checked 
+                               alt="${Config.localize('applyToAll')}"/>
+                               ${Config.localize('applyToAll')}</label><br/>`;
+        }
+        content += `
+                </div>
+            </form>`;
+
+        return new Promise(resolve => {
+            new foundry.applications.api.DialogV2({
+                window: { title: Config.localize('promptForDuplicateDelete.title') },
+                content: content,
+                buttons: [
+                    {
+                        action: "delete",
+                        label: Config.localize('promptForDuplicateDelete.delete'),
+                        default: true,
+                        callback: (event, button) => resolve({
+                            delete: true,
                             applyToAll: (allowApplyToAll && button.form.elements.applyToAll.checked)
                         })
                     },{
@@ -1279,8 +1358,8 @@ export class PartyCruncher {
             Logger.error(false, 'PartyCruncher.isValidDefinition(partyConfig) - definition is empty.');
             return false;
         }
-        if (partyConfig.definition.partyNo === undefined || isNaN(partyConfig.definition.partyNo) || partyConfig.definition.partyNo < 1 || partyConfig.definition.partyNo > Config.globals.maxNoOfParties) {
-            Logger.error(false, `PartyCruncher.#isValid(partyConfig) - definition does not contain a  valid partyNo (must be a number between 1 and ${Config.globals.maxNoOfParties}): `, partyNo);
+        if (partyConfig.definition.partyNo === undefined || isNaN(partyConfig.definition.partyNo) || partyConfig.definition.partyNo < 1 || partyConfig.definition.partyNo > Config.setting("maxNoOfParties")) {
+            Logger.error(false, `PartyCruncher.#isValid(partyConfig) - definition does not contain a  valid partyNo (must be a number between 1 and ${Config.setting("maxNoOfParties")}): `, partyNo);
             return false;
         }
         if (partyConfig.definition.partyTokenName === undefined) {

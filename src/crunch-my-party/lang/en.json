@@ -13,6 +13,10 @@
         "name": "Force target token selection",
         "hint": "Prevent \"crunching\" when no unique group member has been preselected as the target. Most relevant for scenes that use levels and elevation (\"vertical\" maps): By \"crunching\" your party, all group members get teleported to the same position (and elevation!) as the preselected target. Whithout a unique target, a RANDOM member will be used, which may not always be intended (especially when it comes to elevations!). This option prevents that by a warning message."
       },
+      "maxNoOfParties": {
+        "name": "Maximum number of parties",
+        "hint": "How many separately defined parties should be maintained at once?"
+      },
       "memberTokenNames#": {
         "name": "Party # - List of members (deprecated)",
         "hint": "Names of all tokens belonging to Party # (comma-separated)."
@@ -60,10 +64,11 @@
     "errMsg": {
       "pleaseCheckYourTokenSelection": "Please check your party configuration",
       "invalidTokenCount": "Required: Exactly ONE group and MORE THAN ONE members",
-      "duplicateTokens": "Duplicate token names in the same sene (including hidden ones) are not suppported:",
+      "duplicateTokens": "Selection contains tokens sharing the same name (maybe hidden). Name-siblings can't be assigned to the same party.",
       "tooManyMemberTokens": "Member list too long",
       "invalidNumberOfMemberTokens": "Invalid number of tokens selected! A party must consist of 2 to {maxMembers} members.",
       "notUniqueInScene": "is not unique in scene!",
+      "notUniqueInScenePlural": "The following tokens are not unique in the scene. The current action does not support this",
       "tokensMissingInScene": "Tokens missing in scene",
       "cannotDetermineAction": "Cannot determine action!",
       "membersAndPartyAllHidden": "None of the involved tokens are currently visible (active).",
@@ -92,22 +97,28 @@
       "yes": "Yes, crunch 'em!",
       "no": "No, leave them separate."
     },
-    "promptForReplaceOrKeep" : {
+    "promptForDuplicateReplaceOrKeep" : {
       "title": "Token already exists in scene!",
-      "text": "Token {tokenName} exists {count}in this scene. What do you want to do?",
-      "replace": "Replace it.",
-      "keep": "Keep it.",
-      "applyToAll": "Apply my choice to all!"
+      "text": "Token {tokenName} exists {count}x in this scene. What do you want to do?",
+      "disallowKeepText": "As there's more than one, it is not possible to keep them. Please choose either \"Replace\" t replace all {count} tokens at once) or \"Cancel\", then delete all redundant tokens of this name from the scene and then repeat this process.",
+      "replace": "Replace",
+      "keep": "Keep"
+    },
+    "promptForDuplicateDelete" : {
+      "title": "Token already exists in scene!",
+      "text": "Token {tokenName} exists {count}x in this scene. If you proceed, they'll all be deleted. What do you want to do?",
+      "delete": "Delete"
     },
     "saveButton": "Save",
     "cancelButton": "Cancel",
     "groupingConfirmation": "The following tokens have been assigned to <strong>party #{partyNo} [{partyTokenName}]</strong>",
     "keybindingMenuLabelFind": "Find Party #",
     "keybindingMenuLabelToggle": "Toggle Party # (collapse/explode)",
+    "applyToAll": "Apply to all!",
     "settingsMenu": {
       "behaviourSection": "Behaviour",
       "membersSection": "Party Member Configuration",
-      "animationsSection": "Animation Settings (requires JB2A & Automated Animations)"
+      "animationsSection": "Animation & Audio (requires JB2A & Automated Animations)"
     }
   }
 }
