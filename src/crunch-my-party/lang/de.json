@@ -14,11 +14,11 @@
         "hint": "Verhindert \"Crunching\" ohne eindeutigen vorselektierten Zieltoken. V.a. relevant bei Verwendung von Ebenen (Levels) und Höhe (Elevation) in Szenen (\"vertikale\" Karten): Beim \"Crunch\" werden immer alle Gruppenmitglieder auf dieselbe Position (und Höhe!) teleportiert wie das Ziel. Ohne eindeutiges Ziel wird ein ZUFÄLLIG ausgewähltes Gruppenmitglied verwendet, was nicht immer wünschenswert ist (v.a. bei der Höhe!). Durch diese Option wird das per Warnmeldung abgefangen."
       },
       "memberTokenNames#": {
-        "name": "Gruppe # - Mitgliederliste (deprecated)",
+        "name": "Gruppe # - Mitgliederliste",
         "hint": "Tokennamen aller Mitglieder von Gruppe # (durch Komma getrennt)."
       },
       "partyTokenName#": {
-        "name": "Gruppe # - Gruppenname (deprecated)",
+        "name": "Gruppe # - Gruppenname",
         "hint": "Name des gemeinsamen Tokens von Gruppe #."
       },
       "hideChatInfo": {
@@ -60,7 +60,7 @@
     "errMsg": {
       "pleaseCheckYourTokenSelection": "Bitte Gruppenkonfiguration prüfen",
       "invalidTokenCount": "Erforderlich: Genau EIN Gruppen-Token und MEHR ALS EIN Mitglieder-Token.",
-      "groupAndMembersIntersect": "Der Stellvertreter-Token darf nicht so heissen wie ein Gruppenmitglied.",
+      "duplicateTokens": "Gleichnamige Tokens in der Szene (auch versteckte) sind nicht erlaubt:",
       "tooManyMemberTokens": "Mitgliederliste ist zu lang",
       "invalidNumberOfMemberTokens": "Ungültige Anzahl an Tokens ausgewählt! Eine Gruppe muss aus mindestens 2 und maximal {maxMembers} Mitgliedern bestehen.",
       "notUniqueInScene": "existiert mehrfach in der Szene!",
@@ -91,6 +91,13 @@
       "text": "Soll für die neue Gruppe gleich ein \"Crunching\" durchgeführt werden?",
       "yes": "Ja, bitte \"crunchen\"!",
       "no": "Nein, so stehen lassen."
+    },
+    "promptForReplaceOrKeep" : {
+      "title": "Tokens bereits vorhanden!",
+      "text": "Der Token {tokenName} existiert {count}in der Szene. Was möchtest Du tun?",
+      "replace": "Ersetzen",
+      "keep": "Behalten",
+      "applyToAll": "Auswahl auf alle anwenden!"
     },
     "saveButton": "Übernehmen",
     "cancelButton": "Abbrechen",

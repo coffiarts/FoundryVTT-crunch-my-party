@@ -4,18 +4,11 @@ export class Logger {
 
     static init(){
         // create separator and title at the beginning of this settings section
-        if (Config.getGameMajorVersion() >= 13) {
-            Hooks.on('renderSettingsConfig', (app, html) => {
-                const inputEl = html.querySelector(`#settings-config-${Config.globals.modID.replace(/\./g, "\\.")}\\.debug`);
-                const formGroup = inputEl.closest(".form-group");
-                formGroup?.insertAdjacentHTML("beforebegin", `<div><h4 style="margin-top: 0; border-bottom: 1px solid #888; padding-bottom: 4px; margin-bottom: 6px;">Logging</h4></div>`);
-            });
-        }
-        else {
-            Hooks.on('renderSettingsConfig', (app, [html]) => {
-                html.querySelector(`[data-setting-id="${Config.globals.modID}.debug"]`)?.insertAdjacentHTML('beforeBegin', `<h3>Logging</h3>`)
-            });
-        }
+        Hooks.on('renderSettingsConfig', (app, html) => {
+            const inputEl = html.querySelector(`#settings-config-${Config.globals.modID.replace(/\./g, "\\.")}\\.debug`);
+            const formGroup = inputEl.closest(".form-group");
+            formGroup?.insertAdjacentHTML("beforebegin", `<div><h4 style="margin-top: 0; border-bottom: 1px solid #888; padding-bottom: 4px; margin-bottom: 6px;">Logging</h4></div>`);
+        });
 
         // Register game settings relevant to this class specifically (all globally relevant settings are maintained by class Config)
         const settingsData = {

@@ -60,7 +60,7 @@
     "errMsg": {
       "pleaseCheckYourTokenSelection": "Please check your party configuration",
       "invalidTokenCount": "Required: Exactly ONE group and MORE THAN ONE members",
-      "groupAndMembersIntersect": "The party token must not match the name of a party member.",
+      "duplicateTokens": "Duplicate token names in the same sene (including hidden ones) are not suppported:",
       "tooManyMemberTokens": "Member list too long",
       "invalidNumberOfMemberTokens": "Invalid number of tokens selected! A party must consist of 2 to {maxMembers} members.",
       "notUniqueInScene": "is not unique in scene!",
@@ -91,6 +91,13 @@
       "text": "Do you want to \"crunch\" the members of your new party right away?",
       "yes": "Yes, crunch 'em!",
       "no": "No, leave them separate."
+    },
+    "promptForReplaceOrKeep" : {
+      "title": "Token already exists in scene!",
+      "text": "Token {tokenName} exists {count}in this scene. What do you want to do?",
+      "replace": "Replace it.",
+      "keep": "Keep it.",
+      "applyToAll": "Apply my choice to all!"
     },
     "saveButton": "Save",
     "cancelButton": "Cancel",

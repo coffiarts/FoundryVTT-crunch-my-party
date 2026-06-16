@@ -24,7 +24,11 @@ export class Config {
         maxNoOfParties: MAX_NO_OF_PARTIES,
         maxMembersPerParty: MAX_MEMBERS_PER_PARTY,
         iconSubmit: ICON_SUBMIT,
-        iconCancel: ICON_CANCEL
+        iconCancel: ICON_CANCEL,
+        modes: {
+            PLACEHOLDER: "PLACEHOLDER",
+            MEMBER: "MEMBER",
+        }
     };
     static NO_AUDIO_FILE = '../modules/crunch-my-party/audio/audio_null.wav';
 
@@ -45,21 +49,14 @@ export class Config {
         Config.registerSettings(settingsData1);
 
         // create separator and title at the beginning of this settings section
-        if (Config.getGameMajorVersion() >= 13) {
-            Hooks.on('renderSettingsConfig', (app, html) => {
-                const inputEl = html.querySelector(`#settings-config-${Config.globals.modID.replace(/\./g, "\\.")}\\.memberTokenNames1`);
-                const formGroup = inputEl?.closest(".form-group");
-                formGroup?.insertAdjacentHTML("beforebegin", `<div><h4 style="margin-top: 0; border-bottom: 1px solid #888; padding-bottom: 4px; margin-bottom: 6px;">${Config.localize('settingsMenu.membersSection')}</h4></div>`);
-            });
-        }
-        else {
-            Hooks.on('renderSettingsConfig', (app, [html]) => {
-                html.querySelector(`[data-setting-id="${Config.globals.modID}.memberTokenNames1"]`)?.insertAdjacentHTML('beforeBegin', `<h3>${Config.localize('settingsMenu.membersSection')}</h3>`)
-            });
-        }
+        Hooks.on('renderSettingsConfig', (app, html) => {
+            const inputEl = html.querySelector(`#settings-config-${Config.globals.modID.replace(/\./g, "\\.")}\\.memberTokenNames1`);
+            const formGroup = inputEl?.closest(".form-group");
+            formGroup?.insertAdjacentHTML("beforebegin", `<div><h4 style="margin-top: 0; border-bottom: 1px solid #888; padding-bottom: 4px; margin-bottom: 6px;">${Config.localize('settingsMenu.membersSection')}</h4></div>`);
+        });
 
         /**
-         * @deprecated since v14
+         * @deprecated since v14 - will be kept for a while to ease manual migration of older party definition
          */
         const settingsData2_v13 = [];
 
@@ -86,18 +83,11 @@ export class Config {
         Config.registerSettings(settingsData2);
 
         // create separator and title at the beginning of this settings section
-        if (Config.getGameMajorVersion() >= 13) {
-            Hooks.on('renderSettingsConfig', (app, html) => {
-                const inputEl = html.querySelector(`#settings-config-${Config.globals.modID.replace(/\./g, "\\.")}\\.forceUniqueTargetToken`);
-                const formGroup = inputEl?.closest(".form-group");
-                formGroup?.insertAdjacentHTML("beforebegin", `<div><h4 style="margin-top: 0; border-bottom: 1px solid #888; padding-bottom: 4px; margin-bottom: 6px;">${Config.localize('settingsMenu.behaviourSection')}</h4></div>`);
-            });
-        }
-        else {
-            Hooks.on('renderSettingsConfig', (app, [html]) => {
-                html.querySelector(`[data-setting-id="${Config.globals.modID}.forceUniqueTargetToken"]`)?.insertAdjacentHTML('beforeBegin', `<h3>${Config.localize('settingsMenu.behaviourSection')}</h3>`)
-            });
-        }
+        Hooks.on('renderSettingsConfig', (app, html) => {
+            const inputEl = html.querySelector(`#settings-config-${Config.globals.modID.replace(/\./g, "\\.")}\\.forceUniqueTargetToken`);
+            const formGroup = inputEl?.closest(".form-group");
+            formGroup?.insertAdjacentHTML("beforebegin", `<div><h4 style="margin-top: 0; border-bottom: 1px solid #888; padding-bottom: 4px; margin-bottom: 6px;">${Config.localize('settingsMenu.behaviourSection')}</h4></div>`);
+        });
 
         const settingsData3 = {
             forceUniqueTargetToken: {
@@ -107,18 +97,11 @@ export class Config {
         Config.registerSettings(settingsData3);
 
         // create separator and title at the beginning of this settings section
-        if (Config.getGameMajorVersion() >= 13) {
-            Hooks.on('renderSettingsConfig', (app, html) => {
-                const inputEl = html.querySelector(`#settings-config-${Config.globals.modID}\\.animation4Crunch`);
-                const formGroup = inputEl?.closest(".form-group");
-                formGroup?.insertAdjacentHTML("beforebegin", `<div><h4 style="margin-top: 0; border-bottom: 1px solid #888; padding-bottom: 4px; margin-bottom: 6px;">${Config.localize('settingsMenu.animationsSection')}</h4></div>`);
-            });
-        }
-        else {
-            Hooks.on('renderSettingsConfig', (app, [html]) => {
-                html.querySelector(`[data-setting-id="${Config.globals.modID}.animation4Crunch"]`)?.insertAdjacentHTML('beforeBegin', `<h3>${Config.localize('settingsMenu.animationsSection')}</h3>`)
-            });
-        }
+        Hooks.on('renderSettingsConfig', (app, html) => {
+            const inputEl = html.querySelector(`#settings-config-${Config.globals.modID}\\.animation4Crunch`);
+            const formGroup = inputEl?.closest(".form-group");
+            formGroup?.insertAdjacentHTML("beforebegin", `<div><h4 style="margin-top: 0; border-bottom: 1px solid #888; padding-bottom: 4px; margin-bottom: 6px;">${Config.localize('settingsMenu.animationsSection')}</h4></div>`);
+        });
 
         const settingsData4 = {
             animation4Crunch: {
