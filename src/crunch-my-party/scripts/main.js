@@ -95,22 +95,13 @@ export class PartyCruncher {
     static #isBusy;
 
     static isBusy() {
-        return this.#isBusy;
+        return PartyCruncher.#isBusy;
     }
 
     static async setBusy(isBusy) {
         //if (!isBusy) await Config.sleep(1000);
-        this.#isBusy = isBusy;
+        PartyCruncher.#isBusy = isBusy;
         Logger.debug("(PartyCruncher.setBusy) ", isBusy ? "BUSY!" : "NOT BUSY")
-    }
-
-    static #instances = [null, null, null];
-
-    static #getInstance(partyNo) {
-        if (this.#instances[partyNo] == null) {
-            this.#instances[partyNo] = new PartyCruncher();
-        }
-        return this.#instances[partyNo];
     }
 
     static Actions = Object.freeze({
@@ -133,9 +124,7 @@ export class PartyCruncher {
             return;
         }
 
-        Logger.debug(`(PartyCruncher.toggleParty) TOGGLE - partyNo: #${partyNo}, useHotPan: ${useHotPanIfAvailable} ...`);
-
-        const instance = PartyCruncher.#getInstance(partyNo);
+        Logger.debug(`(PartyCruncher.toggleParty) TOGGLE - partyNo: #${partyNo}, useHotPanIfAvailable: ${useHotPanIfAvailable} ...`);
 
         try {
 
@@ -145,52 +134,29 @@ export class PartyCruncher {
             // Step 1 - Read partyConfig
             // ==================================================================================================
             const partyConfig = PartyCruncher.#getPartyConfig(partyNo);
-            PartyCruncher.
-            Logger.debug(`(PartyCruncher.toggleParty) partyConfig(${partyNo}): `, partyConfig);
-
-            // ==================================================================================================
-            // Step 2 - auto-determine target token (depending on currentState), and focus on it
-            // ==================================================================================================
-            const requestedState = (partyConfig.state === Config.globals.states.SEPARATE)
-                ? Config.globals.states.GROUPED
-                : Config.globals.states.SEPARATE;
-
-            if (requestedState === Config.globals.states.GROUPED && canvas.tokens.controlled.length !== 1 && Config.setting("forceUniqueTargetToken")) {
-                Logger.warn(false, Config.localize("errMsg.pleaseSelectTargetToken")); // This will also print an error msg to the screen
+            if (!PartyCruncher.isValidDefinition(partyConfig)) {
                 return;
             }
-            let targetToken = instance.#getTarget(requestedState, partyConfig);
-            if (targetToken?.name === undefined) {
-                Logger.warn(false, Config.localize("errMsg.pleaseActivateTokenLayer"));
-                return;
-            }
-            Logger.debug(`(PartyCruncher.toggleParty) target token: [${targetToken.name}]`);
-            canvas.tokens.releaseAll();
-            if (useHotPanIfAvailable && optionalDependenciesAvailable.includes('hot-pan')) {
-                Logger.debug(`(PartyCruncher.toggleParty) switching HotPan ON (useHotPan: ${useHotPanIfAvailable})`);
-                HotPan.switchOn(true); // true means: silentMode (no UI message)
-            }
-            targetToken.control({releaseOthers: true});
-            canvas.animatePan(this.#getTokenCenter(targetToken));
-            if (useHotPanIfAvailable && optionalDependenciesAvailable.includes('hot-pan')) {
-                setTimeout(function () {
-                    Logger.debug(`(PartyCruncher.toggleParty) switching HotPan BACK (useHotPan: ${useHotPanIfAvailable})`);
-                    HotPan.switchBack(true); // true means: silentMode (no UI message)
-                }, 1000);
-            }
+            Logger.debug(`(PartyCruncher.toggleParty) partyConfig(${partyNo}) is valid: `, partyConfig);
+
+            // ==================================================================================================
+            // Step 2 - auto-determine new requested state
+            // ==================================================================================================
+            // TODO - Replace by dynamic detection
+            const requestedState = PartyCruncher.#detectRequestedState(partyConfig);
 
             // ==================================================================================================
             // Step 3 - And fiiiiiiiiinally.... DO IT!!
             // ==================================================================================================
-            Logger.debug(`(PartyCruncher.toggleParty) - current state of party#${partyNo}: ${partyConfig.state}`);
+            Logger.debug(`(PartyCruncher.toggleParty) - lastKnownState of party#${partyNo}: ${partyConfig.lastKnownState}`);
             switch (requestedState) {
-                case Config.globals.states.GROUPED:
-                    Logger.info(`Crunching party ${partyNo} ...`);
-                    await PartyCruncher.#crunchParty(partyNo);
+                case Config.globals.states.CRUNCHED:
+                    Logger.info(`Crunching party ${partyNo} ...`, partyConfig);
+                    await PartyCruncher.#crunchParty(partyConfig);
                     break;
-                case Config.globals.states.SEPARATE:
-                    Logger.info(`Exploding party ${partyNo} - instance: ${instance}...`);
-                    await PartyCruncher.#explodeParty(partyNo);
+                case Config.globals.states.EXPLODED:
+                    Logger.info(`Exploding party ${partyNo} ...`,partyConfig);
+                    await PartyCruncher.#explodeParty(partyConfig);
                     break;
             }
 
@@ -203,6 +169,22 @@ export class PartyCruncher {
 
         Logger.info(`... Toggling of party #${partyNo} complete.`);
         await PartyCruncher.setBusy(false);
+    }
+
+    static #panToTarget(targetToken, useHotPanIfAvailable) {
+        canvas.tokens.releaseAll();
+        if (useHotPanIfAvailable && optionalDependenciesAvailable.includes('hot-pan')) {
+            Logger.debug(`(PartyCruncher.toggleParty) switching HotPan ON (useHotPan: ${useHotPanIfAvailable})`);
+            HotPan.switchOn(true); // true means: silentMode (no UI message)
+        }
+        targetToken.control({releaseOthers: true});
+        canvas.animatePan(PartyCruncher.#getTokenCenter(targetToken));
+        if (useHotPanIfAvailable && optionalDependenciesAvailable.includes('hot-pan')) {
+            setTimeout(function () {
+                Logger.debug(`(PartyCruncher.toggleParty) switching HotPan BACK (useHotPan: ${useHotPanIfAvailable})`);
+                HotPan.switchBack(true); // true means: silentMode (no UI message)
+            }, 1000);
+        }
     }
 
     static #getTokenCenter(targetToken) {
@@ -229,8 +211,6 @@ export class PartyCruncher {
         // The following steps require token selection, which won't work with any other layer active
         canvas.tokens.activate();
 
-        const instance = PartyCruncher.#getInstance(partyNo);
-
         try {
 
             await PartyCruncher.setBusy(true);
@@ -239,7 +219,7 @@ export class PartyCruncher {
             // Step 1 - Parse & validate current token selection, with input from the GM
             // ==================================================================================================
             // grab names from all currently selected tokens
-            let namesFromSelection = instance.#collectNamesFromTokenSelection();
+            let namesFromSelection = PartyCruncher.#collectNamesFromTokenSelection();
 
             // ask the GM for the name and mode of the party token to use
             let partyDefinitionInput = await PartyCruncher.#promptForPartyDefinition(partyNo);
@@ -251,7 +231,7 @@ export class PartyCruncher {
                 partyNo = partyDefinitionInput.partyNo;
                 Logger.debug(`(PartyCruncher.groupParty) namesFromSelection for grouping party #${partyNo}:`, namesFromSelection);
             }
-            const partyDefinition = instance.#createPartyDefinition(partyNo, namesFromSelection);
+            const partyDefinition = PartyCruncher.#createPartyDefinition(partyNo, namesFromSelection);
             const partyToken = canvas.scene.tokens.find(t => t.name === partyDefinition.partyTokenName);
 
             // ==================================================================================================
@@ -260,7 +240,7 @@ export class PartyCruncher {
             const updates = {
                 definition: partyDefinition,
                 partyToken: partyToken,
-                state: Config.globals.states.SEPARATE
+                lastKnownState: Config.globals.states.EXPLODED
             };
             await PartyCruncher.updatePartyConfig(partyNo, updates);
 
@@ -322,8 +302,6 @@ export class PartyCruncher {
 
         Logger.debug(`(PartyCruncher.findParty) FIND - partyNo: ${partyNo}, useHotPan: ${useHotPanIfAvailable} ...`);
 
-        const instance = PartyCruncher.#getInstance(partyNo);
-
         try {
 
             await PartyCruncher.setBusy(true);
@@ -332,13 +310,13 @@ export class PartyCruncher {
             // Step 1 - Parse & validate party definitions from module settings
             // ==================================================================================================
             // grab raw input values from user prefs
-            let validatedNames = instance.#collectValidatedTokenNamesFromModuleSettings(partyNo);
+            let validatedNames = PartyCruncher.#collectValidatedTokenNamesFromModuleSettings(partyNo);
             Logger.debug("(PartyCruncher.findParty) validatedNames: ", validatedNames);
 
             // ==================================================================================================
             // Step 2 - gather and validate all the involved tokens from current scene
             // ==================================================================================================
-            let involvedTokens = instance.#collectInvolvedTokens(validatedNames, partyNo);
+            let involvedTokens = PartyCruncher.#collectInvolvedTokens(validatedNames, partyNo);
             Logger.debug("(PartyCruncher.findParty) involvedTokens: ", involvedTokens);
 
             // ==================================================================================================
@@ -379,11 +357,11 @@ export class PartyCruncher {
         await PartyCruncher.setBusy(false);
     }
 
-    #collectValidatedTokenNamesFromModuleSettings(partyNo) {
+    static #collectValidatedTokenNamesFromModuleSettings(partyNo) {
         let memberTokenNamesString = Config.setting(`memberTokenNames${partyNo}`);
         let partyTokenNameString = Config.setting(`partyTokenName${partyNo}`);
-        let namesFromSettings = this.#collectNamesFromStrings(partyNo, memberTokenNamesString, partyTokenNameString);
-        return this.#createPartyDefinition(partyNo, namesFromSettings);
+        let namesFromSettings = PartyCruncher.#collectNamesFromStrings(partyNo, memberTokenNamesString, partyTokenNameString);
+        return PartyCruncher.#createPartyDefinition(partyNo, namesFromSettings);
     }
 
     /**
@@ -394,7 +372,7 @@ export class PartyCruncher {
      * @param partyTokenNameString
      * @returns {{partyTokenName: string[], memberTokenNames: string[]}}
      */
-    #collectNamesFromStrings(partyNo = 1, memberTokenNamesString, partyTokenNameString) {
+    static #collectNamesFromStrings(partyNo = 1, memberTokenNamesString, partyTokenNameString) {
 
         // Parse & split given list of party names from module settings
         let memberTokenNames = memberTokenNamesString
@@ -414,7 +392,7 @@ export class PartyCruncher {
         };
     }
 
-    #collectNamesFromTokenSelection() {
+    static #collectNamesFromTokenSelection() {
 
         let tokensSelected = Array.from(canvas.tokens.controlled.map(t => t.name));
 
@@ -462,7 +440,7 @@ export class PartyCruncher {
         return duplicates;
     }
 
-    #createPartyDefinition(partyNo = 1, names) {
+    static #createPartyDefinition(partyNo = 1, names) {
 
         Logger.debug("(PartyCruncher.#createPartyDefinition) names (before validation): ", names);
         let errMsg = "";
@@ -512,8 +490,8 @@ export class PartyCruncher {
 
         // Check 4: Does any of the member tokens exist more than once in the scene?
         // This is only for checking at this time. It will throw an error if some tokens are NOT unique, so we just can ignore the returned values for now
-        this.#collectTokensByNamesIfUnique(names.memberTokenNames);
-        this.#collectTokensByNamesIfUnique([names.partyTokenName])[0];
+        PartyCruncher.#collectTokensByNamesIfUnique(names.memberTokenNames);
+        PartyCruncher.#collectTokensByNamesIfUnique([names.partyTokenName])[0];
 
         const partyDefinition = {
             partyNo: partyNo,
@@ -557,10 +535,10 @@ export class PartyCruncher {
             Logger.debug(`PartyCruncher.#updatePartyConfig - new memberTokens: `, allConfigs[partyNo].memberTokens);
         }
 
-        if (updates.state !== undefined) {
-            allConfigs[partyNo].state = updates.state;
+        if (updates.lastKnownState !== undefined) {
+            allConfigs[partyNo].lastKnownState = updates.lastKnownState;
             allConfigs[partyNo].timestamp = Date.now();
-            Logger.debug(`PartyCruncher.#updatePartyConfig - new state: `, allConfigs[partyNo].state);
+            Logger.debug(`PartyCruncher.#updatePartyConfig - new lastKnownState: `, allConfigs[partyNo].lastKnownState);
         }
 
         Config.modifySetting("partyConfigs", allConfigs);
@@ -577,13 +555,13 @@ export class PartyCruncher {
      * @param partyNo
      * @returns {{partyToken: any, memberTokens: *[]}}
      */
-    #collectInvolvedTokens(names, partyNo = 1) {
+    static #collectInvolvedTokens(names, partyNo = 1) {
 
         let errMsg = "";
 
         // Check 1: Does any of the member tokens exist more than once in the scene?
-        const memberTokens = this.#collectTokensByNamesIfUnique(names.memberTokenNames);
-        const partyToken = this.#collectTokensByNamesIfUnique([names.partyTokenName])[0];
+        const memberTokens = PartyCruncher.#collectTokensByNamesIfUnique(names.memberTokenNames);
+        const partyToken = PartyCruncher.#collectTokensByNamesIfUnique([names.partyTokenName])[0];
 
         // Check 2: Are there any tokens that could NOT be found?
         let missingTokens = names.memberTokenNames
@@ -624,7 +602,7 @@ export class PartyCruncher {
      * @param names
      * @returns tokensFound {*[]}
      */
-    #collectTokensByNamesIfUnique(names) {
+    static #collectTokensByNamesIfUnique(names) {
 
         let tokensFound = [];
         let errMsg = "";
@@ -660,97 +638,57 @@ export class PartyCruncher {
         return tokensFound;
     }
 
-    /**
-     * Determine current state of involved tokens and derive from it, which actions is to be next (Actions.CRUNCH or Actions.EXPLODE).
-     * Throw a meaningful UI error if action cannot be determined, because the state of any token doesn't make sense
-     * @param involvedTokens
-     * @param partyNo
-     * @returns {symbol}
-     */
-    #determineRequiredAction(involvedTokens, partyNo) {
+    static #detectRequestedState(partyConfig) {
 
-        let noOfMembersVisible = involvedTokens?.memberTokens.filter(t => !t.document.hidden);
-        let isPartyVisible = (!involvedTokens?.partyToken?.document.hidden);
+        const partyNo = partyConfig.definition.partyNo;
+
+        let membersVisibleInScene = canvas.scene.tokens.filter(
+            t =>
+            partyConfig.definition.memberTokenNames.map(
+                n =>
+                    n !== partyConfig.definition.partyTokenName
+                    && n.toLowerCase()).indexOf(t.name.toLowerCase()) > -1
+                    && !t.hidden);
+        Logger.debug(`PartyCruncher.#detectRequestedState - membersVisibleInScene: `, membersVisibleInScene);
+
+        let partyTokensVisibleInScene = canvas.scene.tokens.filter(
+            t =>
+                partyConfig.definition.partyTokenName.toLowerCase() === t.name.toLowerCase()
+                && !t.hidden);
+        Logger.debug(`PartyCruncher.#detectRequestedState - partyTokensVisibleInScene: `, partyTokensVisibleInScene);
 
         let errMsg = "";
 
-        // Check: Either the party token or any of the member tokens need to be visible
-        if (!isPartyVisible && noOfMembersVisible.length === 0) {
-            errMsg = Config.localize('errMsg.membersAndPartyAllHidden');
+        // Check: Either the party token or any of the member tokens need to be present and visible
+        if (membersVisibleInScene.length === 0 && partyTokensVisibleInScene.length === 0) {
+            errMsg = Config.localize('errMsg.noTokensVisible');
+        }
+        // Check: Party and member tokens must not be present at the same time
+        else if (membersVisibleInScene.length > 0 && partyTokensVisibleInScene.length > 0){
+            errMsg = Config.localize('errMsg.membersAndPartyTokenVisible');
         }
 
         if (errMsg) {
             errMsg =
-                Config.localize('errMsg.cannotDetermineAction') + ":<br/>" +
+                Config.localize('errMsg.cannotDetermineAction') + "<br/>" +
                 "<br/>" +
                 errMsg + ":<br/>" +
                 "<br/>" +
                 Config.localize('errMsg.pleaseCheckYourTokenSelection') + ":<br/>" +
                 "<br/>" +
-                "- " + Config.localize(`setting.memberTokenNames#.name`).replace("#", partyNo) + ": <strong>[ " + Config.setting(`memberTokenNames${partyNo}`) + " ]</strong><br/>" +
-                "- " + Config.localize(`setting.partyTokenName#.name`).replace("#", partyNo) + ": <strong>[ " + Config.setting(`partyTokenName${partyNo}`) + " ]</strong>";
+                "<strong>" + Config.localize("party") + "#" + partyNo + ":</strong><br/>" +
+                "- " + partyConfig.definition.partyTokenName + " (" + Config.localize("partyTokenName") + ")<br/>- " +
+                "- " + partyConfig.definition.memberTokenNames.join("<br/>");
             throw new Error(errMsg);
         }
 
-        return (isPartyVisible) ? PartyCruncher.Actions.EXPLODE : PartyCruncher.Actions.CRUNCH;
+        const requestedState = (membersVisibleInScene.length > 0) ? Config.globals.states.CRUNCHED : Config.globals.states.EXPLODED;
+        Logger.debug(`PartyCruncher.#detectRequestedState - requestedState: ${requestedState}`);
+        return requestedState;
     }
 
-    /**
-     *
-     * @param requiredAction
-     * @param partyConfig
-     */
-    #getTarget(requiredAction, partyConfig) {
-        if (requiredAction === Config.globals.states.GROUPED) {
+    static async #crunchParty(partyConfig, useHotPanIfAvailable = true) {
 
-            if (canvas.tokens.controlled.length === 1 && partyConfig.definition.memberTokenNames.includes(canvas.tokens.controlled[0].name)) {
-                // If only one of the members is selected, use it as the target
-                // That way the GM can decide where to place the party token
-                let targetToken = canvas.tokens.controlled[0];
-                Logger.debug("(PartyCruncher.#getTarget) targetToken: ", targetToken);
-                return targetToken;
-            }
-
-            // Release any currently active tokens
-            canvas.tokens.releaseAll();
-
-            // select all the member tokens
-            partyConfig.definition.memberTokenNames.forEach(name => {
-                const token = canvas.scene.tokens.find(t => t.name === name);
-                if (t !== undefined) {
-                    token.control({releaseOthers: false})
-                }
-            });
-            // Use the first one as the target
-            return canvas.tokens.controlled[0];
-
-        } else { // EXPLODE
-            if (PartyCruncher.#hasPartyToken(partyConfig)) {
-                return partyConfig.partyToken;
-            }
-            else {
-                const t = canvas.scene.tokens.find(t => t.name === partyConfig.definition.partyToken);
-                if (t !== undefined) {
-                    PartyCruncher.updatePartyConfig(partyNo, {partyToken: t});
-                    return t;
-                }
-                else {
-                    Logger.error(false, `${Config.localize('errMsg."tokensMissingInScene"')}<br/>${partyConfig.definition.partyToken}`);
-                }
-            }
-        }
-    }
-
-    static async #crunchParty(partyNo) {
-
-        // Validate passed params
-        if (partyNo === undefined || isNaN(partyNo) || partyNo < 1 || partyNo > Config.setting("maxNoOfParties")) {
-            Logger.error(`PartyCruncher.#crunchParty - unable to store Party Config updates: partyNo missing or invalid (must be a number between 1 and ${Config.setting("maxNoOfParties")}): `, partyNo, updates);
-            return;
-        }
-
-        // Retrieve and validate stored partyConfig
-        const partyConfig = PartyCruncher.#getPartyConfig(partyNo);
         if (!PartyCruncher.isValidDefinition(partyConfig)) {
             return;
         }
@@ -758,7 +696,8 @@ export class PartyCruncher {
         if (!PartyCruncher.#hasPartyToken(partyConfig)) {
             return;
         }
-        Logger.debug(`PartyCruncher.#crunchParty(${partyNo}): found valid partyConfig: `, partyConfig);
+        const partyNo = partyConfig.definition.partyNo;
+        Logger.debug(`PartyCruncher.#crunchParty() - party#${partyNo} - partyConfig is valid: `, partyConfig);
 
         // Check if we need to abort because of duplicate member tokens in the scene
         const memberTokenDuplicates = PartyCruncher.#findTokenNamesByMinCount(partyConfig.definition.memberTokenNames, 2);
@@ -769,26 +708,49 @@ export class PartyCruncher {
             return;
         }
 
-        // Check if Party Token already exists in Scene, and prompt for action if needed
+        let configUpdates = {};
+
+        // Check if Party Token already exists in Scene
         let effectivePartyToken;
         const partyTokenCount = PartyCruncher.#findTokenNamesByMinCount([partyConfig.definition.partyTokenName], 1);
-        if (partyTokenCount.length > 0 && partyTokenCount[0].count > 1) {
+
+        // Replace already existing party token(s) if necessary
+        if (partyTokenCount.length > 0 && partyTokenCount[0].count > 1 && PartyCruncher.#hasPartyToken(partyConfig)) {
+
             const partyTokenConflictResolution = await PartyCruncher.#promptForDuplicateReplaceOrKeep(partyTokenCount[0], false);
             Logger.debug(`PartyCruncher.#crunchParty - tokenConflictResolution: `, partyTokenConflictResolution);
 
             // Apply the chosen conflict resolution
             if (partyTokenConflictResolution.replace) {
-                for(const t of canvas.scene.tokens.filter(t => t.name === partyConfig.definition.partyTokenName)) {
+                for (const t of canvas.scene.tokens.filter(t => t.name === partyConfig.definition.partyTokenName)) {
+                    Logger.debug(`PartyCruncher.#crunchParty - deleting redundant party token: `, t);
                     await t.delete();
                 }
             } else if (partyTokenConflictResolution.keep) {
-                effectivePartyToken =  canvas.scene.tokens.find(t => t.name === partyConfig.definition.partyTokenName);
+                effectivePartyToken = canvas.scene.tokens.find(t => t.name === partyConfig.definition.partyTokenName);
+                configUpdates.partyToken = effectivePartyToken;
+                Logger.debug(`PartyCruncher.#crunchParty - effectivePartyToken reused from scene: `, effectivePartyToken);
             } else { // partyTokenConflictResolution.cancelled
                 return false;
             }
         }
+        // If no partyToken was reused until now, we need to instantiate a new one from partyConfig
+        if (effectivePartyToken === undefined) {
+            effectivePartyToken = await canvas.scene.createEmbeddedDocuments("Token", [partyConfig.partyToken]);
+            Logger.debug(`PartyCruncher.#crunchParty - effectivePartyToken created from partyConfig: `, effectivePartyToken);
+        }
 
-        // Gather member tokens in scene
+        // Make sure that at least one member token is selected as a positioning target
+        if (canvas.tokens.controlled.length === 0) {
+            canvas.tokens.controlAll();
+        }
+        await effectivePartyToken.document.update({
+            // TODO position: canvas.tokens.controlled[0].position,
+            elevation: canvas.tokens.controlled[0].document.elevation,
+            hidden: true
+        })
+
+        // Collect member tokens in scene
         const memberTokensToRemove = [];
         for (let memberName of partyConfig.definition.memberTokenNames) {
             const tokenFound = canvas.scene.tokens.find(t => t.name === memberName);
@@ -804,8 +766,6 @@ export class PartyCruncher {
             Logger.debug(`PartyCruncher.#crunchParty - member token '${memberName}' found => added to list for removal`, tokenFound);
         }
 
-        // TODO - Move all members to towards target token
-
         // TODO - If "replace" was chosen above:
         // ... Update position and relative scale of existing token to reflect target token
         // ... otherwise:
@@ -813,16 +773,35 @@ export class PartyCruncher {
         // ... - update to reflect target token's pos and scale
         // ... - create party token in scene
 
-        // TODO - Toggle Party Token on if it should be hidden
+        // Select the target and try to shift the view to it
+        await PartyCruncher.#panToTarget(effectivePartyToken, useHotPanIfAvailable);
+
+        // Move all members towards target token
+        // We're reversing the order temporarily, because this is visually much nicer (especially with large groups).
+        // It processes outer tokens first, inner ones last.
+        let tokenUpdates = [];
+        for (const token of memberTokensToRemove.reverse()) {
+            // Teleport to the target (which is the party's "center")
+            tokenUpdates.push(PartyCruncher.#getTokenTeleportUpdate(token, targetToken.position, targetToken.document.elevation, false));
+        }
+
+        // Then teleport the party token to the crunch target's position (still invisible)
+        // TODO - Remove!
+        tokenUpdates.push(PartyCruncher.#getTokenTeleportUpdate(involvedTokens.partyToken, targetToken.position, targetToken.document.elevation, true));
+
+        // Finish step #1: Teleport!
+        await PartyCruncher.#teleport(tokenUpdates);
 
 
-        const updates = {};
+        // TODO - Toggle Party Token on (if it was freshly created and therefore is still hidden)
+
+        // Play audio and JB2A animation (if supported)
+        PartyCruncher.#playAnimation("playAudio4Crunch", "animation4Crunch");
 
         // Store member tokens and remove tokens from scene
         if (memberTokensToRemove.length > 0) {
-            updates.memberTokens = memberTokensToRemove;
+            configUpdates.memberTokens = memberTokensToRemove;
 
-            // TODO - Add sound and JB2A animation (encapsulate it in function!)
 
             Logger.debug(`PartyCruncher.#crunchParty - removing ${memberTokensToRemove.length} tokens from scene: `, memberTokensToRemove);
             for (const member of memberTokensToRemove) {
@@ -832,8 +811,8 @@ export class PartyCruncher {
             Logger.warn(`PartyCruncher.#crunchParty - No member tokens found in Scene for Party #${partyNo} [${partyConfig.definition.partyTokenName}]`);
         }
 
-        updates.state = Config.globals.states.GROUPED;
-        await PartyCruncher.updatePartyConfig(partyNo, updates);
+        configUpdates.lastKnownState = Config.globals.states.CRUNCHED;
+        await PartyCruncher.updatePartyConfig(partyNo, configUpdates);
     }
 
     /**
@@ -882,26 +861,26 @@ export class PartyCruncher {
         let tokenUpdates = [];
         for (const token of involvedTokens.memberTokens.reverse()) {
             // Teleport to the target (which is the party's "center")
-            tokenUpdates.push(this.#getTokenTeleportUpdate(token, targetToken.position, targetToken.document.elevation, false));
+            tokenUpdates.push(PartyCruncher.#getTokenTeleportUpdate(token, targetToken.position, targetToken.document.elevation, false));
         }
 
         // Then teleport the party token to the crunch target's position (still invisible)
-        tokenUpdates.push(this.#getTokenTeleportUpdate(involvedTokens.partyToken, targetToken.position, targetToken.document.elevation, true));
+        tokenUpdates.push(PartyCruncher.#getTokenTeleportUpdate(involvedTokens.partyToken, targetToken.position, targetToken.document.elevation, true));
 
         // Finish step #1: Teleport!
-        await this.#teleport(tokenUpdates);
+        await PartyCruncher.#teleport(tokenUpdates);
 
         // Crunch step #2: Everybody, go invisible and move out of the way!
         tokenUpdates = [];
         for (const token of involvedTokens.memberTokens) {
-            tokenUpdates.push(this.#getTokenTeleportUpdate(token, {x:0, y:0}, null, true));
+            tokenUpdates.push(PartyCruncher.#getTokenTeleportUpdate(token, {x:0, y:0}, null, true));
         }
 
         // Move the party token into view and render it visible
-        tokenUpdates.push(this.#getTokenTeleportUpdate(involvedTokens.partyToken, targetToken.position, null, false));
+        tokenUpdates.push(PartyCruncher.#getTokenTeleportUpdate(involvedTokens.partyToken, targetToken.position, null, false));
 
         // Finish step #2: Teleport!
-        await this.#teleport(tokenUpdates);
+        await PartyCruncher.#teleport(tokenUpdates);
 
         // Don't forget to set back memberToken order
         involvedTokens.memberTokens.reverse();
@@ -910,7 +889,7 @@ export class PartyCruncher {
         involvedTokens.partyToken.control({releaseOthers: true});
     }
 
-    async #teleport(tokenUpdates) {
+    static async #teleport(tokenUpdates) {
         // Logger.debug(`(PartyCruncher.#teleport) tokenUpdates: `, tokenUpdates);
         for (const update of tokenUpdates) {
             const tokenDoc = canvas.scene.tokens.get(update._id);
@@ -949,13 +928,13 @@ export class PartyCruncher {
         }
     }
 
-        /**
+     /**
      *
      * @param involvedTokens
      * @param targetToken - Here this is always the party token itself, providing the anchor point for the member tokens
      */
-    async #explodeParty(involvedTokens, targetToken) {
-
+    static async #explodeParty(involvedTokens, targetToken) {
+        // TODO - replace involvedTokens by partyConfig
         if (!canvas.ready) return false;
 
         // Release any currently active tokens
@@ -994,14 +973,14 @@ export class PartyCruncher {
         let tokenUpdates = [];
         for (const memberToken of involvedTokens.memberTokens) {
             // Then teleport them to the "party center", but remain invisible for now (waiting for each token's glamorous entry later in step #2)
-            tokenUpdates.push(this.#getTokenTeleportUpdate(memberToken, involvedTokens.partyToken.position, involvedTokens.partyToken.document.elevation, false));
+            tokenUpdates.push(PartyCruncher.#getTokenTeleportUpdate(memberToken, involvedTokens.partyToken.position, involvedTokens.partyToken.document.elevation, false));
         }
 
         // Move the party token out of the way and render it invisible ("WE are the party now!")
-        tokenUpdates.push(this.#getTokenTeleportUpdate(involvedTokens.partyToken, {x: 0, y: 0}, null, true));
+        tokenUpdates.push(PartyCruncher.#getTokenTeleportUpdate(involvedTokens.partyToken, {x: 0, y: 0}, null, true));
 
         // Finish step #1: Teleport!
-        await this.#teleport(tokenUpdates);
+        await PartyCruncher.#teleport(tokenUpdates);
 
         // // Explode step #2: Swarm out and take your places
         let tokenCounter = 0;
@@ -1077,7 +1056,7 @@ export class PartyCruncher {
         }
     }
 
-    #getTokenTeleportUpdate(token, targetPosition, targetElevation, hidden) {
+    static #getTokenTeleportUpdate(token, targetPosition, targetElevation, hidden) {
         const effectiveTargetPosition = (targetPosition != null) ? targetPosition : token.position; // NULL target means: don't move, stay where you are!
         const effectiveTargetElevation = (targetElevation != null) ? targetElevation : token.document.elevation;
         return {
@@ -1217,7 +1196,7 @@ export class PartyCruncher {
                         action: "yes",
                         label: Config.localize('promptForCrunchAfterGrouping.yes'),
                         default: true,
-                        callback: () => resolve(PartyCruncher.#crunchParty(partyNo))
+                        callback: () => resolve(PartyCruncher.toggleParty(partyNo))
                     },
                     {
                         action: "no",
@@ -1341,7 +1320,7 @@ export class PartyCruncher {
             Config.setting("partyConfigs")
         );
         Logger.debug('(PartyCruncher.#getAllStoredPartyConfigs) reading all partyConfigs: ', partyConfigs);
-        return partyConfigs;
+        return (partyConfigs !== undefined && partyConfigs !== null) ? partyConfigs : {};
     }
 
     static #getPartyConfig(partyNo) {
@@ -1387,5 +1366,36 @@ export class PartyCruncher {
             return false;
         }
         return true;
+    }
+
+    static async #playAnimation(audioSettingName, animSettingName) {
+        let audioPath = Config.setting(audioSettingName) ? `${Config.setting(audioSettingName).trim()}` : Config.NO_AUDIO_FILE;
+        if (!audioPath) audioPath = Config.NO_AUDIO_FILE;
+        Logger.debug(`PartyCruncher.#playAnimation - audioPath: ${audioPath}`);
+        Logger.debug(`PartyCruncher.#playAnimation - Audio base dir (window.location.pathname): ${window.location.pathname}`);
+
+        // If JB2A_DnD5e && AA are installed, play the animation
+        if ((optionalDependenciesAvailable.includes('JB2A_DnD5e') || optionalDependenciesAvailable.includes('jb2a_patreon')) && optionalDependenciesAvailable.includes('autoanimations')) {
+            let animationPath = Config.setting(animSettingName);
+            if (animationPath) {
+                Logger.debug(`PartyCruncher.#playAnimation - animationPath: ${animationPath}`);
+                new Sequence()
+                    .effect()
+                    .file(animationPath)
+                    .atLocation(targetToken)
+                    .scaleToObject(4)
+                    .randomRotation()
+                    .sound().file(audioPath)
+                    .play();
+            }
+        } else if (audioPath) // Play audio without JB2A && AA
+        {
+            foundry.audio.AudioHelper.play({
+                src: audioPath,
+                volume: 1,
+                autoplay: true,
+                loop: false
+            }, true);
+        }
     }
 }

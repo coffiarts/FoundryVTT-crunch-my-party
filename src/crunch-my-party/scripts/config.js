@@ -29,8 +29,8 @@ export class Config {
             MEMBER: "MEMBER",
         },
         states: {
-            GROUPED: "CRUNCHED",
-            SEPARATE: "SEPARATE",
+            CRUNCHED: "CRUNCHED",
+            EXPLODED: "EXPLODED",
         }
     };
     static NO_AUDIO_FILE = '../modules/crunch-my-party/audio/audio_null.wav';

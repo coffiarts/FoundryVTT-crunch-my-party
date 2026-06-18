@@ -13,10 +13,6 @@
         "name": "Maximale Anzahl definierbarer Gruppen",
         "hint": "Wieviele separate Gruppen (mit jeweils bis zu 25 Mitgliedern) sollen zeitgleich verwaltet werden können?"
       },
-      "memberTokenNames#": {
-        "name": "Gruppe # - Mitgliederliste",
-        "hint": "Tokennamen aller Mitglieder von Gruppe # (durch Komma getrennt)."
-      },
       "partyTokenName#": {
         "name": "Gruppe # - Gruppenname",
         "hint": "Name des gemeinsamen Tokens von Gruppe #."
@@ -50,6 +46,9 @@
         "hint": "Audiodatei (relativer Pfad), die beim \"Explode\" abgespielt wird."
       }
     },
+    "party":  "Gruppe",
+    "partyTokenName": "Gruppentoken",
+    "memberTokenNames": "Mitglieder",
     "chatInfoContent": {
       "title": "Crunch My Party!",
       "text1": "\"Es waren einmal drei kleine Goblins... Sie wünschten sich nichts sehnlicher, als eine ECHTE GRUPPE zu sein!<br/>Dies ist ihre Geschichte...\"",
@@ -66,8 +65,10 @@
       "notUniqueInScene": "existiert mehrfach in der Szene!",
       "notUniqueInScenePlural": "Die folgenden Tokens existieren mehrfach in der Szene. Die gewählte Aktion unterstützt keine Tokens gleichen Namens",
       "tokensMissingInScene": "Folgende Tokens fehlen in der Szene",
+      "partyTokenMissingInScene": "Der Gruppentoken namens '#partyTokenName' fehlt in der Szene. Bitte füge ihn hinzu und versuche es erneut.",
       "cannotDetermineAction": "Aktion kann nicht ermittelt werden!",
-      "membersAndPartyAllHidden": "Keiner der involvierten Tokens ist aktuell sichtbar (aktiviert).",
+      "noTokensVisible": "Entweder der Gruppentoken ODER mindestens eines der Gruppenmitglieder muss in der Szene sichtbar (aktiviert) sein, damit diese Aktion ausgeführt werden kann.",
+      "membersAndPartyTokenVisible": "Gruppentoken und Gruppenmitglieder dürfen nicht zugleich in der Szene sichtbar sein, um diese Aktion auszuführen",
       "pleaseWaitStillBusy": "Bitte warten, bis laufende Aktion beendet ist ...",
       "pleaseSelectToken": "Für diese Funktion muss mindestens ein Token ausgewählt sein.",
       "movementActionNotFound": "Token kann nicht verschoben werden: Die folgende Movement Action ist nicht in CONFIG.Token.movement.actions vorhanden: ",
