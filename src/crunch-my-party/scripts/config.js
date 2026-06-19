@@ -33,7 +33,7 @@ export class Config {
             EXPLODED: "EXPLODED",
         }
     };
-    static NO_AUDIO_FILE = '../modules/crunch-my-party/audio/audio_null.wav';
+    static NO_AUDIO_FILE = '../modules/crunch-my-party/audio/audio_null.mp3';
 
     static init() {
 
@@ -59,7 +59,7 @@ export class Config {
         Hooks.on('renderSettingsConfig', (app, html) => {
             const inputEl = html.querySelector(`#settings-config-${Config.globals.modID.replace(/\./g, "\\.")}\\.maxNoOfParties`);
             const formGroup = inputEl?.closest(".form-group");
-            formGroup?.insertAdjacentHTML("beforebegin", `<div><h4 style="margin-top: 0; border-bottom: 1px solid #888; padding-bottom: 4px; margin-bottom: 6px;">${Config.localize('settingsMenu.membersSection')}</h4></div>`);
+            formGroup?.insertAdjacentHTML("beforebegin", `<div><h4 style="margin-top: 0; border-bottom: 1px solid #888; padding-bottom: 4px; margin-bottom: 6px;">${Config.localize('settingsMenu.partyConfigSection')}</h4></div>`);
         });
 
         // =====================================================================
@@ -79,16 +79,8 @@ export class Config {
         });
 
         // =====================================================================
-        // ===========================SEPARATOR ================================
-        // =====================================================================
-        Hooks.on('renderSettingsConfig', (app, html) => {
-            const inputEl = html.querySelector(`#settings-config-${Config.globals.modID.replace(/\./g, "\\.")}\\.memberTokenNames1`);
-            const formGroup = inputEl?.closest(".form-group");
-            formGroup?.insertAdjacentHTML("beforebegin", `<div><h4 style="margin-top: 0; border-bottom: 1px solid #888; padding-bottom: 4px; margin-bottom: 6px;">${Config.localize('settingsMenu.membersSection')}</h4></div>`);
-        });
-
-        // =====================================================================
         // Setting: Member Token Names and Party Token Names per Party
+        // DEPRECATED! REMOVE IN A FUTURE VERSION > 14.0.0
         // =====================================================================
         /**
          * @deprecated since v14 - will be kept for a while to ease manual migration of older party definitions
@@ -145,31 +137,31 @@ export class Config {
         // Setting: Animation & Audio
         // =====================================================================
         Config.registerSettings( {
-            animation4Crunch: {
+            animationFileCRUNCHED: {
                 scope: 'world', config: true, type: String, default: "jb2a.extras.tmfx.inpulse.circle.02.normal"
             },
-            playAudio4Crunch: {
+            playAudioCRUNCHED: {
                 scope: 'world', config: true, type: Boolean, default: true
             },
-            audioFile4Crunch: {
+            audioFileCRUNCHED: {
                 scope: 'world',
                 config: true,
                 type: String,
                 filePicker: "audio",
-                default: "modules/crunch-my-party/audio/audio_crunch.wav"
+                default: "modules/crunch-my-party/audio/audio_crunch.mp3"
             },
-            animation4Explode: {
+            animationFileEXPLODED: {
                 scope: 'world', config: true, type: String, default: "jb2a.extras.tmfx.outpulse.circle.02.normal"
             },
-            playAudio4Explode: {
+            playAudioEXPLODED: {
                 scope: 'world', config: true, type: Boolean, default: true
             },
-            audioFile4Explode: {
+            audioFileEXPLODED: {
                 scope: 'world',
                 config: true,
                 type: String,
                 filePicker: "audio",
-                default: "modules/crunch-my-party/audio/audio_explode.wav"
+                default: "modules/crunch-my-party/audio/audio_explode.mp3"
             }
         });
 
@@ -210,6 +202,22 @@ export class Config {
                 }
             });
         }
+        Logger.info(`${DEFAULT_NO_OF_PARTIES} empty keybindings for TOGGLE registered. Assign them to your liking in the game settings.`);
+
+        // Keybinding: SHOW CONFIGS
+        game.keybindings.register("crunch-my-party", `showConfig`, {
+            name: Config.localize('keybindingMenuLabelShowConfig'),
+            editable: [
+                //{ key: "Key1/2/3/4", modifiers: [KeyboardManager.MODIFIER_KEYS.SHIFT, KeyboardManager.MODIFIER_KEYS.CONTROL] }
+            ],
+            restricted: true,
+            onDown: () => {
+                if (!game.user.isGM) {
+                    return;
+                }
+                PartyCruncher.showPartyConfigurations();
+            }
+        });
         Logger.info(`${DEFAULT_NO_OF_PARTIES} empty keybindings for TOGGLE registered. Assign them to your liking in the game settings.`);
     }
 

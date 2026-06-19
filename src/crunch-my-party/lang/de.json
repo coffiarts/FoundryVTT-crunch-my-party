@@ -9,39 +9,47 @@
         "name": "Debug-Modus",
         "hint": "Aktiviert das Debug Logging."
       },
+      "forceUniqueTargetToken": {
+        "name": "Eindeutige Zielauswahl erzwingen",
+        "hint": "Verhindert \"Crunching\", wenn kein eindeutiges Gruppenmitglied als Ziel ausgewählt ist. V.a relevant für Szenen mit Levels and Höhe, denn Gruppenmitglieder werden immer auf die Höhe des Ziel-Tokens teleportiert."
+      },
       "maxNoOfParties": {
         "name": "Maximale Anzahl definierbarer Gruppen",
         "hint": "Wieviele separate Gruppen (mit jeweils bis zu 25 Mitgliedern) sollen zeitgleich verwaltet werden können?"
       },
+      "memberTokenNames#": {
+        "name": "Gruppe # - Mitglieder (deprecated)",
+        "hint": "Seit v14 nicht mehr verwendet. Dient nur noch der Übernahme alter Settings."
+      },
       "partyTokenName#": {
-        "name": "Gruppe # - Gruppenname",
-        "hint": "Name des gemeinsamen Tokens von Gruppe #."
+        "name": "Gruppe # - Gruppenname (deprecated)",
+        "hint": "Seit v14 nicht mehr verwendet. Dient nur noch der Übernahme alter Settings."
       },
       "hideChatInfo": {
         "name": "Modulinfo im Chat ausblenden",
         "hint": "Unterdrückt beim Start von Foundry den Chat-Infotext zu diesem Modul, damit er nicht immer wieder erscheint (zum einmaligen Wiederanzeigen hier deaktivieren)."
       },
-      "animation4Crunch": {
+      "animationFileCRUNCHED": {
         "name": "\"Crunch\"-Animation (optional)",
         "hint": "Animation beim Verschmelzen Einzel-Tokens zum Gruppen-Token. Benötigt Zusatzmodul J2BA (siehe Readme)."
       },
-      "playAudio4Crunch": {
+      "playAudioCRUNCHED": {
         "name": "Audiosignal bei \"Crunch\"?",
         "hint": "Wenn aktiviert, so wird das nachfolgende Audio File abgespielt."
       },
-      "audioFile4Crunch": {
+      "audioFileCRUNCHED": {
         "name": "Audiodatei bei \"Crunch\"",
         "hint": "Audiodatei (relativer Pfad), die beim \"Crunch\" abgespielt wird."
       },
-      "animation4Explode": {
+      "animationFileEXPLODED": {
         "name": "\"Explode\"-Animation (optional)",
         "hint": "Animation beim Trennen von Gruppen-Tokens in Einzel-Tokens. Benötigt Zusatzmodul J2BA (siehe Readme)."
       },
-      "playAudio4Explode": {
+      "playAudioEXPLODED": {
         "name": "Audiosignal bei \"Explode\"?",
         "hint": "Wenn aktiviert, so wird das nachfolgende Audio File abgespielt."
       },
-      "audioFile4Explode": {
+      "audioFileEXPLODED": {
         "name": "Audiodatei bei \"Explode\"",
         "hint": "Audiodatei (relativer Pfad), die beim \"Explode\" abgespielt wird."
       }
@@ -62,10 +70,11 @@
       "duplicateTokens": "Auswahl enthält Tokens mit gleichem Namen (evtl. ausgeblendet). Diese können nicht derselben Gruppe zugeordnet werden.",
       "tooManyMemberTokens": "Mitgliederliste ist zu lang",
       "invalidNumberOfMemberTokens": "Ungültige Anzahl an Tokens ausgewählt! Eine Gruppe muss aus mindestens 2 und maximal {maxMembers} Mitgliedern bestehen.",
-      "notUniqueInScene": "existiert mehrfach in der Szene!",
+      "notUniqueInScene": "Token [{tokenName}] existiert mehrfach in der Szene.",
       "notUniqueInScenePlural": "Die folgenden Tokens existieren mehrfach in der Szene. Die gewählte Aktion unterstützt keine Tokens gleichen Namens",
       "tokensMissingInScene": "Folgende Tokens fehlen in der Szene",
       "partyTokenMissingInScene": "Der Gruppentoken namens '#partyTokenName' fehlt in der Szene. Bitte füge ihn hinzu und versuche es erneut.",
+      "partyTokenMissingInConfig": "Die Gruppenkonfiguration enthält keine Daten für den Gruppentoken '#tokenName'. Bitte füge ihn der Szene hinzu oder erstelle die Gruppe neu mit dem \"Group\"-Macro.",
       "cannotDetermineAction": "Aktion kann nicht ermittelt werden!",
       "noTokensVisible": "Entweder der Gruppentoken ODER mindestens eines der Gruppenmitglieder muss in der Szene sichtbar (aktiviert) sein, damit diese Aktion ausgeführt werden kann.",
       "membersAndPartyTokenVisible": "Gruppentoken und Gruppenmitglieder dürfen nicht zugleich in der Szene sichtbar sein, um diese Aktion auszuführen",
@@ -106,15 +115,18 @@
       "text": "Der Token {tokenName} existiert {count}x in der Szene. Wenn du fortfährst, werden sie alle gelöscht. Was möchtest Du tun?",
       "delete": "Löschen"
     },
+    "saveButton": "Übernehmen",
     "cancelButton": "Abbrechen",
+    "closeButton": "Schliessen",
+    "empty": "leer",
     "groupingConfirmation": "Die folgenden Tokens sind nun der <strong>Gruppe #{partyNo} [{partyTokenName}]</strong> zugewiesen",
+    "applyToAll": "Auf alle anwenden!",
     "keybindingMenuLabelFind": "Gruppe # finden",
     "keybindingMenuLabelToggle": "Gruppe # umschalten (vereinigen/trennen)",
-    "applyToAll": "Auf alle anwenden!",
-    "saveButton": "Übernehmen",
+    "keybindingMenuLabelShowConfig": "Gruppenkonfigurationen anzeigen",
     "settingsMenu": {
       "behaviourSection": "Verhalten",
-      "membersSection": "Gruppen-Konfiguration",
+      "partyConfigSection": "Gruppenkonfiguration",
       "animationsSection": "Animation & Audio (erfordert JB2A & Automated Animations)"
     }
   }

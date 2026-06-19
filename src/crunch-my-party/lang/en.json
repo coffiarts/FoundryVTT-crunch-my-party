@@ -11,45 +11,45 @@
       },
       "forceUniqueTargetToken": {
         "name": "Force target token selection",
-        "hint": "Prevent \"crunching\" when no unique group member has been preselected as the target. Most relevant for scenes that use levels and elevation (\"vertical\" maps): By \"crunching\" your party, all group members get teleported to the same position (and elevation!) as the preselected target. Whithout a unique target, a RANDOM member will be used, which may not always be intended (especially when it comes to elevations!). This option prevents that by a warning message."
+        "hint": "Prevent \"crunching\" when no unique group member has been selected. Most relevant for scenes that use levels and elevation, because group members get teleported to the same position and elevation! as the target."
       },
       "maxNoOfParties": {
         "name": "Maximum number of parties",
         "hint": "How many separately defined parties should be maintained at once?"
       },
       "memberTokenNames#": {
-        "name": "Party # - List of members (deprecated)",
-        "hint": "Names of all tokens belonging to Party # (comma-separated)."
+        "name": "Party # - Members (deprecated)",
+        "hint": "Not used anymore since v14. Only visible for easier takeover of old settings."
       },
       "partyTokenName#": {
         "name": "Party # - Party name (deprecated)",
-        "hint": "Name of the shared tokens of Party #."
+        "hint": "Not used anymore since v14. Only visible for easier takeover of old settings."
       },
       "hideChatInfo": {
         "name": "Hide module info in chat window",
         "hint": "Hides the info text about this module in the chat window on game start, so that it doesn't show up over and over again (deactivate this option to see it again)."
       },
-      "animation4Crunch": {
+      "animationFileCRUNCHED": {
         "name": "\"Crunch\" animation (optional)",
         "hint": "Animation to play when crunching single tokens into party token. Requires installation of J2BA (see Readme)."
       },
-      "playAudio4Crunch": {
+      "playAudioCRUNCHED": {
         "name": "Play audio on \"Crunch\"?",
-        "hint": "Plays the audio file spedified below, if activated."
+        "hint": "Plays the audio file specified below, if activated."
       },
-      "audioFile4Crunch": {
+      "audioFileCRUNCHED": {
         "name": "Audio file on \"Crunch\"",
         "hint": "Audio file (relative path) to be played on \"Crunch\"?"
       },
-      "animation4Explode": {
+      "animationFileEXPLODED": {
         "name": "\"Explode\" animation (optional)",
         "hint": "Animation to play when exploding party token into single member tokens. Requires installation of J2BA (see Readme)."
       },
-      "playAudio4Explode": {
+      "playAudioEXPLODED": {
         "name": "Play audio on \"Explode\"?",
-        "hint": "Plays the audio file spedified below, if activated."
+        "hint": "Plays the audio file specified below, if activated."
       },
-      "audioFile4Explode": {
+      "audioFileEXPLODED": {
         "name": "Audio file on \"Explode\"",
         "hint": "Audio file (relative path) to be played on \"Explode\"?"
       }
@@ -70,10 +70,11 @@
       "duplicateTokens": "Selection contains tokens sharing the same name (maybe hidden). Name-siblings can't be assigned to the same party.",
       "tooManyMemberTokens": "Member list too long",
       "invalidNumberOfMemberTokens": "Invalid number of tokens selected! A party must consist of 2 to {maxMembers} members.",
-      "notUniqueInScene": "is not unique in scene!",
+      "notUniqueInScene": "Token [{tokenName}] is not unique in scene!",
       "notUniqueInScenePlural": "The following tokens are not unique in the scene. The current action does not support this",
       "tokensMissingInScene": "Tokens missing in scene",
       "partyTokenMissingInScene": "The party token named '#partyTokenName' is missing in the scene. Please add it, then try again.",
+      "partyTokenMissingInConfig": "The party configuration is missing data for the party token named '#tokenName'. Please add it to the scene, or recreate the party using the \"Group\" macro.",
       "cannotDetermineAction": "Cannot determine action!",
       "noTokensVisible": "Either the party token OR at least one of the party members must be visible (activated) in the scene to perform this action.",
       "membersAndPartyTokenVisible": "Party token and members cannot be visible at the same time to perform this action.",
@@ -116,13 +117,16 @@
     },
     "saveButton": "Save",
     "cancelButton": "Cancel",
+    "closeButton": "Close",
+    "empty": "empty",
     "groupingConfirmation": "The following tokens have been assigned to <strong>party #{partyNo} [{partyTokenName}]</strong>",
+    "applyToAll": "Apply to all!",
     "keybindingMenuLabelFind": "Find Party #",
     "keybindingMenuLabelToggle": "Toggle Party # (collapse/explode)",
-    "applyToAll": "Apply to all!",
+    "keybindingMenuLabelShowConfig": "Show Party Configurations",
     "settingsMenu": {
       "behaviourSection": "Behaviour",
-      "membersSection": "Party Member Configuration",
+      "partyConfigSection": "Party Member Configuration",
       "animationsSection": "Animation & Audio (requires JB2A & Automated Animations)"
     }
   }

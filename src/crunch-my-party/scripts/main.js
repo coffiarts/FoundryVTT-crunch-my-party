@@ -155,7 +155,7 @@ export class PartyCruncher {
                     await PartyCruncher.#crunchParty(partyConfig);
                     break;
                 case Config.globals.states.EXPLODED:
-                    Logger.info(`Exploding party ${partyNo} ...`,partyConfig);
+                    Logger.info(`Exploding party ${partyNo} ...`, partyConfig);
                     await PartyCruncher.#explodeParty(partyConfig);
                     break;
             }
@@ -171,14 +171,16 @@ export class PartyCruncher {
         await PartyCruncher.setBusy(false);
     }
 
-    static #panToTarget(targetToken, useHotPanIfAvailable) {
+    static async #panToTarget(targetToken, useHotPanIfAvailable) {
         canvas.tokens.releaseAll();
         if (useHotPanIfAvailable && optionalDependenciesAvailable.includes('hot-pan')) {
             Logger.debug(`(PartyCruncher.toggleParty) switching HotPan ON (useHotPan: ${useHotPanIfAvailable})`);
             HotPan.switchOn(true); // true means: silentMode (no UI message)
         }
         targetToken.control({releaseOthers: true});
-        canvas.animatePan(PartyCruncher.#getTokenCenter(targetToken));
+
+        await canvas.animatePan(PartyCruncher.#getTokenCenter(targetToken));
+
         if (useHotPanIfAvailable && optionalDependenciesAvailable.includes('hot-pan')) {
             setTimeout(function () {
                 Logger.debug(`(PartyCruncher.toggleParty) switching HotPan BACK (useHotPan: ${useHotPanIfAvailable})`);
@@ -232,7 +234,7 @@ export class PartyCruncher {
                 Logger.debug(`(PartyCruncher.groupParty) namesFromSelection for grouping party #${partyNo}:`, namesFromSelection);
             }
             const partyDefinition = PartyCruncher.#createPartyDefinition(partyNo, namesFromSelection);
-            const partyToken = canvas.scene.tokens.find(t => t.name === partyDefinition.partyTokenName);
+            const partyToken = canvas.tokens.ownedTokens.find(t => t.name === partyDefinition.partyTokenName);
 
             // ==================================================================================================
             // Step 2 - Update user prefs in module settings with detected names lists
@@ -246,7 +248,7 @@ export class PartyCruncher {
 
             // Remove party token from scene if necessary
             if (partyDefinition.partyTokenMode === Config.globals.modes.PLACEHOLDER) {
-                await partyToken.delete();
+                await partyToken.document.delete();
             }
 
             // ==================================================================================================
@@ -258,10 +260,10 @@ export class PartyCruncher {
                     .replace('{partyTokenName}', partyDefinition.partyTokenName
                     )}:` +
                 `<br/><br/>` +
-                partyDefinition.memberTokenNames.join(`<br/>`);
+                partyDefinition.memberTokenNames.map(n => (n === partyDefinition.partyTokenName) ? "<strong/>"+n+"</strong>" : n).join(`<br/>`);
             ui.notifications.info(msg);
             await ChatMessage.create({
-                whisper:ChatMessage.getWhisperRecipients("GM"),
+                whisper: ChatMessage.getWhisperRecipients("GM"),
                 user: game.user.id ?? game.user._id,
                 speaker: ChatMessage.getSpeaker({alias: Config.globals.modTitle}),
                 content: msg
@@ -293,7 +295,7 @@ export class PartyCruncher {
      * The new target token depends on whether party is crunched or exploded (auto-detected).
      * @param partyNo
      * @param useHotPanIfAvailable - toggles "Hot Pan & Zoom!", if it is available (autofocussing players' scene views onto the party)*/
-     static async findParty(partyNo, useHotPanIfAvailable = true) {
+    static async findParty(partyNo, useHotPanIfAvailable = true) {
 
         if (PartyCruncher.isBusy()) {
             Logger.warn(false, Config.localize("errMsg.pleaseWaitStillBusy"));
@@ -405,7 +407,7 @@ export class PartyCruncher {
         // Pre-Check 2: None of the selected tokens may exist more than once in the scene (by name, case-insensitive)
         const namesToCheck = Array.from(new Set(canvas.tokens.controlled.map(t => t.name)));
 
-        const duplicates = PartyCruncher.#findTokenNamesByMinCount(namesToCheck, 2);
+        const duplicates = PartyCruncher.#countTokensByNames(namesToCheck, 2);
 
         if (duplicates.length > 0) {
             throw new Error(
@@ -424,20 +426,26 @@ export class PartyCruncher {
         return namesFromSelection;
     }
 
-    static #findTokenNamesByMinCount(namesArr, count = 1) {
+    static #countTokensByNames(namesArr, minCount = 1) {
 
-        Logger.debug("PartyCruncher.#findTokenNamesByMinCount: ", namesArr.join(", "))
+        Logger.debug("PartyCruncher.#countTokensByNames: ", namesArr.join(", "));
 
-        const countByName = [];
-        namesArr.forEach(name =>
-            countByName.push(
-                {
+        let tokenCounts = [];
+        namesArr.forEach(
+            name =>
+                tokenCounts.push({
                     name: name,
                     count: canvas.scene.tokens.filter(t => t.name.toLowerCase() === name.toLowerCase()).length
                 }));
-        const duplicates = countByName.filter(c => c.count >= count);
-        Logger.debug(`PartyCruncher.#findDuplicatesByNames - result of duplicate check: `, duplicates);
-        return duplicates;
+        Logger.debug(`PartyCruncher.#countTokensByNames - results of token count: `, tokenCounts);
+
+        const returnArr = [];
+        tokenCounts.forEach(
+            entry =>
+                returnArr[entry.name] = entry.count);
+
+        Logger.debug(`PartyCruncher.#countTokensByNames - results returned: `, returnArr);
+        return returnArr;
     }
 
     static #createPartyDefinition(partyNo = 1, names) {
@@ -524,13 +532,13 @@ export class PartyCruncher {
         }
 
         if (updates.partyToken !== undefined) {
-            allConfigs[partyNo].partyToken = updates.partyToken.toObject();
+            allConfigs[partyNo].partyToken = updates.partyToken.document.toObject();
             allConfigs[partyNo].timestamp = Date.now();
             Logger.debug(`PartyCruncher.#updatePartyConfig - new partyToken: `, allConfigs[partyNo].partyToken);
         }
 
         if (updates.memberTokens !== undefined) {
-            allConfigs[partyNo].memberTokens = updates.memberTokens.map(mt => mt.toObject());
+            allConfigs[partyNo].memberTokens = updates.memberTokens.map(mt => mt.document.toObject());
             allConfigs[partyNo].timestamp = Date.now();
             Logger.debug(`PartyCruncher.#updatePartyConfig - new memberTokens: `, allConfigs[partyNo].memberTokens);
         }
@@ -619,7 +627,7 @@ export class PartyCruncher {
                     Logger.debug(`(PartyCruncher.#collectTokensByNamesIfUnique) Hurray! Found token from the list: [${token.name}]!`);
                 } else {
                     // Error: ... but it's a duplicate!
-                    errMsg += `[${token.name}] ${Config.localize(`errMsg.notUniqueInScene`)}<br/>`;
+                    errMsg += `${Config.localize(`errMsg.notUniqueInScene`).replace("{tokenName}", token.name)}<br/>`;
                 }
             }
         }
@@ -644,11 +652,11 @@ export class PartyCruncher {
 
         let membersVisibleInScene = canvas.scene.tokens.filter(
             t =>
-            partyConfig.definition.memberTokenNames.map(
-                n =>
-                    n !== partyConfig.definition.partyTokenName
-                    && n.toLowerCase()).indexOf(t.name.toLowerCase()) > -1
-                    && !t.hidden);
+                partyConfig.definition.memberTokenNames.map(
+                    n =>
+                        n !== partyConfig.definition.partyTokenName
+                        && n.toLowerCase()).indexOf(t.name.toLowerCase()) > -1
+                && !t.hidden);
         Logger.debug(`PartyCruncher.#detectRequestedState - membersVisibleInScene: `, membersVisibleInScene);
 
         let partyTokensVisibleInScene = canvas.scene.tokens.filter(
@@ -664,7 +672,8 @@ export class PartyCruncher {
             errMsg = Config.localize('errMsg.noTokensVisible');
         }
         // Check: Party and member tokens must not be present at the same time
-        else if (membersVisibleInScene.length > 0 && partyTokensVisibleInScene.length > 0){
+        else if (partyConfig.definition.mode === Config.globals.modes.PLACEHOLDER
+            && membersVisibleInScene.length > 0 && partyTokensVisibleInScene.length > 0) {
             errMsg = Config.localize('errMsg.membersAndPartyTokenVisible');
         }
 
@@ -700,119 +709,150 @@ export class PartyCruncher {
         Logger.debug(`PartyCruncher.#crunchParty() - party#${partyNo} - partyConfig is valid: `, partyConfig);
 
         // Check if we need to abort because of duplicate member tokens in the scene
-        const memberTokenDuplicates = PartyCruncher.#findTokenNamesByMinCount(partyConfig.definition.memberTokenNames, 2);
-        Logger.debug(`PartyCruncher.#crunchParty - the following members have duplicates in scene: ${memberTokenDuplicates.map(c => c.name + ": " + c.count + "x").join(", ")}`);
+        const memberTokenDuplicates = PartyCruncher.#countTokensByNames(partyConfig.definition.memberTokenNames, 2);
         if (memberTokenDuplicates.length > 0) {
+            Logger.debug(`PartyCruncher.#crunchParty - the following members have duplicates in scene: ${memberTokenDuplicates.map(c => c.name + ": " + c.count + "x").join(", ")}`);
             Logger.error(false, `${Config.localize('errMsg.notUniqueInScenePlural')}:<br/><br/>
                 ${memberTokenDuplicates.map(c => c.name + ": " + c.count + "x").join("<br/>")}`);
             return;
         }
 
-        let configUpdates = {};
-
-        // Check if Party Token already exists in Scene
-        let effectivePartyToken;
-        const partyTokenCount = PartyCruncher.#findTokenNamesByMinCount([partyConfig.definition.partyTokenName], 1);
-
-        // Replace already existing party token(s) if necessary
-        if (partyTokenCount.length > 0 && partyTokenCount[0].count > 1 && PartyCruncher.#hasPartyToken(partyConfig)) {
-
-            const partyTokenConflictResolution = await PartyCruncher.#promptForDuplicateReplaceOrKeep(partyTokenCount[0], false);
-            Logger.debug(`PartyCruncher.#crunchParty - tokenConflictResolution: `, partyTokenConflictResolution);
-
-            // Apply the chosen conflict resolution
-            if (partyTokenConflictResolution.replace) {
-                for (const t of canvas.scene.tokens.filter(t => t.name === partyConfig.definition.partyTokenName)) {
-                    Logger.debug(`PartyCruncher.#crunchParty - deleting redundant party token: `, t);
-                    await t.delete();
-                }
-            } else if (partyTokenConflictResolution.keep) {
-                effectivePartyToken = canvas.scene.tokens.find(t => t.name === partyConfig.definition.partyTokenName);
-                configUpdates.partyToken = effectivePartyToken;
-                Logger.debug(`PartyCruncher.#crunchParty - effectivePartyToken reused from scene: `, effectivePartyToken);
-            } else { // partyTokenConflictResolution.cancelled
-                return false;
-            }
-        }
-        // If no partyToken was reused until now, we need to instantiate a new one from partyConfig
-        if (effectivePartyToken === undefined) {
-            effectivePartyToken = await canvas.scene.createEmbeddedDocuments("Token", [partyConfig.partyToken]);
-            Logger.debug(`PartyCruncher.#crunchParty - effectivePartyToken created from partyConfig: `, effectivePartyToken);
-        }
-
-        // Make sure that at least one member token is selected as a positioning target
-        if (canvas.tokens.controlled.length === 0) {
-            canvas.tokens.controlAll();
-        }
-        await effectivePartyToken.document.update({
-            // TODO position: canvas.tokens.controlled[0].position,
-            elevation: canvas.tokens.controlled[0].document.elevation,
-            hidden: true
-        })
+        const tokenUpdates = [];
+        const partyConfigUpdates = {};
 
         // Collect member tokens in scene
         const memberTokensToRemove = [];
         for (let memberName of partyConfig.definition.memberTokenNames) {
-            const tokenFound = canvas.scene.tokens.find(t => t.name === memberName);
+            const tokenFound = canvas.tokens.ownedTokens.find(t => t.name === memberName);
             if (tokenFound === undefined) {
                 Logger.info(`PartyCruncher.#crunchParty - member token '${memberName}' not found in scene => skipped`);
                 continue;
             }
             if (memberName === partyConfig.definition.partyTokenName) {
-               Logger.debug(`PartyCruncher.#crunchParty - member token '${memberName}' is also the party token => skipped`);
-               continue;
+                Logger.debug(`PartyCruncher.#crunchParty - member token '${memberName}' is also the party token => skipped`);
+                continue;
             }
             memberTokensToRemove.push(tokenFound);
             Logger.debug(`PartyCruncher.#crunchParty - member token '${memberName}' found => added to list for removal`, tokenFound);
         }
 
-        // TODO - If "replace" was chosen above:
-        // ... Update position and relative scale of existing token to reflect target token
-        // ... otherwise:
-        // ... - read party token data from storage
-        // ... - update to reflect target token's pos and scale
-        // ... - create party token in scene
+        // Identify target token
+        const memberTokensSelected = memberTokensToRemove
+            .filter(t =>
+                canvas.tokens.controlled.map(tc => tc.name)
+                    .find(tn => tn === t.name));
+        if (memberTokensSelected.length === 0) {
+            memberTokensToRemove.forEach(t => t.control({releaseOthers: false}));
+        }
+        const targetToken = canvas.tokens.controlled[0];
 
-        // Select the target and try to shift the view to it
-        await PartyCruncher.#panToTarget(effectivePartyToken, useHotPanIfAvailable);
+        // Check if party token already exists in Scene
+        let effectivePartyToken;
+        const tokenCount = PartyCruncher.#countTokensByNames([partyConfig.definition.partyTokenName]);
 
-        // Move all members towards target token
-        // We're reversing the order temporarily, because this is visually much nicer (especially with large groups).
-        // It processes outer tokens first, inner ones last.
-        let tokenUpdates = [];
-        for (const token of memberTokensToRemove.reverse()) {
-            // Teleport to the target (which is the party's "center")
-            tokenUpdates.push(PartyCruncher.#getTokenTeleportUpdate(token, targetToken.position, targetToken.document.elevation, false));
+        // Replace already existing party token(s) if necessary
+        const partyTokenCount = tokenCount[partyConfig.definition.partyTokenName];
+        if (partyTokenCount > 1) {
+            if (PartyCruncher.#hasPartyToken(partyConfig)) {
+
+                const partyTokenConflictResolution = await PartyCruncher.#promptForDuplicateReplaceOrKeep(tokenCount, false);
+                Logger.debug(`PartyCruncher.#crunchParty - tokenConflictResolution: `, partyTokenConflictResolution);
+
+                // Apply the chosen conflict resolution
+                if (partyTokenConflictResolution.replace) {
+                    for (const t of canvas.tokens.ownedTokens.filter(t => t.name === partyConfig.definition.partyTokenName)) {
+                        Logger.debug(`PartyCruncher.#crunchParty - deleting redundant party token: `, t);
+                        await t.delete();
+                    }
+                } else if (partyTokenConflictResolution.keep) {
+                    effectivePartyToken = canvas.tokens.ownedTokens.find(t => t.name === partyConfig.definition.partyTokenName);
+                    partyConfigUpdates.partyToken = effectivePartyToken;
+                    Logger.debug(`PartyCruncher.#crunchParty - effectivePartyToken reused from scene: `, effectivePartyToken);
+                } else { // partyTokenConflictResolution.cancelled
+                    return false;
+                }
+            }
         }
 
-        // Then teleport the party token to the crunch target's position (still invisible)
-        // TODO - Remove!
-        tokenUpdates.push(PartyCruncher.#getTokenTeleportUpdate(involvedTokens.partyToken, targetToken.position, targetToken.document.elevation, true));
+        // If no partyToken has been assigned until here, the default applies:
+        // If one exists in the scene, reuse it. Otherwise instantiate a new one from partyConfig
+        if (effectivePartyToken === undefined) {
+            if (partyTokenCount === 1) {
+                effectivePartyToken = canvas.tokens.ownedTokens.find(t => t.name === partyConfig.definition.partyTokenName);
+            }
+            else {
+                // If a partyToken is stored in config, instantiate it (hidden) at the target position
+                if (partyConfig.partyToken !== undefined) {
+                    partyConfig.partyToken.x = targetToken.x;
+                    partyConfig.partyToken.y = targetToken.y;
+                    partyConfig.partyToken.elevation = targetToken.elevation;
+                    partyConfig.partyToken.hidden = true;
+                    await canvas.scene.createEmbeddedDocuments("Token", [partyConfig.partyToken]);
+                    effectivePartyToken = canvas.tokens.ownedTokens.find(t => t.name === partyConfig.definition.partyTokenName);
+                    Logger.debug(`PartyCruncher.#crunchParty - effectivePartyToken created from partyConfig: `, effectivePartyToken);
+                } else {
+                    // Otherwise throw an error
+                    Logger.error(false, Config.localize("partyTokenMissingInConfig").replace("#tokenName", partyConfig.partyTokenName));
+                    return;
+                }
+            }
+        }
 
-        // Finish step #1: Teleport!
-        await PartyCruncher.#teleport(tokenUpdates);
+        // Select the target and try to shift the view to it
+        await PartyCruncher.#panToTarget(targetToken, useHotPanIfAvailable);
 
+        // Move all members towards target token (including aligning elevation!)
+        for (const token of memberTokensToRemove.reverse()) { // reverse() may make this visually a bit nicer
+            tokenUpdates.push(
+                PartyCruncher.#createTokenTeleportUpdate(
+                    token,
+                    {
+                        position: {
+                            x: targetToken.document.x,
+                            y: targetToken.document.y
+                        },
+                        elevation: targetToken.document.elevation,
+                        hidden: true
+                    }));
+        }
 
-        // TODO - Toggle Party Token on (if it was freshly created and therefore is still hidden)
+        // Reveal the party token
+        tokenUpdates.push(
+            PartyCruncher.#createTokenTeleportUpdate(
+                effectivePartyToken,
+                {
+                    hidden: false
+                }));
 
         // Play audio and JB2A animation (if supported)
-        PartyCruncher.#playAnimation("playAudio4Crunch", "animation4Crunch");
+        await PartyCruncher.#playAnimation(Config.globals.states.CRUNCHED, targetToken);
 
-        // Store member tokens and remove tokens from scene
+        // Apply all the updates
+        for (const update of tokenUpdates) {
+            const tokenDoc = canvas.scene.tokens.get(update._id);
+            if (!tokenDoc) return;
+            await tokenDoc.update(
+                {
+                    x: update.x,
+                    y: update.y,
+                    elevation: update.elevation,
+                    hidden: update.hidden
+                });
+        }
+
+        // Store member tokens and remove them from the scene
         if (memberTokensToRemove.length > 0) {
-            configUpdates.memberTokens = memberTokensToRemove;
-
-
+            partyConfigUpdates.memberTokens = memberTokensToRemove;
             Logger.debug(`PartyCruncher.#crunchParty - removing ${memberTokensToRemove.length} tokens from scene: `, memberTokensToRemove);
             for (const member of memberTokensToRemove) {
-                await member.delete();
+                await member.document.delete();
             }
         } else {
             Logger.warn(`PartyCruncher.#crunchParty - No member tokens found in Scene for Party #${partyNo} [${partyConfig.definition.partyTokenName}]`);
         }
 
-        configUpdates.lastKnownState = Config.globals.states.CRUNCHED;
-        await PartyCruncher.updatePartyConfig(partyNo, configUpdates);
+        partyConfigUpdates.lastKnownState = Config.globals.states.CRUNCHED;
+        await PartyCruncher.updatePartyConfig(partyNo, partyConfigUpdates);
     }
 
     /**
@@ -861,26 +901,28 @@ export class PartyCruncher {
         let tokenUpdates = [];
         for (const token of involvedTokens.memberTokens.reverse()) {
             // Teleport to the target (which is the party's "center")
-            tokenUpdates.push(PartyCruncher.#getTokenTeleportUpdate(token, targetToken.position, targetToken.document.elevation, false));
+            tokenUpdates.push(PartyCruncher.#createTokenTeleportUpdate(token, targetToken.position, targetToken.document.elevation, false));
         }
 
         // Then teleport the party token to the crunch target's position (still invisible)
-        tokenUpdates.push(PartyCruncher.#getTokenTeleportUpdate(involvedTokens.partyToken, targetToken.position, targetToken.document.elevation, true));
+        tokenUpdates.push(PartyCruncher.#createTokenTeleportUpdate(involvedTokens.partyToken, targetToken.position, targetToken.document.elevation, true));
 
         // Finish step #1: Teleport!
-        await PartyCruncher.#teleport(tokenUpdates);
+        // TODO - FIX (or remove whole surrounding function if not needed anymore)
+        // await PartyCruncher.#teleport(tokenUpdates);
 
         // Crunch step #2: Everybody, go invisible and move out of the way!
         tokenUpdates = [];
         for (const token of involvedTokens.memberTokens) {
-            tokenUpdates.push(PartyCruncher.#getTokenTeleportUpdate(token, {x:0, y:0}, null, true));
+            tokenUpdates.push(PartyCruncher.#createTokenTeleportUpdate(token, {x: 0, y: 0}, null, true));
         }
 
         // Move the party token into view and render it visible
-        tokenUpdates.push(PartyCruncher.#getTokenTeleportUpdate(involvedTokens.partyToken, targetToken.position, null, false));
+        tokenUpdates.push(PartyCruncher.#createTokenTeleportUpdate(involvedTokens.partyToken, targetToken.position, null, false));
 
         // Finish step #2: Teleport!
-        await PartyCruncher.#teleport(tokenUpdates);
+        // TODO - FIX (or remove whole surrounding function if not needed anymore)
+        // await PartyCruncher.#teleport(tokenUpdates);
 
         // Don't forget to set back memberToken order
         involvedTokens.memberTokens.reverse();
@@ -889,46 +931,7 @@ export class PartyCruncher {
         involvedTokens.partyToken.control({releaseOthers: true});
     }
 
-    static async #teleport(tokenUpdates) {
-        // Logger.debug(`(PartyCruncher.#teleport) tokenUpdates: `, tokenUpdates);
-        for (const update of tokenUpdates) {
-            const tokenDoc = canvas.scene.tokens.get(update._id);
-            if (!tokenDoc) return;
-
-            await tokenDoc.update({hidden: update.hidden, elevation: update.elevation});
-
-            // temporarily change the token's movementAction to a type supporting teleport (i.e. "displace" or "blink", to avoid wall collisions
-            const actionKey = "blink";
-            const actionConfig = CONFIG.Token?.movement?.actions?.[actionKey];
-            if (!actionConfig) {
-                Logger.error(false, `${Config.localize("errMsg.movementActionNotFound")}: ${actionKey}.\n${Config.localize("errMsg.pleaseReportThisError")}`);
-                return;
-            }
-            const previousAction = tokenDoc.movementAction;
-
-            try {
-                // set the token to use the teleport-capable action
-                if (previousAction !== actionKey) await tokenDoc.update({movementAction: actionKey});
-
-                await tokenDoc.move([{x: update.x, y: update.y}], // waypoints array
-                    {
-                        method: "config", // this enforces that the movementAction set above is used, and nothing else
-                        showRuler: false,    // don’t display a path ruler
-                        autoRotate: false,   // don’t rotate token to face the move direction
-                        constrainOptions: {ignoreWalls: true} // documented option; the action's teleport flag is what really matters
-                    });
-            } finally {
-                try {
-                    // restore previous movementAction if we changed it
-                    await tokenDoc.update({movementAction: previousAction});
-                } catch (err) {
-                    Logger.error(false, "Failed to restore previous movementAction:", err);
-                }
-            }
-        }
-    }
-
-     /**
+    /**
      *
      * @param involvedTokens
      * @param targetToken - Here this is always the party token itself, providing the anchor point for the member tokens
@@ -973,14 +976,15 @@ export class PartyCruncher {
         let tokenUpdates = [];
         for (const memberToken of involvedTokens.memberTokens) {
             // Then teleport them to the "party center", but remain invisible for now (waiting for each token's glamorous entry later in step #2)
-            tokenUpdates.push(PartyCruncher.#getTokenTeleportUpdate(memberToken, involvedTokens.partyToken.position, involvedTokens.partyToken.document.elevation, false));
+            tokenUpdates.push(PartyCruncher.#createTokenTeleportUpdate(memberToken, involvedTokens.partyToken.position, involvedTokens.partyToken.document.elevation, false));
         }
 
         // Move the party token out of the way and render it invisible ("WE are the party now!")
-        tokenUpdates.push(PartyCruncher.#getTokenTeleportUpdate(involvedTokens.partyToken, {x: 0, y: 0}, null, true));
+        tokenUpdates.push(PartyCruncher.#createTokenTeleportUpdate(involvedTokens.partyToken, {x: 0, y: 0}, null, true));
 
         // Finish step #1: Teleport!
-        await PartyCruncher.#teleport(tokenUpdates);
+        // TODO - FIX (or remove whole surrounding function if not needed anymore)
+        //await PartyCruncher.#teleport(tokenUpdates);
 
         // // Explode step #2: Swarm out and take your places
         let tokenCounter = 0;
@@ -1019,13 +1023,13 @@ export class PartyCruncher {
                 const stepY = tokenDoc.y + (targetY - tokenDoc.y) * (i / steps);
 
                 const tokenCenter = memberToken.center;
-                const stepCenter = { x: stepX + memberToken.w / 2, y: stepY + memberToken.h / 2 };
+                const stepCenter = {x: stepX + memberToken.w / 2, y: stepY + memberToken.h / 2};
 
                 const collision = CONFIG.Canvas.polygonBackends.move.testCollision(
                     tokenCenter, stepCenter, {
                         type: "move", // This is effectively a value of CONST.WALL_RESTRICTION_TYPES
                         mode: "any"
-                });
+                    });
 
                 if (collision) {
                     break; // stop BEFORE wall
@@ -1037,12 +1041,12 @@ export class PartyCruncher {
             }
 
             await tokenDoc.move(
-                [{ x: finalX, y: finalY }],
+                [{x: finalX, y: finalY}],
                 {
                     method: "api",
                     showRuler: true,
-                    constrainOptions: { ignoreWalls: false },
-                    animation: { duration: 400 }
+                    constrainOptions: {ignoreWalls: false},
+                    animation: {duration: 400}
                 }
             );
 
@@ -1056,38 +1060,16 @@ export class PartyCruncher {
         }
     }
 
-    static #getTokenTeleportUpdate(token, targetPosition, targetElevation, hidden) {
-        const effectiveTargetPosition = (targetPosition != null) ? targetPosition : token.position; // NULL target means: don't move, stay where you are!
-        const effectiveTargetElevation = (targetElevation != null) ? targetElevation : token.document.elevation;
+    static #createTokenTeleportUpdate(tokenToMove, updates) {
+        const effectiveTargetPosition = (updates.position != null) ? updates.position : tokenToMove.position; // NULL target means: don't move, stay where you are!
+        const effectiveTargetElevation = (updates.elevation != null) ? updates.elevation : tokenToMove.document.elevation;
         return {
-            _id: token.document._id,
+            _id: tokenToMove.document._id,
             x: effectiveTargetPosition.x,
             y: effectiveTargetPosition.y,
             elevation: effectiveTargetElevation,
-            hidden: hidden
+            hidden: updates.hidden
         };
-    }
-
-    /**
-     * Works with v12 and older only
-     * @param x
-     * @param y
-     * @param token
-     * @returns {Promise<unknown>}
-     */
-    async #pushTokenByOneStep(x, y, token) {
-        return new Promise(resolve => {
-            // v12 or older
-            // Force activation of the Token Layer in the UI
-            // Otherwise, the moveMany() calls further below won't work
-            canvas.tokens.activate();
-            let tokenLayer = canvas.activeLayer;
-            if (!(tokenLayer instanceof TokenLayer)) return false;
-
-            Logger.debug('(PartyCruncher.#pushTokenByOneStep) tokenLayer, x, y, token.name', tokenLayer, x, y, token.name);
-            resolve(tokenLayer.moveMany(
-                {dx: x, dy: y, rotate: false, ids: token.id}));
-        });
     }
 
     /**
@@ -1105,10 +1087,19 @@ export class PartyCruncher {
         let movementVector = [
             {x: 0, y: 0}, // this is the origin
             // now the inner "ring" of 8 positions
-            {x: 0, y: -1}, {x: 1, y: 0}, {x: 0, y: 1}, {x: -1, y: 0}, {x: 1, y: -1}, {x: 1, y: 1}, {x: -1, y: 1}, {x: -1, y: -1},
+            {x: 0, y: -1}, {x: 1, y: 0}, {x: 0, y: 1}, {x: -1, y: 0}, {x: 1, y: -1}, {x: 1, y: 1}, {
+                x: -1,
+                y: 1
+            }, {x: -1, y: -1},
             // and the outer "ring" with additional 16 positions
-            {x: -1, y: -2}, {x: 0, y: -2}, {x: 1, y: -2}, {x: 2, y: -2}, {x: 2, y: -1}, {x: 2, y: 0}, {x: 2, y: 1}, {x: 2, y: 2},
-            {x: 1, y: 2}, {x: 0, y: 2}, {x: -1, y: 2}, {x: -2, y: 2}, {x: -2, y: 1}, {x: -2, y: 0}, {x: -2, y: -1}, {x: -2, y: -2}
+            {x: -1, y: -2}, {x: 0, y: -2}, {x: 1, y: -2}, {x: 2, y: -2}, {x: 2, y: -1}, {x: 2, y: 0}, {
+                x: 2,
+                y: 1
+            }, {x: 2, y: 2},
+            {x: 1, y: 2}, {x: 0, y: 2}, {x: -1, y: 2}, {x: -2, y: 2}, {x: -2, y: 1}, {x: -2, y: 0}, {
+                x: -2,
+                y: -1
+            }, {x: -2, y: -2}
         ];
         return movementVector[counter];
     }
@@ -1120,7 +1111,7 @@ export class PartyCruncher {
         let content = `
         <div style="max-height: 450px; max-width: 450px; overflow: scroll">
         <p>${Config.localize('promptForPartyDefinition.text')}</p>`;
-        for(const t of canvas.tokens.controlled) {
+        for (const t of canvas.tokens.controlled) {
             const checked = (t === canvas.tokens.controlled[0]) ? " checked" : "";
             content += `<label><input type="radio" name="tokenChoice" value="${t.name}"${checked}/>${t.name}</label><br/>`;
         }
@@ -1135,13 +1126,13 @@ export class PartyCruncher {
 
         // Make partyNo selectable: Populate an option list from all stored configs, limited by MAX_NO_OF_PARTIES
         const allConfigs = PartyCruncher.#getAllPartyConfigs();
-        for(let i = 1; i <= Config.setting("maxNoOfParties"); i++) {
+        for (let i = 1; i <= Config.setting("maxNoOfParties"); i++) {
             let partyName, members;
             if (allConfigs[i] !== undefined) {
                 partyName = allConfigs[i].definition.partyTokenName;
                 members = " (" + allConfigs[i].definition.memberTokenNames.join(", ") + ")";
             } else {
-                partyName = "EMPTY";
+                partyName = Config.localize('empty').toUpperCase();
                 members = "";
             }
             const checked = (i === partyNo) ? " checked" : "";
@@ -1156,7 +1147,7 @@ export class PartyCruncher {
 
         return new Promise(resolve => {
             new foundry.applications.api.DialogV2({
-                window: { title: title },
+                window: {title: title},
                 content: content,
                 buttons: [
                     {
@@ -1174,7 +1165,7 @@ export class PartyCruncher {
                         label: Config.localize('cancelButton'),
                         callback: () => resolve({cancelled: true})
                     }]
-            }).render({ force: true });
+            }).render({force: true});
         });
     }
 
@@ -1189,7 +1180,7 @@ export class PartyCruncher {
 
         return new Promise(resolve => {
             new foundry.applications.api.DialogV2({
-                window: { title: Config.localize('promptForCrunchAfterGrouping.title') },
+                window: {title: Config.localize('promptForCrunchAfterGrouping.title')},
                 content: content,
                 buttons: [
                     {
@@ -1203,7 +1194,7 @@ export class PartyCruncher {
                         label: Config.localize('promptForCrunchAfterGrouping.no'),
                         callback: () => resolve({cancelled: true})
                     }]
-            }).render({ force: true });
+            }).render({force: true});
         });
     }
 
@@ -1212,12 +1203,12 @@ export class PartyCruncher {
         let content = `
             <form>
                 <div style="max-height: 450px; max-width: 450px; overflow: scroll">
-                    <legend>${Config.localize('#promptForDuplicateReplaceOrKeep.text')
-                                .replace("{tokenName}", duplicateData.name)
-                                .replace("{count}", duplicateData.count)}</legend><br/>`;
+                    <legend>${Config.localize('promptForDuplicateReplaceOrKeep.text')
+            .replace("{tokenName}", duplicateData.name)
+            .replace("{count}", duplicateData.count)}</legend><br/>`;
         if (duplicateData.count > 1) {
             content += `
-                    <label>${Config.localize('#promptForDuplicateReplaceOrKeep.disallowKeepText')
+                    <label>${Config.localize('promptForDuplicateReplaceOrKeep.disallowKeepText')
                 .replace("{count}", duplicateData.count)}</label><br/>`;
         }
         if (allowApplyToAll) {
@@ -1233,12 +1224,12 @@ export class PartyCruncher {
 
         return new Promise(resolve => {
             new foundry.applications.api.DialogV2({
-                window: { title: Config.localize('#promptForDuplicateReplaceOrKeep.title') },
+                window: {title: Config.localize('promptForDuplicateReplaceOrKeep.title')},
                 content: content,
                 buttons: [
                     {
                         action: "replace",
-                        label: Config.localize('#promptForDuplicateReplaceOrKeep.replace'),
+                        label: Config.localize('promptForDuplicateReplaceOrKeep.replace'),
                         default: true,
                         callback: (event, button) => resolve({
                             replace: true,
@@ -1247,19 +1238,19 @@ export class PartyCruncher {
                     },
                     {
                         action: "keep",
-                        label: Config.localize('#promptForDuplicateReplaceOrKeep.keep'),
+                        label: Config.localize('promptForDuplicateReplaceOrKeep.keep'),
                         default: true,
                         disabled: (duplicateData.count > 1),
                         callback: (event, button) => resolve({
                             keep: true,
                             applyToAll: (allowApplyToAll && button.form.elements.applyToAll.checked)
                         })
-                    },{
+                    }, {
                         action: "cancel",
                         label: Config.localize('cancelButton'),
                         callback: () => resolve({cancelled: true})
                     }]
-            }).render({ force: true });
+            }).render({force: true});
         });
     }
 
@@ -1268,7 +1259,7 @@ export class PartyCruncher {
         let content = `
             <form>
                 <div style="max-height: 450px; max-width: 450px; overflow: scroll">
-                    <legend>${Config.localize('#promptForDuplicateDelete.text')
+                    <legend>${Config.localize('promptForDuplicateDelete.text')
             .replace("{tokenName}", duplicateData.name)
             .replace("{count}", duplicateData.count)}</legend><br/>`;
         if (allowApplyToAll) {
@@ -1284,7 +1275,7 @@ export class PartyCruncher {
 
         return new Promise(resolve => {
             new foundry.applications.api.DialogV2({
-                window: { title: Config.localize('promptForDuplicateDelete.title') },
+                window: {title: Config.localize('promptForDuplicateDelete.title')},
                 content: content,
                 buttons: [
                     {
@@ -1295,15 +1286,14 @@ export class PartyCruncher {
                             delete: true,
                             applyToAll: (allowApplyToAll && button.form.elements.applyToAll.checked)
                         })
-                    },{
+                    }, {
                         action: "cancel",
                         label: Config.localize('cancelButton'),
                         callback: () => resolve({cancelled: true})
                     }]
-            }).render({ force: true });
+            }).render({force: true});
         });
     }
-
 
     static #resolvePromptForPartyDefinition(tokenChoice, modeChoice, partyNoChoice) {
         let result = {
@@ -1313,6 +1303,57 @@ export class PartyCruncher {
         };
         Logger.debug('(PartyCruncher.#resolvePromptForPartyDefinition) user chosen value: ', result);
         return result;
+    }
+
+    static async showPartyConfigurations() {
+
+        let content = `
+            <div style="max-height: 450px; max-width: 450px; overflow: scroll">
+                <legend>${Config.localize('settingsMenu.partyConfigSection')}</legend><br/>`;
+
+        // List all stored configs
+        const allConfigs = PartyCruncher.#getAllPartyConfigs();
+        for (let i = 1; i <= Config.setting("maxNoOfParties"); i++) {
+            const config = allConfigs[i];
+            let partyTxt, membersTxt;
+            if (allConfigs[i] !== undefined) {
+                let partyName = config.definition.partyTokenName;
+                partyTxt = "<strong>"+partyName+"</strong>";
+                const partyImgPath = config.partyToken?.texture?.src ?? "";
+                partyTxt += (partyImgPath !== "") ? `<img src="${partyImgPath}" alt="${partyName}" title="${partyName}" width="40" height="40" style="border: 1px grey solid"/>` : "";
+                let members = [];
+                membersTxt = ":&nbsp;";
+                for (let name of config.definition.memberTokenNames) {
+                    let member = (name === partyName) ? "<strong>"+name+"</strong>" : name;
+                    const memberImgPath = config.memberTokens.find(t => t.name === name)?.texture?.src ?? "";
+                    member += (memberImgPath !== "") ? `<img src="${memberImgPath}" alt="${name}" title="${name}" width="30" height="30"/>` : "";
+                    members.push(member);
+                }
+                membersTxt += members.join("&nbsp;");
+                /*members = ": " + allConfigs[i].definition.memberTokenNames
+                    .map(n => (n === partyName) ? "<strong>"+n+"</strong>" : n)
+                    .join(", ");*/
+            } else {
+                partyTxt = Config.localize('empty').toUpperCase();
+                membersTxt = "";
+            }
+            content += `<label><strong>${i}&nbsp;-&nbsp;${partyTxt}</strong>${membersTxt}</label><br/>`;
+        }
+        content += `</div>`;
+
+
+        return new Promise(resolve => {
+            new foundry.applications.api.DialogV2({
+                window: {title: Config.localize('settingsMenu.partyConfigSection')},
+                content: content,
+                buttons: [
+                    {
+                        action: "ok",
+                        label: Config.localize('closeButton'),
+                        default: true
+                    }]
+            }).render({force: true});
+        });
     }
 
     static #getAllPartyConfigs() {
@@ -1328,7 +1369,7 @@ export class PartyCruncher {
             return foundry.utils.deepClone(Config.setting("partyConfigs")[partyNo]);
         } catch (e) {
             Logger.error(true, 'PartyCruncher.#getPartyConfig', e);
-            ui.notifications.error(`[${Config?.globals?.modTitle ?? "" }] Can't read Party Configuration for Party #${partyNo}. Please check the logs`);
+            ui.notifications.error(`[${Config?.globals?.modTitle ?? ""}] Can't read Party Configuration for Party #${partyNo}. Please check the logs`);
         }
     }
 
@@ -1346,7 +1387,7 @@ export class PartyCruncher {
             return false;
         }
         const allowedModes = Object.values(Config.globals.modes);
-        if (partyConfig.definition.partyTokenMode === undefined || !allowedModes.find(m => m === partyConfig.definition.partyTokenMode))  {
+        if (partyConfig.definition.partyTokenMode === undefined || !allowedModes.find(m => m === partyConfig.definition.partyTokenMode)) {
             Logger.error(false, `PartyCruncher.#isValid(partyConfig) - definition.partyTokenMode is invalid (must be one of: ${allowedModes.join((", "))}) `, definition.partyTokenName);
             return false;
         }
@@ -1361,34 +1402,41 @@ export class PartyCruncher {
 
     static #hasPartyToken(partyConfig) {
         if (partyConfig.partyToken === undefined
-        || typeof partyConfig.partyToken !== "object") {
+            || typeof partyConfig.partyToken !== "object") {
             Logger.error(false, 'PartyCruncher.#hasPartyToken(partyConfig) - no partyToken in partyConfig: ', partyConfig);
             return false;
         }
         return true;
     }
 
-    static async #playAnimation(audioSettingName, animSettingName) {
-        let audioPath = Config.setting(audioSettingName) ? `${Config.setting(audioSettingName).trim()}` : Config.NO_AUDIO_FILE;
+    static async #playAnimation(requestedState, targetToken) {
+
+        const animationPath = Config.setting(`animationFile${requestedState}`).trim();
+        let audioPath = Config.setting(`playAudio${requestedState}`) ? Config.setting(`audioFile${requestedState}`).trim() : Config.NO_AUDIO_FILE;
         if (!audioPath) audioPath = Config.NO_AUDIO_FILE;
+        Logger.debug(`PartyCruncher.#playAnimation - animationPath: ${animationPath}`);
         Logger.debug(`PartyCruncher.#playAnimation - audioPath: ${audioPath}`);
         Logger.debug(`PartyCruncher.#playAnimation - Audio base dir (window.location.pathname): ${window.location.pathname}`);
 
         // If JB2A_DnD5e && AA are installed, play the animation
-        if ((optionalDependenciesAvailable.includes('JB2A_DnD5e') || optionalDependenciesAvailable.includes('jb2a_patreon')) && optionalDependenciesAvailable.includes('autoanimations')) {
-            let animationPath = Config.setting(animSettingName);
-            if (animationPath) {
-                Logger.debug(`PartyCruncher.#playAnimation - animationPath: ${animationPath}`);
-                new Sequence()
-                    .effect()
-                    .file(animationPath)
-                    .atLocation(targetToken)
-                    .scaleToObject(4)
-                    .randomRotation()
-                    .sound().file(audioPath)
-                    .play();
-            }
-        } else if (audioPath) // Play audio without JB2A && AA
+        if (animationPath && (
+            optionalDependenciesAvailable.includes('JB2A_DnD5e')
+            || optionalDependenciesAvailable.includes('jb2a_patreon'))
+            && optionalDependenciesAvailable.includes('autoanimations')) {
+            Logger.debug(`PartyCruncher.#playAnimation - animationPath: ${animationPath}`);
+
+            new Sequence()
+                .effect()
+                .file(animationPath)
+                .atLocation(targetToken)
+                .scaleToObject(4)
+                .randomRotation()
+                .sound().file(audioPath)
+                .play();
+
+        }
+        // Play audio without JB2A && AA
+        else if (audioPath)
         {
             foundry.audio.AudioHelper.play({
                 src: audioPath,
