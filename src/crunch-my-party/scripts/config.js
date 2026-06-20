@@ -24,14 +24,15 @@ export class Config {
         maxMembersPerParty: MAX_MEMBERS_PER_PARTY,
         iconSubmit: ICON_SUBMIT,
         iconCancel: ICON_CANCEL,
-        modes: {
+        partyTokenModes: {
             PLACEHOLDER: "PLACEHOLDER",
             MEMBER: "MEMBER",
         },
         states: {
             CRUNCHED: "CRUNCHED",
             EXPLODED: "EXPLODED",
-        }
+        },
+        templatePath: `modules/${MOD_ID}/tpl/`
     };
     static NO_AUDIO_FILE = '../modules/crunch-my-party/audio/audio_null.mp3';
 
@@ -168,28 +169,71 @@ export class Config {
         // =====================================================================
         // Keybindings
         // =====================================================================
-        // Keybinding: FIND
-        for (let index = 1; index <= DEFAULT_NO_OF_PARTIES; index++) {
-            game.keybindings.register("crunch-my-party", `find${index}`, {
-                name: Config.localize('keybindingMenuLabelFind').replace('#', index),
-                editable: [
-                    //{ key: "Key1/2/3/4", modifiers: [KeyboardManager.MODIFIER_KEYS.SHIFT] }
-                ],
-                restricted: true,
-                onDown: () => {
-                    if (!game.user.isGM) {
-                        return;
-                    }
-                    PartyCruncher.findParty(index);
+        // Keybinding: GROUP (generic)
+        game.keybindings.register("crunch-my-party", `group`, {
+            name: Config.localize('keybindingLabels.groupGeneric'),
+            editable: [
+                //{ key: "Key1/2/3/4", modifiers: [KeyboardManager.MODIFIER_KEYS.SHIFT] }
+            ],
+            restricted: true,
+            onDown: () => {
+                if (!game.user.isGM) {
+                    return;
                 }
-            });
-        }
-        Logger.info(`${DEFAULT_NO_OF_PARTIES} empty keybindings for FIND registered. Assign them to your liking in the game settings.`);
+                PartyCruncher.groupParty();
+            }
+        });
 
-        // Keybinding: TOGGLE
+        // Keybinding: SHOW CONFIGS
+        game.keybindings.register("crunch-my-party", `showConfig`, {
+            name: Config.localize('keybindingLabels.showConfig'),
+            editable: [
+                //{ key: "Key1/2/3/4", modifiers: [KeyboardManager.MODIFIER_KEYS.SHIFT, KeyboardManager.MODIFIER_KEYS.CONTROL] }
+            ],
+            restricted: true,
+            onDown: () => {
+                if (!game.user.isGM) {
+                    return;
+                }
+                PartyCruncher.showPartyConfigurations();
+            }
+        });
+        Logger.info(`${DEFAULT_NO_OF_PARTIES+1} empty keybindings for TOGGLE registered. Assign them to your liking in the game settings.`);
+
+        // Keybinding: TOGGLE (generic)
+        game.keybindings.register("crunch-my-party", `toggle`, {
+            name: Config.localize('keybindingLabels.toggleGeneric'),
+            editable: [
+                //{ key: "Key1/2/3/4", modifiers: [KeyboardManager.MODIFIER_KEYS.SHIFT, KeyboardManager.MODIFIER_KEYS.CONTROL] }
+            ],
+            restricted: true,
+            onDown: () => {
+                if (!game.user.isGM) {
+                    return;
+                }
+                PartyCruncher.toggleParty();
+            }
+        });
+
+        // Keybinding: FIND (generic)
+        game.keybindings.register("crunch-my-party", `find`, {
+            name: Config.localize('keybindingLabels.findGeneric'),
+            editable: [
+                //{ key: "Key1/2/3/4", modifiers: [KeyboardManager.MODIFIER_KEYS.SHIFT] }
+            ],
+            restricted: true,
+            onDown: () => {
+                if (!game.user.isGM) {
+                    return;
+                }
+                PartyCruncher.findParty();
+            }
+        });
+
+        // Keybinding: TOGGLE (individual parties)
         for (let index = 1; index <= DEFAULT_NO_OF_PARTIES; index++) {
             game.keybindings.register("crunch-my-party", `toggle${index}`, {
-                name: Config.localize('keybindingMenuLabelToggle').replace('#', index),
+                name: Config.localize('keybindingLabels.toggle').replace('#', index),
                 editable: [
                     //{ key: "Key1/2/3/4", modifiers: [KeyboardManager.MODIFIER_KEYS.SHIFT, KeyboardManager.MODIFIER_KEYS.CONTROL] }
                 ],
@@ -202,23 +246,25 @@ export class Config {
                 }
             });
         }
-        Logger.info(`${DEFAULT_NO_OF_PARTIES} empty keybindings for TOGGLE registered. Assign them to your liking in the game settings.`);
+        Logger.info(`${DEFAULT_NO_OF_PARTIES+1} empty keybindings for TOGGLE registered. Assign them to your liking in the game settings.`);
 
-        // Keybinding: SHOW CONFIGS
-        game.keybindings.register("crunch-my-party", `showConfig`, {
-            name: Config.localize('keybindingMenuLabelShowConfig'),
-            editable: [
-                //{ key: "Key1/2/3/4", modifiers: [KeyboardManager.MODIFIER_KEYS.SHIFT, KeyboardManager.MODIFIER_KEYS.CONTROL] }
-            ],
-            restricted: true,
-            onDown: () => {
-                if (!game.user.isGM) {
-                    return;
+        // Keybinding: FIND (individual parties)
+        for (let index = 1; index <= DEFAULT_NO_OF_PARTIES; index++) {
+            game.keybindings.register("crunch-my-party", `find${index}`, {
+                name: Config.localize('keybindingLabels.find').replace('#', index),
+                editable: [
+                    //{ key: "Key1/2/3/4", modifiers: [KeyboardManager.MODIFIER_KEYS.SHIFT] }
+                ],
+                restricted: true,
+                onDown: () => {
+                    if (!game.user.isGM) {
+                        return;
+                    }
+                    PartyCruncher.findParty(index);
                 }
-                PartyCruncher.showPartyConfigurations();
-            }
-        });
-        Logger.info(`${DEFAULT_NO_OF_PARTIES} empty keybindings for TOGGLE registered. Assign them to your liking in the game settings.`);
+            });
+        }
+        Logger.info(`${DEFAULT_NO_OF_PARTIES+1} empty keybindings for FIND registered. Assign them to your liking in the game settings.`);
     }
 
     static registerSettings(settingsData) {

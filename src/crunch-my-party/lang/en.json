@@ -55,8 +55,10 @@
       }
     },
     "party":  "Party",
-    "partyTokenName": "Party Token",
-    "memberTokenNames": "Members",
+    "labels" : {
+      "partyTokenName": "Party Token",
+      "memberTokenNames": "Members"
+    },
     "chatInfoContent": {
       "title": "Crunch My Party!",
       "text1": "\"Once there were three little goblins... eager to form a PARTY!<br/>So here's their story...\"",
@@ -94,7 +96,7 @@
         "member": "Member"
       },
       "partyNo": {
-        "text": "Which party do you want to assign?"
+        "text": "Which party slot do you want to assign?<br/>(The number of available slots can be changed in the module settings)"
       }
     },
     "promptForCrunchAfterGrouping" : {
@@ -115,15 +117,28 @@
       "text": "Token {tokenName} exists {count}x in this scene. If you proceed, they'll all be deleted. What do you want to do?",
       "delete": "Delete"
     },
+    "promptForSimpleConfirmation":  "Confirmation required",
+    "confirmDeleteParty": "Do you want to delete Party # ({partyName}) with {noOfMembers} members from the list and release this slot?",
+    "okButton": "OK",
     "saveButton": "Save",
     "cancelButton": "Cancel",
     "closeButton": "Close",
+    "deletePartyButton": "Delete Party #",
+    "showPartyConfigurations": {
+      "deleteButton": "Delete\n#{partyNo}",
+      "findButton": "Find\n#{partyNo}"
+    },
     "empty": "empty",
     "groupingConfirmation": "The following tokens have been assigned to <strong>party #{partyNo} [{partyTokenName}]</strong>",
     "applyToAll": "Apply to all!",
-    "keybindingMenuLabelFind": "Find Party #",
-    "keybindingMenuLabelToggle": "Toggle Party # (collapse/explode)",
-    "keybindingMenuLabelShowConfig": "Show Party Configurations",
+    "keybindingLabels": {
+      "find": "Find Party #",
+      "findGeneric": "Find ANY Party (select from list)",
+      "toggle": "Toggle Party #",
+      "toggleGeneric": "Toggle ANY Party (select from list)",
+      "groupGeneric": "Group selected tokens into a party",
+      "showConfig": "Show Party Configurations"
+    },
     "settingsMenu": {
       "behaviourSection": "Behaviour",
       "partyConfigSection": "Party Member Configuration",

@@ -55,8 +55,10 @@
       }
     },
     "party":  "Gruppe",
-    "partyTokenName": "Gruppentoken",
-    "memberTokenNames": "Mitglieder",
+    "labels" : {
+      "partyTokenName": "Gruppentoken",
+      "memberTokenNames": "Mitglieder"
+    },
     "chatInfoContent": {
       "title": "Crunch My Party!",
       "text1": "\"Es waren einmal drei kleine Goblins... Sie wünschten sich nichts sehnlicher, als eine ECHTE GRUPPE zu sein!<br/>Dies ist ihre Geschichte...\"",
@@ -94,7 +96,7 @@
         "member": "Gruppenmitglied"
       },
       "partyNo": {
-        "text": "Welcher Gruppe möchtest du diese Auswahl zuweisen?"
+        "text": "Welchen Gruppenslot möchtest du belegen<br/>(Die Anzahl verfügbarer Slots kann in den Modueinstellungen geändert werden)?"
       }
     },
     "promptForCrunchAfterGrouping" : {
@@ -115,15 +117,27 @@
       "text": "Der Token {tokenName} existiert {count}x in der Szene. Wenn du fortfährst, werden sie alle gelöscht. Was möchtest Du tun?",
       "delete": "Löschen"
     },
+    "promptForSimpleConfirmation":  "Bestätigung erforderlich",
+    "confirmDeleteParty": "Willst du die Gruppe # ({partyName}) mit {noOfMembers} Mitgliedern aus der Liste löschen und den Slot freigeben?",
+    "okButton": "OK",
     "saveButton": "Übernehmen",
     "cancelButton": "Abbrechen",
     "closeButton": "Schliessen",
+    "showPartyConfigurations": {
+      "deleteButton": "#{partyNo}\nlöschen",
+      "findButton": "#{partyNo}\nfinden"
+    },
     "empty": "leer",
     "groupingConfirmation": "Die folgenden Tokens sind nun der <strong>Gruppe #{partyNo} [{partyTokenName}]</strong> zugewiesen",
     "applyToAll": "Auf alle anwenden!",
-    "keybindingMenuLabelFind": "Gruppe # finden",
-    "keybindingMenuLabelToggle": "Gruppe # umschalten (vereinigen/trennen)",
-    "keybindingMenuLabelShowConfig": "Gruppenkonfigurationen anzeigen",
+    "keybindingLabels": {
+      "find": "Gruppe # finden",
+      "findGeneric": "Beliebige Gruppe finden (per Auswahlliste)",
+      "toggle": "Gruppe # umschalten",
+      "toggleGeneric": "Beliebige Gruppe umschalten (per Auswahlliste)",
+      "groupGeneric": "Group selected tokens into a party",
+      "showConfig": "Liste der Gruppenkonfigurationen anzeigen"
+    },
     "settingsMenu": {
       "behaviourSection": "Verhalten",
       "partyConfigSection": "Gruppenkonfiguration",

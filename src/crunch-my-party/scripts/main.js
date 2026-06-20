@@ -24,6 +24,7 @@ let ready2play;
 
         Hooks.once("ready", () => {
             Config.modifySetting(`modVersion`, game.modules.get("crunch-my-party").version);
+            PartyCruncher.setBusy(false);
             ready2play = true;
             Logger.infoGreen(`Ready to play! Version: ${Config.setting("modVersion")}`);
             Logger.infoGreen(Config.globals.modDescription);
@@ -220,21 +221,22 @@ export class PartyCruncher {
             // ==================================================================================================
             // Step 1 - Parse & validate current token selection, with input from the GM
             // ==================================================================================================
-            // grab names from all currently selected tokens
-            let namesFromSelection = PartyCruncher.#collectNamesFromTokenSelection();
+            // grab all relevant information from all currently selected tokens
+            let propertiesFromSelection = PartyCruncher.#collectNamesFromTokenSelection();
 
             // ask the GM for the name and mode of the party token to use
             let partyDefinitionInput = await PartyCruncher.#promptForPartyDefinition(partyNo);
             if (partyDefinitionInput.cancelled) {
                 return;
             } else {
-                namesFromSelection.partyTokenName = partyDefinitionInput.tokenName;
-                namesFromSelection.partyTokenMode = partyDefinitionInput.mode;
+                propertiesFromSelection.partyTokenName = partyDefinitionInput.tokenName;
+                propertiesFromSelection.partyTokenMode = partyDefinitionInput.mode;
                 partyNo = partyDefinitionInput.partyNo;
-                Logger.debug(`(PartyCruncher.groupParty) namesFromSelection for grouping party #${partyNo}:`, namesFromSelection);
+                Logger.debug(`(PartyCruncher.groupParty) propertiesFromSelection for grouping party #${partyNo}:`, propertiesFromSelection);
             }
-            const partyDefinition = PartyCruncher.#createPartyDefinition(partyNo, namesFromSelection);
+            const partyDefinition = PartyCruncher.#createPartyDefinition(partyNo, propertiesFromSelection);
             const partyToken = canvas.tokens.ownedTokens.find(t => t.name === partyDefinition.partyTokenName);
+            const memberTokens = canvas.tokens.ownedTokens.filter(t => propertiesFromSelection.memberTokenNames.indexOf(t.name > -1));
 
             // ==================================================================================================
             // Step 2 - Update user prefs in module settings with detected names lists
@@ -242,12 +244,13 @@ export class PartyCruncher {
             const updates = {
                 definition: partyDefinition,
                 partyToken: partyToken,
+                memberTokens: memberTokens,
                 lastKnownState: Config.globals.states.EXPLODED
             };
             await PartyCruncher.updatePartyConfig(partyNo, updates);
 
             // Remove party token from scene if necessary
-            if (partyDefinition.partyTokenMode === Config.globals.modes.PLACEHOLDER) {
+            if (partyDefinition.partyTokenMode === Config.globals.partyTokenModes.PLACEHOLDER) {
                 await partyToken.document.delete();
             }
 
@@ -362,8 +365,21 @@ export class PartyCruncher {
     static #collectValidatedTokenNamesFromModuleSettings(partyNo) {
         let memberTokenNamesString = Config.setting(`memberTokenNames${partyNo}`);
         let partyTokenNameString = Config.setting(`partyTokenName${partyNo}`);
-        let namesFromSettings = PartyCruncher.#collectNamesFromStrings(partyNo, memberTokenNamesString, partyTokenNameString);
-        return PartyCruncher.#createPartyDefinition(partyNo, namesFromSettings);
+        let propertiesFromSettings = PartyCruncher.#collectNamesFromStrings(partyNo, memberTokenNamesString, partyTokenNameString);
+        return PartyCruncher.#createPartyDefinition(partyNo, propertiesFromSettings);
+    }
+
+    static async deleteParty(partyInfo) {
+        const message = Config.localize("confirmDeleteParty")
+            .replace("#", partyInfo.partyNo)
+            .replace("{partyName}", partyInfo.partyName)
+            .replace("{noOfMembers}", partyInfo.noOfMembers);
+        const prompt = await PartyCruncher.#promptForSimpleConfirmation(message);
+        if (prompt.ok) {
+            let allConfigs = PartyCruncher.#getAllPartyConfigs();
+            allConfigs[partyInfo.partyNo] = null;
+            Config.modifySetting("partyConfigs", allConfigs);
+        }
     }
 
     /**
@@ -421,7 +437,7 @@ export class PartyCruncher {
             partyTokenName: null, // Still unassigned. Will be set by user input prompt
             partyTokenMode: null // Still unassigned. Will be set by user input prompt
         };
-        Logger.debug("(PartyCruncher.#collectNamesFromTokenSelection) namesFromSelection (1):", namesFromSelection);
+        Logger.debug("(PartyCruncher.#collectNamesFromTokenSelection) propertiesFromSelection:", namesFromSelection);
 
         return namesFromSelection;
     }
@@ -448,16 +464,16 @@ export class PartyCruncher {
         return returnArr;
     }
 
-    static #createPartyDefinition(partyNo = 1, names) {
+    static #createPartyDefinition(partyNo = 1, properties) {
 
-        Logger.debug("(PartyCruncher.#createPartyDefinition) names (before validation): ", names);
+        Logger.debug("(PartyCruncher.#createPartyDefinition) properties (before validation): ", properties);
         let errMsg = "";
 
         // Check 1: Do we have enough tokens? Do we have not too many tokens?
         if (
-            !names.memberTokenNames || names.memberTokenNames.length === 0 || names.memberTokenNames[0] === "" ||
-            names.memberTokenNames.length > Config.globals.maxMembersPerParty ||
-            !names.partyTokenName || names.partyTokenName === "") {
+            !properties.memberTokenNames || properties.memberTokenNames.length === 0 || properties.memberTokenNames[0] === "" ||
+            properties.memberTokenNames.length > Config.globals.maxMembersPerParty ||
+            !properties.partyTokenName || properties.partyTokenName === "") {
             errMsg =
                 // Error: invalidTokenCount => Names do not represent exactly ONE group and MORE THAN ONE members.
                 Config.localize('errMsg.pleaseCheckYourTokenSelection') + ":<br/>" +
@@ -469,16 +485,16 @@ export class PartyCruncher {
         }
 
         // Remove duplicates from selection
-        names.memberTokenNames = [...new Set(names.memberTokenNames)];
-        Logger.debug("(PartyCruncher.#createPartyDefinition) memberTokenNames after removing duplicates: ", names.memberTokenNames);
+        properties.memberTokenNames = [...new Set(properties.memberTokenNames)];
+        Logger.debug("(PartyCruncher.#createPartyDefinition) memberTokenNames after removing duplicates: ", properties.memberTokenNames);
 
         // In "Placeholder" mode (as of v14), we need to expel the party token's name from the members list
-        if (names.partyTokenMode === Config.globals.modes.PLACEHOLDER) {
-            const removeIndex = names.memberTokenNames.indexOf(names.partyTokenName)
+        if (properties.partyTokenMode === Config.globals.partyTokenModes.PLACEHOLDER) {
+            const removeIndex = properties.memberTokenNames.indexOf(properties.partyTokenName)
             if (removeIndex > -1) {
-                names.memberTokenNames.splice(removeIndex, 1)
+                properties.memberTokenNames.splice(removeIndex, 1)
             }
-            Logger.debug("(PartyCruncher.#createPartyDefinition) memberTokenNames after removing party token: ", names.memberTokenNames);
+            Logger.debug("(PartyCruncher.#createPartyDefinition) memberTokenNames after removing party token: ", properties.memberTokenNames);
         }
 
         // Check 3: Is max number of members per party exceeded?
@@ -486,26 +502,26 @@ export class PartyCruncher {
         // It is due to the problem of having to calculate "outward spiraling" spawn positions
         // around the party token on EXPLODE.
         // See #getMovementPathToExplodePosition() for details, if you're really into such brain-busting math stuff - as I am NOT :-D
-        if (names.memberTokenNames.length > Config.globals.maxMembersPerParty) {
+        if (properties.memberTokenNames.length > Config.globals.maxMembersPerParty) {
             throw new Error(
                 // Error: groupAndMembersIntersect => Names must not exist both as member and as group.
-                Config.localize('errMsg.tooManyMemberTokens') + ` (${names.memberTokenNames.length})!<br/>` +
+                Config.localize('errMsg.tooManyMemberTokens') + ` (${properties.memberTokenNames.length})!<br/>` +
                 Config.localize('errMsg.invalidNumberOfMemberTokens').replace("{maxMembers}", Config.globals.maxMembersPerParty) + `<br/>` +
                 "<br/>" +
-                Config.localize(`setting.memberTokenNames#.name`).replace("#", partyNo) + ": <strong>[ " + names.memberTokenNames + " ]</strong>"
+                Config.localize(`setting.memberTokenNames#.name`).replace("#", partyNo) + ": <strong>[ " + properties.memberTokenNames + " ]</strong>"
             );
         }
 
         // Check 4: Does any of the member tokens exist more than once in the scene?
         // This is only for checking at this time. It will throw an error if some tokens are NOT unique, so we just can ignore the returned values for now
-        PartyCruncher.#collectTokensByNamesIfUnique(names.memberTokenNames);
-        PartyCruncher.#collectTokensByNamesIfUnique([names.partyTokenName])[0];
+        PartyCruncher.#collectTokensByNamesIfUnique(properties.memberTokenNames);
+        PartyCruncher.#collectTokensByNamesIfUnique([properties.partyTokenName])[0];
 
         const partyDefinition = {
             partyNo: partyNo,
-            partyTokenName: names.partyTokenName,
-            partyTokenMode: names.partyTokenMode,
-            memberTokenNames: names.memberTokenNames
+            partyTokenName: properties.partyTokenName,
+            partyTokenMode: properties.partyTokenMode,
+            memberTokenNames: properties.memberTokenNames
         };
         Logger.debug("(PartyCruncher.#createPartyDefinition) new partyDefinition: ", partyDefinition);
         return partyDefinition;
@@ -519,31 +535,35 @@ export class PartyCruncher {
             return;
         }
 
+        Logger.debug(`PartyCruncher.#updatePartyConfig - updates: `, updates);
+
         const allConfigs = PartyCruncher.#getAllPartyConfigs();
-        if (allConfigs[partyNo] === undefined) {
-            allConfigs[partyNo] = {};
+
+        if (PartyCruncher.#isEmptyConfig(allConfigs[partyNo])) {
+            Logger.debug(`PartyCruncher.#updatePartyConfig - creating new entry: `, updates);
+            allConfigs[partyNo] = { definition: null };
         }
         Logger.debug(`PartyCruncher.#updatePartyConfig - preparing to store Party Config #${partyNo}: `, allConfigs[partyNo]);
 
-        if (updates.definition !== undefined) {
+        if (updates.definition) {
             allConfigs[partyNo].definition = updates.definition;
             allConfigs[partyNo].timestamp = Date.now();
             Logger.debug(`PartyCruncher.#updatePartyConfig - new definition: `, allConfigs[partyNo].definition);
         }
 
-        if (updates.partyToken !== undefined) {
+        if (updates.partyToken) {
             allConfigs[partyNo].partyToken = updates.partyToken.document.toObject();
             allConfigs[partyNo].timestamp = Date.now();
             Logger.debug(`PartyCruncher.#updatePartyConfig - new partyToken: `, allConfigs[partyNo].partyToken);
         }
 
-        if (updates.memberTokens !== undefined) {
+        if (updates.memberTokens) {
             allConfigs[partyNo].memberTokens = updates.memberTokens.map(mt => mt.document.toObject());
             allConfigs[partyNo].timestamp = Date.now();
             Logger.debug(`PartyCruncher.#updatePartyConfig - new memberTokens: `, allConfigs[partyNo].memberTokens);
         }
 
-        if (updates.lastKnownState !== undefined) {
+        if (updates.lastKnownState) {
             allConfigs[partyNo].lastKnownState = updates.lastKnownState;
             allConfigs[partyNo].timestamp = Date.now();
             Logger.debug(`PartyCruncher.#updatePartyConfig - new lastKnownState: `, allConfigs[partyNo].lastKnownState);
@@ -555,6 +575,10 @@ export class PartyCruncher {
         Logger.debug(`PartyCruncher.#updatePartyConfig - new full config (all Parties): `, allConfigs);
     }
 
+
+    static #isEmptyConfig(partyConfig) {
+        return partyConfig === undefined || partyConfig === null || partyConfig === {};
+    }
 
     /**
      * Identify and collect all the tokens corresponding to the names lists in the scene and register them for later.
@@ -672,7 +696,7 @@ export class PartyCruncher {
             errMsg = Config.localize('errMsg.noTokensVisible');
         }
         // Check: Party and member tokens must not be present at the same time
-        else if (partyConfig.definition.mode === Config.globals.modes.PLACEHOLDER
+        else if (partyConfig.definition.partyTokenMode === Config.globals.partyTokenModes.PLACEHOLDER
             && membersVisibleInScene.length > 0 && partyTokensVisibleInScene.length > 0) {
             errMsg = Config.localize('errMsg.membersAndPartyTokenVisible');
         }
@@ -686,7 +710,7 @@ export class PartyCruncher {
                 Config.localize('errMsg.pleaseCheckYourTokenSelection') + ":<br/>" +
                 "<br/>" +
                 "<strong>" + Config.localize("party") + "#" + partyNo + ":</strong><br/>" +
-                "- " + partyConfig.definition.partyTokenName + " (" + Config.localize("partyTokenName") + ")<br/>- " +
+                "- " + partyConfig.definition.partyTokenName + " (" + Config.localize("labels.partyTokenName") + ")<br/>- " +
                 "- " + partyConfig.definition.memberTokenNames.join("<br/>");
             throw new Error(errMsg);
         }
@@ -737,21 +761,47 @@ export class PartyCruncher {
         }
 
         // Identify target token
-        const memberTokensSelected = memberTokensToRemove
-            .filter(t =>
-                canvas.tokens.controlled.map(tc => tc.name)
-                    .find(tn => tn === t.name));
-        if (memberTokensSelected.length === 0) {
-            memberTokensToRemove.forEach(t => t.control({releaseOthers: false}));
+        let targetToken;
+        if (Config.globals.partyTokenModes.MEMBER === partyConfig.definition.partyTokenMode) {
+            targetToken = canvas.tokens.ownedTokens.find(t => t.name === partyConfig.definition?.partyTokenName) ?? undefined;
+            Logger.debug(`PartyCruncher.#crunchParty - trying to use party member as targetToken: [${partyConfig.definition?.partyTokenName}]`, targetToken);
         }
-        const targetToken = canvas.tokens.controlled[0];
+        if (targetToken === undefined) {
+            const memberTokensSelected = memberTokensToRemove
+                .filter(t =>
+                    canvas.tokens.controlled.map(tc => tc.name)
+                        .find(tn => tn === t.name));
+            if (memberTokensSelected.length === 0) {
+                memberTokensToRemove.forEach(t => t.control({releaseOthers: false}));
+            }
+            targetToken = canvas.tokens.controlled[0];
+            Logger.debug(`PartyCruncher.#crunchParty - using last selected token as targetToken: [${targetToken.name}]`, targetToken);
+        }
+        Logger.debug(`PartyCruncher.#crunchParty - targetToken (final): [${targetToken.name}]`, targetToken);
+
+        // Select the target and try to shift the view to it
+        await PartyCruncher.#panToTarget(targetToken, useHotPanIfAvailable);
+
+        // Move all members towards target token (including aligning elevation!)
+        for (const token of memberTokensToRemove.reverse()) { // reverse() may make this visually a bit nicer
+            tokenUpdates.push(
+                PartyCruncher.#createTokenTeleportUpdate(
+                    token,
+                    {
+                        name: token.document.name,
+                        x: targetToken.document.x,
+                        y: targetToken.document.y,
+                        elevation: targetToken.document.elevation,
+                        hidden: true
+                    }));
+        }
 
         // Check if party token already exists in Scene
         let effectivePartyToken;
         const tokenCount = PartyCruncher.#countTokensByNames([partyConfig.definition.partyTokenName]);
+        const partyTokenCount = tokenCount[partyConfig.definition.partyTokenName];
 
         // Replace already existing party token(s) if necessary
-        const partyTokenCount = tokenCount[partyConfig.definition.partyTokenName];
         if (partyTokenCount > 1) {
             if (PartyCruncher.#hasPartyToken(partyConfig)) {
 
@@ -790,6 +840,8 @@ export class PartyCruncher {
                     await canvas.scene.createEmbeddedDocuments("Token", [partyConfig.partyToken]);
                     effectivePartyToken = canvas.tokens.ownedTokens.find(t => t.name === partyConfig.definition.partyTokenName);
                     Logger.debug(`PartyCruncher.#crunchParty - effectivePartyToken created from partyConfig: `, effectivePartyToken);
+                    Logger.debug(`PartyCruncher.#crunchParty - effectivePartyToken pos [x:${effectivePartyToken.document.x}|y:${effectivePartyToken.document.y}|e:${effectivePartyToken.document.elevation}] set to targetToken pos [x:${targetToken.document.x}|y:${targetToken.document.y}|e:${targetToken.document.elevation}]`);
+
                 } else {
                     // Otherwise throw an error
                     Logger.error(false, Config.localize("partyTokenMissingInConfig").replace("#tokenName", partyConfig.partyTokenName));
@@ -798,29 +850,12 @@ export class PartyCruncher {
             }
         }
 
-        // Select the target and try to shift the view to it
-        await PartyCruncher.#panToTarget(targetToken, useHotPanIfAvailable);
-
-        // Move all members towards target token (including aligning elevation!)
-        for (const token of memberTokensToRemove.reverse()) { // reverse() may make this visually a bit nicer
-            tokenUpdates.push(
-                PartyCruncher.#createTokenTeleportUpdate(
-                    token,
-                    {
-                        position: {
-                            x: targetToken.document.x,
-                            y: targetToken.document.y
-                        },
-                        elevation: targetToken.document.elevation,
-                        hidden: true
-                    }));
-        }
-
         // Reveal the party token
         tokenUpdates.push(
             PartyCruncher.#createTokenTeleportUpdate(
                 effectivePartyToken,
                 {
+                    name: effectivePartyToken.document.name,
                     hidden: false
                 }));
 
@@ -831,6 +866,8 @@ export class PartyCruncher {
         for (const update of tokenUpdates) {
             const tokenDoc = canvas.scene.tokens.get(update._id);
             if (!tokenDoc) return;
+            Logger.debug(`PartyCruncher.#crunchParty - token update: `, update);
+            Logger.debug(`PartyCruncher.#crunchParty - updating token [${update.name}] to [x:${update.x}|y:${update.y}|e:${update.elevation}|hidden:${update.hidden}]`);
             await tokenDoc.update(
                 {
                     x: update.x,
@@ -853,82 +890,9 @@ export class PartyCruncher {
 
         partyConfigUpdates.lastKnownState = Config.globals.states.CRUNCHED;
         await PartyCruncher.updatePartyConfig(partyNo, partyConfigUpdates);
-    }
 
-    /**
-     * @deprecated since v14
-     * Do it: Crunch my party NOW!
-     * @param involvedTokens
-     * @param targetToken - Here this is the one member selected, providing the new position of the party token
-     */
-    async #crunchParty_v13(involvedTokens, targetToken) {
-
-        // Release any currently active tokens
-        canvas.tokens.releaseAll();
-
-        let audioPath = Config.setting('playAudio4Crunch') ? `${Config.setting('audioFile4Crunch').trim()}` : Config.NO_AUDIO_FILE;
-        if (!audioPath) audioPath = Config.NO_AUDIO_FILE;
-        Logger.debug(`audioPath: ${audioPath}`);
-        Logger.debug(`Audio base dir (window.location.pathname): ${window.location.pathname}`);
-
-        // If JB2A_DnD5e && AA are installed, play the animation
-        if ((optionalDependenciesAvailable.includes('JB2A_DnD5e') || optionalDependenciesAvailable.includes('jb2a_patreon')) && optionalDependenciesAvailable.includes('autoanimations')) {
-            let animationPath = Config.setting('animation4Crunch');
-            if (animationPath) {
-                Logger.debug(`(PartyCruncher.#crunchParty) playing CRUNCH animation: ${animationPath}`);
-                new Sequence()
-                    .effect()
-                    .file(animationPath)
-                    .atLocation(targetToken)
-                    .scaleToObject(4)
-                    .randomRotation()
-                    .sound().file(audioPath)
-                    .play();
-            }
-        } else if (audioPath) // Play audio without JB2A && AA
-        {
-            foundry.audio.AudioHelper.play({
-                src: audioPath,
-                volume: 1,
-                autoplay: true,
-                loop: false
-            }, true);
-        }
-
-        // Crunch step #1: Everybody gather at the target now!!
-        // We're reversing the order temporarily, because this is visually much nicer (especially with large groups).
-        // It processes outer tokens first, inner ones last.
-        let tokenUpdates = [];
-        for (const token of involvedTokens.memberTokens.reverse()) {
-            // Teleport to the target (which is the party's "center")
-            tokenUpdates.push(PartyCruncher.#createTokenTeleportUpdate(token, targetToken.position, targetToken.document.elevation, false));
-        }
-
-        // Then teleport the party token to the crunch target's position (still invisible)
-        tokenUpdates.push(PartyCruncher.#createTokenTeleportUpdate(involvedTokens.partyToken, targetToken.position, targetToken.document.elevation, true));
-
-        // Finish step #1: Teleport!
-        // TODO - FIX (or remove whole surrounding function if not needed anymore)
-        // await PartyCruncher.#teleport(tokenUpdates);
-
-        // Crunch step #2: Everybody, go invisible and move out of the way!
-        tokenUpdates = [];
-        for (const token of involvedTokens.memberTokens) {
-            tokenUpdates.push(PartyCruncher.#createTokenTeleportUpdate(token, {x: 0, y: 0}, null, true));
-        }
-
-        // Move the party token into view and render it visible
-        tokenUpdates.push(PartyCruncher.#createTokenTeleportUpdate(involvedTokens.partyToken, targetToken.position, null, false));
-
-        // Finish step #2: Teleport!
-        // TODO - FIX (or remove whole surrounding function if not needed anymore)
-        // await PartyCruncher.#teleport(tokenUpdates);
-
-        // Don't forget to set back memberToken order
-        involvedTokens.memberTokens.reverse();
-
-        // Set new focus on group token, then we're done here!
-        involvedTokens.partyToken.control({releaseOthers: true});
+        // Finally, make party token the active one
+        await effectivePartyToken.control({releaseOthers: true});
     }
 
     /**
@@ -1061,15 +1025,19 @@ export class PartyCruncher {
     }
 
     static #createTokenTeleportUpdate(tokenToMove, updates) {
-        const effectiveTargetPosition = (updates.position != null) ? updates.position : tokenToMove.position; // NULL target means: don't move, stay where you are!
-        const effectiveTargetElevation = (updates.elevation != null) ? updates.elevation : tokenToMove.document.elevation;
-        return {
+        const x = (updates.x !== undefined) ? updates.x : tokenToMove.document.x; // NULL target means: don't move, stay where you are!
+        const y = (updates.y !== undefined) ? updates.y : tokenToMove.document.y; // NULL target means: don't move, stay where you are!
+        const elevation = (updates.elevation !== null) ? updates.elevation : tokenToMove.elevation; // NULL target means: don't move, stay where you are!
+        const update = {
+            name: updates.name,
             _id: tokenToMove.document._id,
-            x: effectiveTargetPosition.x,
-            y: effectiveTargetPosition.y,
-            elevation: effectiveTargetElevation,
+            x: x,
+            y: y,
+            elevation: elevation,
             hidden: updates.hidden
         };
+        Logger.debug(`PartyCruncher.#createTokenTeleportUpdate() - update: `, update);
+        return update;
     }
 
     /**
@@ -1109,7 +1077,7 @@ export class PartyCruncher {
         const title = Config.localize('promptForPartyDefinition.title');
 
         let content = `
-        <div style="max-height: 450px; max-width: 450px; overflow: scroll">
+        <div style="max-height: 600px; max-width: 600px; overflow: auto">
         <p>${Config.localize('promptForPartyDefinition.text')}</p>`;
         for (const t of canvas.tokens.controlled) {
             const checked = (t === canvas.tokens.controlled[0]) ? " checked" : "";
@@ -1118,8 +1086,8 @@ export class PartyCruncher {
         content += `
             <hr>
             <p>${Config.localize('promptForPartyDefinition.partyTokenMode.text')}</p>
-            <label><input type="radio" name="modeChoice" value="${Config.globals.modes.PLACEHOLDER}" checked/>${Config.localize('promptForPartyDefinition.partyTokenMode.placeholder')}</label><br/>
-            <label><input type="radio" name="modeChoice" value="${Config.globals.modes.MEMBER}"/>${Config.localize('promptForPartyDefinition.partyTokenMode.member')}</label><br/>`;
+            <label><input type="radio" name="modeChoice" value="${Config.globals.partyTokenModes.PLACEHOLDER}" checked/>${Config.localize('promptForPartyDefinition.partyTokenMode.placeholder')}</label><br/>
+            <label><input type="radio" name="modeChoice" value="${Config.globals.partyTokenModes.MEMBER}"/>${Config.localize('promptForPartyDefinition.partyTokenMode.member')}</label><br/>`;
         content += `
             <hr>
             <p>${Config.localize('promptForPartyDefinition.partyNo.text')}</p>`;
@@ -1128,7 +1096,7 @@ export class PartyCruncher {
         const allConfigs = PartyCruncher.#getAllPartyConfigs();
         for (let i = 1; i <= Config.setting("maxNoOfParties"); i++) {
             let partyName, members;
-            if (allConfigs[i] !== undefined) {
+            if (allConfigs[i]?.definition) {
                 partyName = allConfigs[i].definition.partyTokenName;
                 members = " (" + allConfigs[i].definition.memberTokenNames.join(", ") + ")";
             } else {
@@ -1202,7 +1170,7 @@ export class PartyCruncher {
 
         let content = `
             <form>
-                <div style="max-height: 450px; max-width: 450px; overflow: scroll">
+                <div style="max-height: 600px; max-width: 600px; overflow: auto">
                     <legend>${Config.localize('promptForDuplicateReplaceOrKeep.text')
             .replace("{tokenName}", duplicateData.name)
             .replace("{count}", duplicateData.count)}</legend><br/>`;
@@ -1258,7 +1226,7 @@ export class PartyCruncher {
 
         let content = `
             <form>
-                <div style="max-height: 450px; max-width: 450px; overflow: scroll">
+                <div style="max-height: 600px; max-width: 600px; overflow: auto">
                     <legend>${Config.localize('promptForDuplicateDelete.text')
             .replace("{tokenName}", duplicateData.name)
             .replace("{count}", duplicateData.count)}</legend><br/>`;
@@ -1305,55 +1273,160 @@ export class PartyCruncher {
         return result;
     }
 
-    static async showPartyConfigurations() {
+    static async #promptForSimpleConfirmation(message) {
 
         let content = `
-            <div style="max-height: 450px; max-width: 450px; overflow: scroll">
-                <legend>${Config.localize('settingsMenu.partyConfigSection')}</legend><br/>`;
-
-        // List all stored configs
-        const allConfigs = PartyCruncher.#getAllPartyConfigs();
-        for (let i = 1; i <= Config.setting("maxNoOfParties"); i++) {
-            const config = allConfigs[i];
-            let partyTxt, membersTxt;
-            if (allConfigs[i] !== undefined) {
-                let partyName = config.definition.partyTokenName;
-                partyTxt = "<strong>"+partyName+"</strong>";
-                const partyImgPath = config.partyToken?.texture?.src ?? "";
-                partyTxt += (partyImgPath !== "") ? `<img src="${partyImgPath}" alt="${partyName}" title="${partyName}" width="40" height="40" style="border: 1px grey solid"/>` : "";
-                let members = [];
-                membersTxt = ":&nbsp;";
-                for (let name of config.definition.memberTokenNames) {
-                    let member = (name === partyName) ? "<strong>"+name+"</strong>" : name;
-                    const memberImgPath = config.memberTokens.find(t => t.name === name)?.texture?.src ?? "";
-                    member += (memberImgPath !== "") ? `<img src="${memberImgPath}" alt="${name}" title="${name}" width="30" height="30"/>` : "";
-                    members.push(member);
-                }
-                membersTxt += members.join("&nbsp;");
-                /*members = ": " + allConfigs[i].definition.memberTokenNames
-                    .map(n => (n === partyName) ? "<strong>"+n+"</strong>" : n)
-                    .join(", ");*/
-            } else {
-                partyTxt = Config.localize('empty').toUpperCase();
-                membersTxt = "";
-            }
-            content += `<label><strong>${i}&nbsp;-&nbsp;${partyTxt}</strong>${membersTxt}</label><br/>`;
-        }
-        content += `</div>`;
-
+            <form>
+                <div style="max-height: 600px; max-width: 600px; overflow: auto">
+                    <legend>${message}</legend><br/>
+                </div>
+            </form>`;
 
         return new Promise(resolve => {
             new foundry.applications.api.DialogV2({
-                window: {title: Config.localize('settingsMenu.partyConfigSection')},
+                window: {title: Config.localize('promptForSimpleConfirmation')},
                 content: content,
                 buttons: [
                     {
                         action: "ok",
-                        label: Config.localize('closeButton'),
-                        default: true
+                        label: Config.localize('okButton'),
+                        default: false,
+                        callback: () => resolve({ok: true})
+                    },
+                    {
+                        action: "cancel",
+                        label: Config.localize('cancelButton'),
+                        default: true,
+                        callback: () => resolve({cancelled: true})
                     }]
             }).render({force: true});
         });
+    }
+
+    static async showPartyConfigurations() {
+
+        const tableTemplate = `${Config.globals.templatePath}/config-list-table.html`;
+        const tableRowTemplate = `${Config.globals.templatePath}/config-list-table-row.html`;
+        const imgTemplate = `${Config.globals.templatePath}/config-list-token-img.html`;
+
+        const allConfigs = PartyCruncher.#getAllPartyConfigs();
+        let contentHTML = "";
+        let rowsHTML = ""
+
+        let buttons = [];
+
+        for (let i = 1; i <= Config.setting("maxNoOfParties"); i++) {
+
+            const config = allConfigs[i];
+            // Logger.debug(`PartyCruncher.showPartyConfigurations() - config`, config);
+
+            // Defaults (for any unused party slots)
+            let partyNo = i;
+            let partyName = Config.localize('empty').toUpperCase();
+            let partyImg = "";
+            let membersNames = "";
+            let membersImgs = "";
+
+            // Party information
+            if (config) {
+                partyName = config.definition.partyTokenName;
+                const partyTokenImgPath = config.partyToken?.texture?.src;
+                partyImg = (partyTokenImgPath !== undefined)
+                    ? await PartyCruncher.#renderHTML(imgTemplate,
+                        {
+                            imgPath: partyTokenImgPath,
+                            alt: partyName,
+                            title: partyName,
+                            size: 60
+                        })
+                    : "";
+                // Logger.debug(`PartyCruncher.showPartyConfigurations() - rendered partyImg`, partyImg);
+
+                // Member information
+                let membersNamesArr = [];
+                let membersImgsArr = [];
+                for (let name of config.definition.memberTokenNames) {
+                    let memberNameFormatted = (name === partyName) ? "<strong>" + name + "</strong>" : name;
+                    let size = (name === partyName) ? 50 : 40;
+                    const memberImgPath = config.memberTokens?.find(t => t.name === name)?.texture?.src;
+
+                    let memberImg = (memberImgPath !== undefined)
+                        ? await PartyCruncher.#renderHTML(imgTemplate,
+                            {
+                                imgPath: memberImgPath,
+                                alt: name,
+                                title: name,
+                                size: size
+                            })
+                        : "";
+                    // Logger.debug(`PartyCruncher.showPartyConfigurations() - rendered memberImg`, memberImg);
+
+                    membersNamesArr.push(memberNameFormatted);
+                    membersImgsArr.push(memberImg);
+                }
+                membersNames = membersNamesArr.join(", ");
+                membersImgs = membersImgsArr.join("");
+
+                // Add FIND and DELETE button for this party
+                buttons.push(
+                    {
+                        action: `find${partyNo}`,
+                        label: Config.localize('showPartyConfigurations.findButton').replace('{partyNo}', partyNo),
+                        callback: () => PartyCruncher.findParty(partyNo)
+                    },
+                    {
+                        action: `delete${partyNo}`,
+                        label: Config.localize('showPartyConfigurations.deleteButton').replace('{partyNo}', partyNo),
+                        callback: () => PartyCruncher.deleteParty({
+                            partyNo: partyNo,
+                            partyName: partyName,
+                            noOfMembers: membersNamesArr.length
+                        })
+                    });
+            }
+
+            rowsHTML += await PartyCruncher.#renderHTML(tableRowTemplate,
+                {
+                    partyNo: partyNo,
+                    partyImg: partyImg,
+                    partyName: partyName,
+                    membersImgs: membersImgs,
+                    membersNames: membersNames
+                });
+            // Logger.debug(`PartyCruncher.showPartyConfigurations() - rendered rowsHTML`, rowsHTML);
+        }
+
+        // Finally, render the full table
+        const tableData = {
+            partyHeaderText: Config.localize('labels.partyTokenName'),
+            membersHeaderText: Config.localize('labels.memberTokenNames'),
+            rowsHTML: rowsHTML
+        };
+
+        contentHTML += await PartyCruncher.#renderHTML(tableTemplate, tableData);
+        // Logger.debug(`PartyCruncher.showPartyConfigurations() - rendered contentHTML`, contentHTML);
+
+        buttons.push(
+            {
+                action: "ok",
+                label: Config.localize('closeButton'),
+                default: true
+            }
+        );
+
+        Logger.debug(`PartyCruncher.showPartyConfigurations() - buttonsData`, buttons);
+
+        return new Promise(resolve => {
+            new foundry.applications.api.DialogV2({
+                window: {title: Config.localize('settingsMenu.partyConfigSection')},
+                content: contentHTML,
+                buttons: buttons
+            }).render({force: true});
+        });
+    }
+
+    static #renderHTML(templateFile, templateData) {
+        return foundry.applications.handlebars.renderTemplate(templateFile, templateData);
     }
 
     static #getAllPartyConfigs() {
@@ -1386,7 +1459,7 @@ export class PartyCruncher {
             Logger.error(false, 'PartyCruncher.isValidDefinition(partyConfig) - definition.partyTokenName is missing or empty: ', definition.partyTokenName);
             return false;
         }
-        const allowedModes = Object.values(Config.globals.modes);
+        const allowedModes = Object.values(Config.globals.partyTokenModes);
         if (partyConfig.definition.partyTokenMode === undefined || !allowedModes.find(m => m === partyConfig.definition.partyTokenMode)) {
             Logger.error(false, `PartyCruncher.#isValid(partyConfig) - definition.partyTokenMode is invalid (must be one of: ${allowedModes.join((", "))}) `, definition.partyTokenName);
             return false;
