@@ -99,6 +99,10 @@
         "text": "Which party slot do you want to assign?<br/>(The number of available slots can be changed in the module settings)"
       }
     },
+    "promptForPartySelection": {
+      "windowTitle": "Select a Party",
+      "tableTitle": "For which Party do you want to do this?"
+    },
     "promptForCrunchAfterGrouping" : {
       "title": "Apply immediately?",
       "text": "Do you want to \"crunch\" the members of your new party right away?",

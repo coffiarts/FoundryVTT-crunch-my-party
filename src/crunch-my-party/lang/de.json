@@ -99,6 +99,10 @@
         "text": "Welchen Gruppenslot möchtest du belegen<br/>(Die Anzahl verfügbarer Slots kann in den Modueinstellungen geändert werden)?"
       }
     },
+    "promptForPartySelection": {
+      "windowTitle": "Gruppe auswählen",
+      "tableTitle": "Für welche Gruppe soll diese Aktion ausgeführt werden?"
+    },
     "promptForCrunchAfterGrouping" : {
       "title": "Gleich anwenden?",
       "text": "Soll für die neue Gruppe gleich ein \"Crunching\" durchgeführt werden?",

@@ -118,11 +118,19 @@ export class PartyCruncher {
      * @param useHotPanIfAvailable - toggles "Hot Pan & Zoom!", if it is available (auto-focussing players' scene views onto the party).
      * @returns {Promise<void>}
      */
-    static async toggleParty(partyNo = 1, useHotPanIfAvailable = true) {
+    static async toggleParty(partyNo = undefined, useHotPanIfAvailable = true) {
 
         if (PartyCruncher.isBusy()) {
             Logger.warn(false, Config.localize("errMsg.pleaseWaitStillBusy"));
             return;
+        }
+
+        if (partyNo === undefined) {
+            const prompt = await PartyCruncher.#promptForPartySelection();
+            if (prompt.cancelled) {
+                return;
+            }
+            partyNo = prompt.partyNo;
         }
 
         Logger.debug(`(PartyCruncher.toggleParty) TOGGLE - partyNo: #${partyNo}, useHotPanIfAvailable: ${useHotPanIfAvailable} ...`);
@@ -1273,6 +1281,131 @@ export class PartyCruncher {
         return result;
     }
 
+    static async #promptForPartySelection() {
+
+        const {tableTemplate, tableRowTemplate, imgTemplate} = PartyCruncher.#getPartyTableTemplates();
+        const radioButtonTemplate = `${Config.globals.templatePath}/radio-button.html`;
+
+        const allConfigs = PartyCruncher.#getAllPartyConfigs();
+
+        let contentHTML = "";
+        let tableBodyHTML = "";
+
+        for (let i = 1; i <= Config.setting("maxNoOfParties"); i++) {
+
+            const config = allConfigs[i];
+
+            // Logger.debug(`PartyCruncher.showPartyConfigurations() - config`, config);
+            // Defaults (for any unused party slots)
+
+            let radioButton = ""
+            let partyNo = i;
+            let partyName = Config.localize('empty').toUpperCase();
+            let partyImg = "";
+            let membersNames = "";
+            let membersImgs = "";
+            // Party information
+
+            if (config) {
+                radioButton = await PartyCruncher.#renderHTML(radioButtonTemplate,
+                    {
+                        paramName: "partyNo",
+                        value: i,
+                        text: ""
+                    });
+                if (i !== 1) radioButton = radioButton.replace(" checked", "");
+                Logger.debug(`PartyCruncher.showPartyConfigurations() - rendered radioButton`, radioButton);
+
+                partyName = config.definition.partyTokenName;
+                const partyTokenImgPath = config.partyToken?.texture?.src;
+                partyImg = (partyTokenImgPath !== undefined)
+                    ? await PartyCruncher.#renderHTML(imgTemplate,
+                        {
+                            imgPath: partyTokenImgPath,
+                            alt: partyName,
+                            title: partyName,
+                            size: 70
+                        })
+                    : "";
+                // Logger.debug(`PartyCruncher.showPartyConfigurations() - rendered partyImg`, partyImg);
+                // Member information
+
+                let membersNamesArr = [];
+                let membersImgsArr = [];
+                for (let name of config.definition.memberTokenNames) {
+                    let memberNameFormatted = (name === partyName) ? "<strong>" + name + "</strong>" : name;
+                    let size = (name === partyName) ? 60 : 50;
+                    const memberImgPath = config.memberTokens?.find(t => t.name === name)?.texture?.src;
+                    let memberImg = (memberImgPath !== undefined)
+                        ? await PartyCruncher.#renderHTML(imgTemplate,
+                            {
+                                imgPath: memberImgPath,
+                                alt: name,
+                                title: name,
+                                size: size
+                            })
+                        : "";
+
+                    // Logger.debug(`PartyCruncher.showPartyConfigurations() - rendered memberImg`, memberImg);
+                    membersNamesArr.push(memberNameFormatted);
+                    membersImgsArr.push(memberImg);
+                }
+                membersNames = membersNamesArr.join(", ");
+                membersImgs = membersImgsArr.join("");
+            }
+            tableBodyHTML += await PartyCruncher.#renderHTML(tableRowTemplate,
+                {
+                    firstCellContent: radioButton,
+                    partyNo: partyNo,
+                    partyImg: partyImg,
+                    partyName: partyName,
+                    membersImgs: membersImgs,
+                    membersNames: membersNames
+                });
+
+            // Logger.debug(`PartyCruncher.showPartyConfigurations() - rendered rowsHTML`, rowsHTML);
+        }
+        // Finally, render the full table
+
+        const tableData = {
+            tableTitle: Config.localize('promptForPartySelection.tableTitle'),
+            partyHeaderText: Config.localize('labels.partyTokenName'),
+            membersHeaderText: Config.localize('labels.memberTokenNames'),
+            tableBodyHTML: tableBodyHTML
+        };
+        contentHTML += await PartyCruncher.#renderHTML(tableTemplate, tableData);
+
+        // Logger.debug(`PartyCruncher.showPartyConfigurations() - rendered contentHTML`, contentHTML);
+
+        return new Promise(resolve => {
+            new foundry.applications.api.DialogV2({
+                window: { title: Config.localize('promptForPartySelection.windowTitle') },
+                content: contentHTML,
+                buttons: [
+                    {
+                        action: "ok",
+                        label: Config.localize('okButton'),
+                        default: true,
+                        callback: (event, button) => resolve({
+                            partyNo: button.form.elements.partyNo.value
+                        })
+                    },
+                    {
+                        action: "cancel",
+                            label: Config.localize('cancelButton'),
+                        callback: () => resolve({cancelled: true})
+                    }]
+            }).render({force: true});
+        });
+    }
+
+    static #getPartyTableTemplates() {
+        const tableTemplate = `${Config.globals.templatePath}/party-list-table.html`;
+        const tableRowTemplate = `${Config.globals.templatePath}/party-list-table-row.html`;
+        const imgTemplate = `${Config.globals.templatePath}/token-img.html`;
+        return {tableTemplate, tableRowTemplate, imgTemplate};
+    }
+
     static async #promptForSimpleConfirmation(message) {
 
         let content = `
@@ -1305,13 +1438,11 @@ export class PartyCruncher {
 
     static async showPartyConfigurations() {
 
-        const tableTemplate = `${Config.globals.templatePath}/config-list-table.html`;
-        const tableRowTemplate = `${Config.globals.templatePath}/config-list-table-row.html`;
-        const imgTemplate = `${Config.globals.templatePath}/config-list-token-img.html`;
+        const {tableTemplate, tableRowTemplate, imgTemplate} = PartyCruncher.#getPartyTableTemplates();
 
         const allConfigs = PartyCruncher.#getAllPartyConfigs();
         let contentHTML = "";
-        let rowsHTML = ""
+        let tableBodyHTML = "";
 
         let buttons = [];
 
@@ -1337,7 +1468,7 @@ export class PartyCruncher {
                             imgPath: partyTokenImgPath,
                             alt: partyName,
                             title: partyName,
-                            size: 60
+                            size: 70
                         })
                     : "";
                 // Logger.debug(`PartyCruncher.showPartyConfigurations() - rendered partyImg`, partyImg);
@@ -1347,7 +1478,7 @@ export class PartyCruncher {
                 let membersImgsArr = [];
                 for (let name of config.definition.memberTokenNames) {
                     let memberNameFormatted = (name === partyName) ? "<strong>" + name + "</strong>" : name;
-                    let size = (name === partyName) ? 50 : 40;
+                    let size = (name === partyName) ? 60 : 50;
                     const memberImgPath = config.memberTokens?.find(t => t.name === name)?.texture?.src;
 
                     let memberImg = (memberImgPath !== undefined)
@@ -1385,8 +1516,9 @@ export class PartyCruncher {
                     });
             }
 
-            rowsHTML += await PartyCruncher.#renderHTML(tableRowTemplate,
+            tableBodyHTML += await PartyCruncher.#renderHTML(tableRowTemplate,
                 {
+                    firstCellContent: "",
                     partyNo: partyNo,
                     partyImg: partyImg,
                     partyName: partyName,
@@ -1398,9 +1530,10 @@ export class PartyCruncher {
 
         // Finally, render the full table
         const tableData = {
+            tableTitle: "",
             partyHeaderText: Config.localize('labels.partyTokenName'),
             membersHeaderText: Config.localize('labels.memberTokenNames'),
-            rowsHTML: rowsHTML
+            tableBodyHTML: tableBodyHTML
         };
 
         contentHTML += await PartyCruncher.#renderHTML(tableTemplate, tableData);
