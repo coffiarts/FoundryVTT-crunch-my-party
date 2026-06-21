@@ -65,7 +65,7 @@ export class ChatInfo {
                             .replace('chatInfoContent.version', Config.setting('modVersion'))
                         ,
                     }, {});
-                    Logger.debug("(ChatInfo.init) Chat message created");
+                    Logger.debug(ChatInfo.init.name, "Chat message created");
 
                     await Config.modifySetting('hideChatInfo', true);
                 }

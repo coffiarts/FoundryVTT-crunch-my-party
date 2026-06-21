@@ -57,7 +57,13 @@
     "party":  "Party",
     "labels" : {
       "partyTokenName": "Party Token",
-      "memberTokenNames": "Members"
+      "memberTokenNames": "Members",
+      "partyState": "Status"
+    },
+    "partyState": {
+      "CRUNCHED": "GROUPED",
+      "EXPLODED": "SEPARATED",
+      "UNKNOWN":  "?"
     },
     "chatInfoContent": {
       "title": "Crunch My Party!",
@@ -67,9 +73,9 @@
       "footer": "This chat card will only be shown once. Activate once more in the module settings if needed."
     },
     "errMsg": {
-      "pleaseCheckYourTokenSelection": "Please check your party configuration",
+      "pleaseCheckYourTokenSelection": "Please check your token selection",
       "invalidTokenCount": "Required: Exactly ONE group and MORE THAN ONE members",
-      "duplicateTokens": "Selection contains tokens sharing the same name (maybe hidden). Name-siblings can't be assigned to the same party.",
+      "duplicateTokens": "Selection contains tokens of the same name (maybe hidden?). Name-siblings prohibit a consistent party configuration.",
       "tooManyMemberTokens": "Member list too long",
       "invalidNumberOfMemberTokens": "Invalid number of tokens selected! A party must consist of 2 to {maxMembers} members.",
       "notUniqueInScene": "Token [{tokenName}] is not unique in scene!",
@@ -110,9 +116,9 @@
       "no": "No, leave them separate."
     },
     "promptForDuplicateReplaceOrKeep" : {
-      "title": "Token already exists in scene!",
-      "text": "Token {tokenName} exists {count}x in this scene. What do you want to do?",
-      "disallowKeepText": "As there's more than one, it is not possible to keep them. Please choose either \"Replace\" t replace all {count} tokens at once) or \"Cancel\", then delete all redundant tokens of this name from the scene and then repeat this process.",
+      "title": "Token already exists in scene.",
+      "text": "Token [{tokenName}] exists {count}x in this scene. What do you want to do?",
+      "disallowKeepText": "As there's more than one, it is not possible to keep them. Please choose either \"Replace\" to replace all(!) {count} tokens,\nAlternatively, choose \"Cancel\", delete redundant tokens of this name, and then repeat this process.",
       "replace": "Replace",
       "keep": "Keep"
     },
@@ -128,7 +134,7 @@
     "cancelButton": "Cancel",
     "closeButton": "Close",
     "deletePartyButton": "Delete Party #",
-    "showPartyConfigurations": {
+    "partyTable": {
       "deleteButton": "Delete\n#{partyNo}",
       "findButton": "Find\n#{partyNo}"
     },

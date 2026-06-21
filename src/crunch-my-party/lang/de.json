@@ -57,7 +57,13 @@
     "party":  "Gruppe",
     "labels" : {
       "partyTokenName": "Gruppentoken",
-      "memberTokenNames": "Mitglieder"
+      "memberTokenNames": "Mitglieder",
+      "partyState": "Status"
+    },
+    "partyState": {
+      "CRUNCHED": "GRUPPIERT",
+      "EXPLODED": "GETRENNT",
+      "UNKNOWN":  "?"
     },
     "chatInfoContent": {
       "title": "Crunch My Party!",
@@ -67,9 +73,9 @@
       "footer": "Diese Nachricht wird nur einmal angezeigt. Zum Wiederanzeigen bitte die entsprechende Option in den Moduleinstellungen verwenden."
     },
     "errMsg": {
-      "pleaseCheckYourTokenSelection": "Bitte Gruppenkonfiguration prüfen",
+      "pleaseCheckYourTokenSelection": "Bitte Tokenauswahl prüfen",
       "invalidTokenCount": "Erforderlich: Genau EIN Gruppen-Token und MEHR ALS EIN Mitglieder-Token.",
-      "duplicateTokens": "Auswahl enthält Tokens mit gleichem Namen (evtl. ausgeblendet). Diese können nicht derselben Gruppe zugeordnet werden.",
+      "duplicateTokens": "Die Szene enthält Tokens mit gleichem Namen (evtl. ausgeblendet). Dadurch kann keine endeutige Gruppenkonfiguration gewährleistet werden.",
       "tooManyMemberTokens": "Mitgliederliste ist zu lang",
       "invalidNumberOfMemberTokens": "Ungültige Anzahl an Tokens ausgewählt! Eine Gruppe muss aus mindestens 2 und maximal {maxMembers} Mitgliedern bestehen.",
       "notUniqueInScene": "Token [{tokenName}] existiert mehrfach in der Szene.",
@@ -110,9 +116,9 @@
       "no": "Nein, so stehen lassen."
     },
     "promptForDuplicateReplaceOrKeep" : {
-      "title": "Tokens bereits vorhanden!",
-      "text": "Der Token {tokenName} existiert {count}x in der Szene. Was möchtest Du tun?",
-      "disallowKeepText": "Da es mehr als einen Token gibt, ist ein automatisches \"Behalten\" nicht möglich. Bitte wähle entweder \"Ersetzen\", um alle {count} Tokens zu löschen, oder wähle \"Abbrechen\", entferne alle überflüssigen Tokens dieses Namens aus der Szene und wiederhole den Vorgang.",
+      "title": "Tokens bereits vorhanden.",
+      "text": "Der Token [{tokenName}] existiert {count}x in der Szene. Was möchtest Du tun?",
+      "disallowKeepText": "Da es mehr als einen Token gibt, ist ein automatisches \"Behalten\" nicht möglich. Bitte wähle entweder \"Ersetzen\", um alle(!) {count} Tokens zu ersetzen.\nOder wähle \"Abbrechen\", entferne alle überzähligen Tokens dieses Namens und wiederhole den Vorgang.",
       "replace": "Ersetzen",
       "keep": "Behalten"
     },
@@ -124,10 +130,10 @@
     "promptForSimpleConfirmation":  "Bestätigung erforderlich",
     "confirmDeleteParty": "Willst du die Gruppe # ({partyName}) mit {noOfMembers} Mitgliedern aus der Liste löschen und den Slot freigeben?",
     "okButton": "OK",
-    "saveButton": "Übernehmen",
+    "saveButton": "Speichern",
     "cancelButton": "Abbrechen",
     "closeButton": "Schliessen",
-    "showPartyConfigurations": {
+    "partyTable": {
       "deleteButton": "#{partyNo}\nlöschen",
       "findButton": "#{partyNo}\nfinden"
     },

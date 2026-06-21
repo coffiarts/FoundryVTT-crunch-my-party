@@ -26,7 +26,7 @@ export class Logger {
         console.log(`%c${Config?.globals?.modTitle ?? "" } [${Config?.globals?.modID ?? "" }] | INFO | ${msg}`, 'color: green');
     }
 
-    static debug(...args) {
+    static debug(caller, ...args) {
         // During initialization, Config settings might not yet be present.
         // We can't rely on them here, so we need a fallback.
         let isDebugMode = false;
@@ -34,23 +34,18 @@ export class Logger {
             isDebugMode = Config.setting('debug');
         } catch {}
         if (isDebugMode)
-            console.debug(`${Config?.globals?.modTitle ?? "" } [${Config?.globals?.modID ?? "" }] | DEBUG |`, ...args);
+            console.debug(`${Config?.globals?.modTitle ?? "" } [${Config?.globals?.modID ?? "" }] | DEBUG | (${caller}) - `, ...args);
     }
 
-    static warn(suppressUIMsg = false, ...args) {
-        console.warn(`${Config?.globals?.modTitle ?? "" } [${Config?.globals?.modID ?? "" }] | WARNING |`, ...args);
+    static warn(caller, suppressUIMsg = false, ...args) {
+        console.warn(`${Config?.globals?.modTitle ?? "" } [${Config?.globals?.modID ?? "" }] | WARNING | (${caller}) - `, ...args);
         if (!suppressUIMsg)
             ui.notifications.warn(`[${Config?.globals?.modTitle ?? "" }] ${args[0]}`);
     }
 
-    static error(suppressUIMsg = false, ...args) {
-        console.error(`${Config?.globals?.modTitle ?? "" } [${Config?.globals?.modID ?? "" }] | ERROR |`, ...args);
+    static error(caller, suppressUIMsg = false, ...args) {
+        console.error(`${Config?.globals?.modTitle ?? "" } [${Config?.globals?.modID ?? "" }] | ERROR | (${caller}) - `, ...args);
         if (!suppressUIMsg)
             ui.notifications.error(`[${Config?.globals?.modTitle ?? "" }] ${args[0]}`);
-    }
-
-    static catchThrow(thrown, toastMsg = undefined) {
-        console.warn(thrown);
-        if(toastMsg) Logger.error(toastMsg);
     }
 }
