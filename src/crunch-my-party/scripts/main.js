@@ -423,7 +423,7 @@ export class PartyCruncher {
         let tokensSelected = Array.from(canvas.tokens.controlled.map(t => t.name));
 
         // Pre-Check 1: Is number of tokens within allowed range?
-        if (tokensSelected.length < 2 || tokensSelected.length > Config.globals.maxMembersPerParty) {
+        if (tokensSelected.length < 2 || tokensSelected.length > Config.globals.maxMembersPerParty + 1) {
             throw new Error(
                 Config.localize('errMsg.invalidNumberOfMemberTokens').replace("{maxMembers}", Config.globals.maxMembersPerParty));
         }
@@ -1088,39 +1088,9 @@ export class PartyCruncher {
             Logger.debug(this.#explodeParty.name, `[${memberToken.name}]: snapped =>`, snapped);
             targetX = snapped.x;
             targetY = snapped.y;
-            /*let finalX = tokenDoc.x;
-            let finalY = tokenDoc.y;
-            let finalE = tokenDoc.elevation;
-
-            const steps = Math.max(Math.abs(relative.x), Math.abs(relative.y));
-            Logger.debug(this.#explodeParty.name, `Member: ${memberToken.name} => steps: ${steps}`);
-
-            for (let i = 1; i <= steps; i++) {
-                const stepX = tokenDoc.x + (targetX - tokenDoc.x) * (i / steps);
-                const stepY = tokenDoc.y + (targetY - tokenDoc.y) * (i / steps);
-
-                const tokenCenter = memberToken.center;
-                const stepCenter = {x: stepX + memberToken.w / 2, y: stepY + memberToken.h / 2};
-
-                const collision = CONFIG.Canvas.polygonBackends.move.testCollision(
-                    tokenCenter, stepCenter, {
-                        type: "move", // This is effectively a value of CONST.WALL_RESTRICTION_TYPES
-                        mode: "any"
-                    });
-                if (collision) {
-                    break; // stop BEFORE wall
-                }
-                const snappedStep = memberToken.getSnappedPosition(stepX, stepY, targetToken.elevation);
-
-                finalX = snappedStep.x;
-                finalY = snappedStep.y;
-                finalE = snappedStep.elevation;
-                Logger.debug(this.#explodeParty.name,
-                    `Member: ${memberToken.name} / Step ${i}: tokenCenter, stepCenter, collision, targetX, targetY, finalX, finalY =>`, tokenCenter, stepCenter, collision, targetX, targetY, finalX, finalY);
-            }*/
 
             await tokenDoc.move(
-                { x: targetX, y: targetY, elevation: targetE },
+                [{ x: targetX, y: targetY, elevation: targetE }],
                 {
                     method: "api",
                     showRuler: false,
@@ -1220,27 +1190,6 @@ export class PartyCruncher {
             title: Config.localize('promptForPartyDefinition.partyNo.text')
         });
         content += partySelectionList.contentHTML;
-
-        // Make partyNo selectable: Populate an option list from all stored configs, limited by MAX_NO_OF_PARTIES
-        /*const allConfigs = this.#getAllPartyConfigs();
-        for (let i = 1; i <= Config.setting("maxNoOfParties"); i++) {
-            let partyName, members;
-            if (allConfigs[i]?.definition) {
-                partyName = allConfigs[i].definition.partyTokenName;
-                members = " (" + allConfigs[i].definition.memberTokenNames.join(", ") + ")";
-            } else {
-                partyName = Config.localize('empty').toUpperCase();
-                members = "";
-            }
-            const checked = (i === partyNo) ? " checked" : "";
-            content += `<label>
-                            <input type="radio" name="partyNoChoice" 
-                                   value="${i}"${checked}
-                                   alt="${partyName}"/>${i} - ${partyName}${members}
-                        </label><br/>`;
-        }
-        content += `</div>`;
-        // Logger.debug(this.#promptForPartyDefinition.name, `content`, content);*/
 
         return new Promise(resolve => {
             new foundry.applications.api.DialogV2({
@@ -1455,7 +1404,6 @@ export class PartyCruncher {
             let partyNo = i;
             let partyName = Config.localize('empty').toUpperCase();
             let partyImg = "";
-            let membersNames = "";
             let membersImgs = "";
             let partyState = Config.localize(`partyState.UNKNOWN`);
 
@@ -1468,7 +1416,8 @@ export class PartyCruncher {
                 partyName = config.definition.partyTokenName;
                 const partyTokenImgPath = config.partyToken?.texture?.src;
                 partyImg = (partyTokenImgPath !== undefined)
-                    ? await this.#renderHTML(imgTemplate,
+                    ? await this.#renderHTML(
+                        imgTemplate,
                         {
                             imgPath: partyTokenImgPath,
                             alt: partyName,
@@ -1486,12 +1435,14 @@ export class PartyCruncher {
                     let size = (name === partyName) ? 60 : 50;
                     const memberImgPath = config.memberTokens?.find(t => t.name === name)?.texture?.src;
                     let memberImg = (memberImgPath !== undefined)
-                        ? await this.#renderHTML(imgTemplate,
+                        ? await this.#renderHTML(
+                            imgTemplate,
                             {
                                 imgPath: memberImgPath,
                                 alt: name,
                                 title: name,
-                                size: size
+                                size: size,
+                                text: name
                             })
                         : "";
 
@@ -1499,7 +1450,6 @@ export class PartyCruncher {
                     membersNamesArr.push(memberNameFormatted);
                     membersImgsArr.push(memberImg);
                 }
-                membersNames = membersNamesArr.join(", ");
                 membersImgs = membersImgsArr.join("");
 
                 // Detect party state
@@ -1534,14 +1484,14 @@ export class PartyCruncher {
                 radioButton = await this.#renderPartyRadioButton(radioButtonTemplate, i);
             }
 
-            tableBodyHTML += await this.#renderHTML(tableRowTemplate,
+            tableBodyHTML += await this.#renderHTML(
+                tableRowTemplate,
                 {
                     firstCellContent: radioButton,
                     partyNo: partyNo,
                     partyImg: partyImg,
                     partyName: partyName,
                     membersImgs: membersImgs,
-                    membersNames: membersNames,
                     partyState: partyState
                 });
             // Logger.debug(this.#promptForPartySelection.name, `Rendered rowsHTML`, tableBodyHTML);
