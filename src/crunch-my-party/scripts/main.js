@@ -958,6 +958,10 @@ export class PartyCruncher {
         let cnt = 0;
         for (const memberCount of memberTokenCounts) {
             cnt++;
+            if (memberCount.name === partyConfig.definition.partyTokenName && memberCount.count === 1) {
+                // If the member is also the Party token and exists only once in the scene, that's absolutely fine
+                continue;
+            }
             Logger.debug(this.#explodeParty.name, `memberCount:`, memberCount);
             if (!tokenConflictResolution?.applyToAll) {
                 tokenConflictResolution = await this.#promptForDuplicateReplaceOrKeep(memberCount, (cnt < memberTokenCounts.length));
