@@ -766,7 +766,7 @@ export class PartyCruncher {
         const partyConfigUpdates = {};
 
         // Collect member tokens in scene
-        const memberTokensToRemove = [];
+        let memberTokensToRemove = [];
         for (let memberName of partyConfig.definition.memberTokenNames) {
             const tokenFound = canvas.tokens.ownedTokens.find(t => t.name === memberName);
             if (tokenFound === undefined) {
@@ -812,8 +812,12 @@ export class PartyCruncher {
         // Select the target and try to set the view onto it
         await this.#panToTarget(targetToken, useHotPanIfAvailable);
 
-        // Move all members towards target token (including aligning elevation!)
-        for (const token of memberTokensToRemove.reverse()) { // reverse() may make this visually a bit nicer
+        // Play audio and JB2A animation (if supported)
+        await this.#playAnimation(Config.globals.states.CRUNCHED, targetToken);
+
+        // Move all members towards target token (including aligning their elevation!)
+        memberTokensToRemove = memberTokensToRemove.reverse(); // reverse() may make this visually a bit nicer
+        for (const token of memberTokensToRemove) {
             tokenUpdates.push(
                 this.#createTokenTeleportUpdate(
                     token,
@@ -855,7 +859,7 @@ export class PartyCruncher {
         }
 
         // If no partyToken has been assigned until here, the default applies:
-        // If one exists in the scene, reuse it. Otherwise instantiate a new one from partyConfig
+        // If one exists in the scene, reuse it. Otherwise, instantiate a new one from partyConfig
         if (effectivePartyToken === undefined) {
             if (partyTokenCount === 1) {
                 effectivePartyToken = canvas.tokens.ownedTokens.find(t => t.name === partyConfig.definition.partyTokenName);
@@ -889,9 +893,6 @@ export class PartyCruncher {
                     hidden: false
                 }));
 
-        // Play audio and JB2A animation (if supported)
-        await this.#playAnimation(Config.globals.states.CRUNCHED, targetToken);
-
         // Apply all the updates
         for (const update of tokenUpdates) {
             const tokenDoc = canvas.scene.tokens.get(update._id);
@@ -922,9 +923,11 @@ export class PartyCruncher {
 
         // Finally, make party token the active one
         await effectivePartyToken.control({releaseOthers: true});
+
+        Logger.debug(this.#explodeParty.name, `CRUNCH action complete.`);
     }
 
-    static async #explodeParty(partyConfig) {
+    static async #explodeParty(partyConfig, useHotPanIfAvailable = true) {
 
         if (!this.#checkActionPreconditions(partyConfig)) {
             return;
@@ -943,7 +946,6 @@ export class PartyCruncher {
             return;
         }
 
-        const tokenUpdates = [];
         const partyConfigUpdates = {};
 
         // Collect member tokens in scene, then check how to handle duplicates
@@ -978,6 +980,11 @@ export class PartyCruncher {
         Logger.debug(this.#explodeParty.name, `memberTokensToRemove`, memberTokensToRemove);
         Logger.debug(this.#explodeParty.name, `memberTokensToKeep`, memberTokensToKeep);
 
+        // Remove unnecessary tokens
+        for (const token of memberTokensToRemove) {
+            await token.document.delete();
+        }
+
         // Identify target token
         // Prio 1: Use the party token in the scene (if present)
         let targetToken;
@@ -1006,26 +1013,49 @@ export class PartyCruncher {
             }
         }
 
+        // Select the target and try to set the view onto it
+        await this.#panToTarget(targetToken, useHotPanIfAvailable);
+
         // Play audio and JB2A animation (if supported)
         await this.#playAnimation(Config.globals.states.EXPLODED, targetToken);
-        return;
 
-        // Explode step #1: Everybody, grab some drinks and show up at the "party center"
-        for (const memberToken of involvedTokens.memberTokens) {
-            // Then teleport them to the "party center", but remain invisible for now (waiting for each token's glamorous entry later in step #2)
-            tokenUpdates.push(this.#createTokenTeleportUpdate(memberToken, involvedTokens.partyToken.position, involvedTokens.partyToken.document.elevation, false));
+        // Move all existing members to keep to the target token (including aligning their elevation!)
+        for (const existingToken of memberTokensToKeep) {
+            tokenUpdates.document.update(
+                {
+                    x: targetToken.document.x,
+                    y: targetToken.document.y,
+                    elevation: targetToken.document.elevation,
+                    hidden: false
+                });
+            Logger.debug(this.#explodeParty.name, `Moving existing token [${existingToken.name}] to target pos:`, existingToken);
         }
 
-        // Move the party token out of the way and render it invisible ("WE are the party now!")
-        tokenUpdates.push(this.#createTokenTeleportUpdate(involvedTokens.partyToken, {x: 0, y: 0}, null, true));
+        // Everyone at home, grab a drink and show up at the Party center!
+        // In other words: Create all the remaining tokens from partyConfig (hidden at the target position)
+        for (const storedTokenData of partyConfig.memberTokens) {
+            if (memberTokensToKeep.map(m => m.name).indexOf(storedTokenData.name) > -1) {
+                continue;
+            }
+            storedTokenData.x = targetToken.document.x;
+            storedTokenData.y = targetToken.document.y;
+            storedTokenData.elevation = targetToken.document.elevation;
+            storedTokenData.hidden = false;
+            await canvas.scene.createEmbeddedDocuments("Token", [storedTokenData]);
+            const newToken = canvas.tokens.ownedTokens.find(o => o.name === storedTokenData.name);
+            memberTokensToKeep.push(newToken);
+            Logger.debug(this.#explodeParty.name, `Created new token [${newToken.name}] from partyConfig at target pos:`, newToken);
+        }
 
-        // Finish step #1: Teleport!
-        // TODO - FIX (or remove whole surrounding function if not needed anymore)
-        //await this.#teleport(tokenUpdates);
+        // Update partyConfig by adding all involved tokens
+        const partyToken = canvas.tokens.ownedTokens.find(o => o.name === partyConfig.definition.partyTokenName);
+        if (partyToken) {
+            partyConfigUpdates.partyToken = partyToken;
+        }
 
-        // // Explode step #2: Swarm out and take your places
+        // Explode: Everyone, swarm out and take your positions!
         let tokenCounter = 0;
-        for (const memberToken of involvedTokens.memberTokens) {
+        for (const memberToken of memberTokensToKeep) {
             //Set selection to current token.
             //Otherwise, movement by moveMany below won't have any effect
             memberToken.control({releaseOthers: true});
@@ -1034,7 +1064,7 @@ export class PartyCruncher {
             let movementPath = this.#getMovementPathToExplodePosition(tokenCounter++);
             Logger.debug(this.#explodeParty.name, `[${memberToken.name}]: movementPath =>`, movementPath);
 
-            const tokenDoc = memberToken.document; // or canvas.scene.tokens.get(memberToken.id)
+            const tokenDoc = memberToken.document;
             if (!tokenDoc) return;
 
             const relative = movementPath;      // {x: dx, y: dy} from your matrix
@@ -1042,10 +1072,11 @@ export class PartyCruncher {
 
             let targetX = tokenDoc.x + relative.x * gridSize;
             let targetY = tokenDoc.y + relative.y * gridSize;
+
             // Snap to nearest grid
             const point = {x: targetX, y: targetY, elevation: tokenDoc.elevation};
             Logger.debug(this.#explodeParty.name, `[${memberToken.name}]: point =>`, point);
-            const snapped = canvas.grid.getSnappedPoint(point, CONST.GRID_SNAPPING_MODES.CENTER);
+            const snapped = canvas.grid.getSnappedPoint(point, {mode: CONST.GRID_SNAPPING_MODES.CENTER});
             Logger.debug(this.#explodeParty.name, `[${memberToken.name}]: snapped =>`, snapped);
             targetX = snapped.x;
             targetY = snapped.y;
@@ -1067,12 +1098,13 @@ export class PartyCruncher {
                         type: "move", // This is effectively a value of CONST.WALL_RESTRICTION_TYPES
                         mode: "any"
                     });
+                Logger.debug(this.#explodeParty.name, `stepCenter, collision:`, stepCenter, collision);
 
                 if (collision) {
                     break; // stop BEFORE wall
                 }
 
-                const snappedStep = canvas.grid.getSnappedPosition(stepX, stepY, 0);
+                const snappedStep = targetToken.getSnappedPosition(stepX, stepY, 0);
                 finalX = snappedStep.x;
                 finalY = snappedStep.y;
             }
@@ -1089,12 +1121,13 @@ export class PartyCruncher {
 
         }
 
-        // Now we need to loop over all members once more to select them all
-        // If we had done this within the first loop, together with the moving, the tokens movements
-        // would interfere with each others cumulatively.
-        for (const memberToken of involvedTokens.memberTokens) {
-            memberToken.control({releaseOthers: false});
-        }
+        // Finally, update the Party configuration
+        partyConfigUpdates.memberTokens = memberTokensToKeep;
+        partyConfigUpdates.lastKnownState = Config.globals.states.EXPLODED;
+        await this.#updatePartyConfig(partyConfig.definition.partyNo, partyConfigUpdates);
+        await partyToken.document.delete();
+
+        Logger.debug(this.#explodeParty.name, `EXPLODE action complete.`);
     }
 
     static #checkActionPreconditions(partyConfig) {
