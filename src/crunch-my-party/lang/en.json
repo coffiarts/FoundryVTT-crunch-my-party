@@ -80,7 +80,7 @@
       "invalidNumberOfMemberTokens": "Invalid number of tokens selected! A party must consist of 2 to {maxMembers} members.",
       "notUniqueInScene": "Token [{tokenName}] is not unique in scene!",
       "notUniqueInScenePlural": "The following tokens are not unique in the scene. The current action does not support this",
-      "tokensMissingInScene": "Tokens missing in scene",
+      "tokensMissingInScene": "Missing tokens: There are neither a party token nor any members in this scene for party #{partyNo} [{partyName}]. The appropriate action cannot be determined.",
       "partyTokenMissingInScene": "The party token named '#partyTokenName' is missing in the scene. Please add it, then try again.",
       "partyTokenMissingInConfig": "The party configuration is missing data for the party token named '#tokenName'. Please add it to the scene, or recreate the party using the \"Group\" macro.",
       "cannotDetermineAction": "Cannot determine action!",

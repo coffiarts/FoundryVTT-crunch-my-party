@@ -599,7 +599,7 @@ export class PartyCruncher {
      * @returns {{partyToken: any, memberTokens: *[]}}
      */
     static #collectInvolvedTokens(names, partyNo = 1) {
-
+        // TODO - function probably unused
         let errMsg = "";
 
         // Check 1: Does any of the member tokens exist more than once in the scene?
@@ -783,30 +783,43 @@ export class PartyCruncher {
 
         // Identify target token
         let targetToken;
-        // Prio 1: If a member token is defined and the "leader", and it is present in the scene, it has precedence
+        // Case 1: If a member token is defined and the "leader", and it is present in the scene, it has precedence
         if (Config.globals.partyTokenModes.MEMBER === partyConfig.definition.partyTokenMode) {
             targetToken = canvas.tokens.ownedTokens.find(t => t.name === partyConfig.definition?.partyTokenName) ?? undefined;
         }
         if (targetToken) {
             Logger.debug(this.#crunchParty.name, `Using leading party member as the target: [${partyConfig.definition?.partyTokenName}]`, targetToken);
         }
-        // Prio 2: If member tokens are present in the scene, use one of them as the target
+        // Case 2: If member tokens are present in the scene, use one of them as the target
         else if (memberTokensToRemove.length > 0) {
             const memberTokensSelected = memberTokensToRemove
                 .filter(t =>
                     canvas.tokens.controlled.map(tc => tc.name)
                         .find(tn => tn === t.name));
             if (memberTokensSelected.length === 1) {
-                // Prio 2a: If only one selected, use that one ...
+                // 2a: If only one selected, use that one ...
                 memberTokensSelected[0].control({releaseOthers: true});
                 targetToken = canvas.tokens.controlled[0];
                 Logger.debug(this.#crunchParty.name, `Using single selected member token as target: [${targetToken.name}]`, targetToken);
             } else {
-                // Prio 2b: ... otherwise pick one at random
+                // 2b: ... otherwise pick one at random
                 memberTokensToRemove.forEach(t => t.control({releaseOthers: false}));
                 targetToken = canvas.tokens.controlled[0];
                 Logger.debug(this.#crunchParty.name, `Using last selected token as target: [${targetToken.name}]`, targetToken);
             }
+        }
+        // Case 3: No members in scene, but Party token: This means that the party in this scene is in opposite state as according to config
+        else {
+            targetToken = canvas.tokens.ownedTokens.find(t => t.name === partyConfig.definition?.partyTokenName);
+            Logger.debug(this.#crunchParty.name, `Trying to use already existing and crunched Party token as the target: [${targetToken?.name}]`, targetToken);
+        }
+        // If nothing was successful, abort
+        if (!targetToken) {
+            Logger.error(this.#crunchParty.name, false,
+                `${Config.localize("errMsg.tokensMissingInScene")
+                    .replace("{partyNo}", partyConfig.definition.partyNo)
+                    .replace("{partyName}", partyConfig.definition.partyTokenName)}`);
+            return;
         }
 
         // Select the target and try to set the view onto it
@@ -907,15 +920,25 @@ export class PartyCruncher {
                 });
         }
 
-        // Store member tokens and remove them from the scene
+        // Merge member tokens in the scene into stored list, then remove them from the scene
         if (memberTokensToRemove.length > 0) {
-            partyConfigUpdates.memberTokens = memberTokensToRemove;
+            partyConfigUpdates.memberTokens = partyConfig.memberTokens;
+            // Merge all currently found tokens into the existing storage, replacing old versions
+            memberTokensToRemove.forEach(
+                memberTokenFromScene => {
+                    if (partyConfig.definition.memberTokenNames.find(nameFromList => nameFromList === memberTokenFromScene.name)) {
+                        partyConfigUpdates.memberTokens.splice(
+                            partyConfigUpdates.memberTokens.indexOf(
+                                partyConfigUpdates.memberTokens.find(t => t.name === mt.name)
+                            ), 1, memberTokenFromScene)
+                    }
+                }
+            );
+            Logger.debug(this.#crunchParty.name, `New merged member token list to store: `, partyConfigUpdates.memberTokens);
             Logger.debug(this.#crunchParty.name, `Removing ${memberTokensToRemove.length} tokens from scene: `, memberTokensToRemove);
             for (const member of memberTokensToRemove) {
                 await member.document.delete();
             }
-        } else {
-            Logger.warn(this.#crunchParty.name, false,`No member tokens found in Scene for Party #${partyNo} [${partyConfig.definition.partyTokenName}]`);
         }
 
         partyConfigUpdates.lastKnownState = Config.globals.states.CRUNCHED;
@@ -990,7 +1013,7 @@ export class PartyCruncher {
         }
 
         // Identify target token
-        // Prio 1: Use the party token in the scene (if present)
+        // Case 1: Use the party token in the scene (if present)
         let targetToken;
         if (partyConfig.definition?.partyTokenName) {
             targetToken = canvas.tokens.ownedTokens.find(t => t.name === partyConfig.definition.partyTokenName);
@@ -998,23 +1021,31 @@ export class PartyCruncher {
         if (targetToken) {
             Logger.debug(this.#explodeParty.name, `Using party token as the target: [${partyConfig.definition?.partyTokenName}]`, targetToken);
         }
-        // Prio 2: If there are tokens to keep (from above), use either of them
+        // Case 2: If there are tokens to keep (from above), use either of them
         else if (memberTokensToKeep.length > 0) {
             const keptTokensSelected = memberTokensToKeep
                 .filter(t =>
                     canvas.tokens.controlled.map(tc => tc.name)
                         .find(tn => tn === t.name));
             if (keptTokensSelected.length === 1) {
-                // Prio 2a: If only one selected, use that one ...
+                // 2a: If only one selected, use that one ...
                 keptTokensSelected[0].control({releaseOthers: true});
                 targetToken = canvas.tokens.controlled[0];
                 Logger.debug(this.#explodeParty.name, `Using single selected member token as target: [${targetToken.name}]`, targetToken);
             } else {
-                // Prio 2b: ... otherwise pick one at random
+                // 2b: ... otherwise pick one at random
                 memberTokensToKeep.forEach(t => t.control({releaseOthers: false}));
                 targetToken = canvas.tokens.controlled[0];
                 Logger.debug(this.#explodeParty.name, `Using last selected token as target: [${targetToken.name}]`, targetToken);
             }
+        }
+        // If nothing was successful, abort
+        if (!targetToken) {
+            Logger.error(this.#crunchParty.name, false,
+                `${Config.localize("errMsg.tokensMissingInScene")
+                    .replace("{partyNo}", partyConfig.definition.partyNo)
+                    .replace("{partyName}", partyConfig.definition.partyTokenName)}`);
+            return;
         }
 
         // Select the target and try to set the view onto it
