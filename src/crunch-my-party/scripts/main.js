@@ -1055,7 +1055,14 @@ export class PartyCruncher {
 
         // Explode: Everyone, swarm out and take your positions!
         let tokenCounter = 0;
+        let activeTokenAfter;
         for (const memberToken of memberTokensToKeep) {
+
+            // Flag the first one as the active token for afterward
+            if (!activeTokenAfter) {
+                activeTokenAfter = memberToken;
+            }
+
             //Set selection to current token.
             //Otherwise, movement by moveMany below won't have any effect
             memberToken.control({releaseOthers: true});
@@ -1067,11 +1074,12 @@ export class PartyCruncher {
             const tokenDoc = memberToken.document;
             if (!tokenDoc) return;
 
-            const relative = movementPath;      // {x: dx, y: dy} from your matrix
+            const relative = movementPath;      // {x: dx, y: dy} from the matrix above
             const gridSize = canvas.grid.size;
 
             let targetX = tokenDoc.x + relative.x * gridSize;
             let targetY = tokenDoc.y + relative.y * gridSize;
+            let targetE = targetToken.elevation;
 
             // Snap to nearest grid
             const point = {x: targetX, y: targetY, elevation: tokenDoc.elevation};
@@ -1080,11 +1088,12 @@ export class PartyCruncher {
             Logger.debug(this.#explodeParty.name, `[${memberToken.name}]: snapped =>`, snapped);
             targetX = snapped.x;
             targetY = snapped.y;
-
-            let finalX = tokenDoc.x;
+            /*let finalX = tokenDoc.x;
             let finalY = tokenDoc.y;
+            let finalE = tokenDoc.elevation;
 
             const steps = Math.max(Math.abs(relative.x), Math.abs(relative.y));
+            Logger.debug(this.#explodeParty.name, `Member: ${memberToken.name} => steps: ${steps}`);
 
             for (let i = 1; i <= steps; i++) {
                 const stepX = tokenDoc.x + (targetX - tokenDoc.x) * (i / steps);
@@ -1098,28 +1107,31 @@ export class PartyCruncher {
                         type: "move", // This is effectively a value of CONST.WALL_RESTRICTION_TYPES
                         mode: "any"
                     });
-                Logger.debug(this.#explodeParty.name, `stepCenter, collision:`, stepCenter, collision);
-
                 if (collision) {
                     break; // stop BEFORE wall
                 }
+                const snappedStep = memberToken.getSnappedPosition(stepX, stepY, targetToken.elevation);
 
-                const snappedStep = targetToken.getSnappedPosition(stepX, stepY, 0);
                 finalX = snappedStep.x;
                 finalY = snappedStep.y;
-            }
+                finalE = snappedStep.elevation;
+                Logger.debug(this.#explodeParty.name,
+                    `Member: ${memberToken.name} / Step ${i}: tokenCenter, stepCenter, collision, targetX, targetY, finalX, finalY =>`, tokenCenter, stepCenter, collision, targetX, targetY, finalX, finalY);
+            }*/
 
             await tokenDoc.move(
-                [{x: finalX, y: finalY}],
+                { x: targetX, y: targetY, elevation: targetE },
                 {
                     method: "api",
-                    showRuler: true,
+                    showRuler: false,
                     constrainOptions: {ignoreWalls: false},
                     animation: {duration: 400}
                 }
             );
-
         }
+
+        // Set control onto the innermost token
+        activeTokenAfter.control({releaseOthers: true});
 
         // Finally, update the Party configuration
         partyConfigUpdates.memberTokens = memberTokensToKeep;
