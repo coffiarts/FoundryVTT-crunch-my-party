@@ -1118,7 +1118,7 @@ export class PartyCruncher {
         const title = Config.localize('promptForPartyDefinition.title');
 
         let content = `
-        <div style="max-height: 600px; max-width: 600px; overflow: auto">
+        <div style="max-height: 650px; max-width: 1000px; overflow: auto">
         <p>${Config.localize('promptForPartyDefinition.text')}</p>`;
         for (const t of canvas.tokens.controlled) {
             const checked = (t === canvas.tokens.controlled[0]) ? " checked" : "";
