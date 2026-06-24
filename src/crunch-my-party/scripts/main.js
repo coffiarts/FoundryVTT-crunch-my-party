@@ -151,7 +151,6 @@ export class PartyCruncher {
             // ==================================================================================================
             // Step 2 - auto-determine new requested state
             // ==================================================================================================
-            // TODO - Replace by dynamic detection
             const requestedState = this.#detectRequestedState(partyConfig);
 
             // ==================================================================================================
@@ -244,7 +243,7 @@ export class PartyCruncher {
             }
             const partyDefinition = this.#createPartyDefinition(partyNo, propertiesFromSelection);
             const partyToken = canvas.tokens.ownedTokens.find(t => t.name === partyDefinition.partyTokenName);
-            const memberTokens = canvas.tokens.ownedTokens.filter(t => propertiesFromSelection.memberTokenNames.indexOf(t.name > -1));
+            const memberTokens = canvas.tokens.ownedTokens.filter(t => partyDefinition.memberTokenNames.indexOf(t.document.name) > -1);
 
             // ==================================================================================================
             // Step 2 - Update user prefs in module settings with detected names lists
@@ -569,7 +568,7 @@ export class PartyCruncher {
         }
 
         if (updates.memberTokens) {
-            allConfigs[partyNo].memberTokens = updates.memberTokens.map(mt => mt.document.toObject());
+            allConfigs[partyNo].memberTokens = updates.memberTokens.map(mt => mt.document?.toObject() ?? mt);
             allConfigs[partyNo].timestamp = Date.now();
             Logger.debug(this.#updatePartyConfig.name, `new memberTokens: `, allConfigs[partyNo].memberTokens);
         }
@@ -829,7 +828,6 @@ export class PartyCruncher {
         await this.#playAnimation(Config.globals.states.CRUNCHED, targetToken);
 
         // Move all members towards target token (including aligning their elevation!)
-        memberTokensToRemove = memberTokensToRemove.reverse(); // reverse() may make this visually a bit nicer
         for (const token of memberTokensToRemove) {
             tokenUpdates.push(
                 this.#createTokenTeleportUpdate(
@@ -846,7 +844,8 @@ export class PartyCruncher {
         // Check if party token already exists in Scene
         let effectivePartyToken;
         const tokenCount = this.#countTokensByNames([partyConfig.definition.partyTokenName]);
-        const partyTokenCount = tokenCount[partyConfig.definition.partyTokenName];
+        const partyTokenCount = tokenCount.find(tc => tc.name === partyConfig.definition.partyTokenName)?.count;
+        Logger.debug(this.#crunchParty.name, `tokenCount, partyTokenCount: `, tokenCount, partyTokenCount);
 
         // Replace already existing party token(s) if necessary
         if (partyTokenCount > 1) {
@@ -871,9 +870,11 @@ export class PartyCruncher {
             }
         }
 
+        Logger.debug(this.#crunchParty.name, `effectivePartyToken, partyTokenCount: `, effectivePartyToken, partyTokenCount);
+
         // If no partyToken has been assigned until here, the default applies:
         // If one exists in the scene, reuse it. Otherwise, instantiate a new one from partyConfig
-        if (effectivePartyToken === undefined) {
+        if (!effectivePartyToken) {
             if (partyTokenCount === 1) {
                 effectivePartyToken = canvas.tokens.ownedTokens.find(t => t.name === partyConfig.definition.partyTokenName);
             }
@@ -915,7 +916,7 @@ export class PartyCruncher {
                 {
                     x: update.x,
                     y: update.y,
-                    elevation: update.elevation,
+                    elevation: update.elevation ?? 0,
                     hidden: update.hidden
                 });
         }
@@ -926,11 +927,12 @@ export class PartyCruncher {
             // Merge all currently found tokens into the existing storage, replacing old versions
             memberTokensToRemove.forEach(
                 memberTokenFromScene => {
+                    Logger.debug(this.#crunchParty.name, `memberTokenFromScene`, memberTokenFromScene);
                     if (partyConfig.definition.memberTokenNames.find(nameFromList => nameFromList === memberTokenFromScene.name)) {
                         partyConfigUpdates.memberTokens.splice(
                             partyConfigUpdates.memberTokens.indexOf(
-                                partyConfigUpdates.memberTokens.find(t => t.name === mt.name)
-                            ), 1, memberTokenFromScene)
+                                partyConfigUpdates.memberTokens.find(t => t.name === memberTokenFromScene.name)
+                            ), 1, memberTokenFromScene.document)
                     }
                 }
             );
@@ -1160,7 +1162,7 @@ export class PartyCruncher {
             _id: tokenToMove.document._id,
             x: x,
             y: y,
-            elevation: elevation,
+            elevation: elevation ?? 0,
             hidden: updates.hidden
         };
         Logger.debug(this.#createTokenTeleportUpdate.name, `update: `, update);
