@@ -132,7 +132,6 @@ export class PartyCruncher {
             }
             partyNo = prompt.partyNo;
         }
-
         Logger.debug(this.toggleParty.name, `TOGGLE - partyNo: #${partyNo}, useHotPanIfAvailable: ${useHotPanIfAvailable} ...`);
 
         try {
@@ -305,13 +304,20 @@ export class PartyCruncher {
      * The new target token depends on whether party is crunched or exploded (auto-detected).
      * @param partyNo
      * @param useHotPanIfAvailable - toggles "Hot Pan & Zoom!", if it is available (autofocussing players' scene views onto the party)*/
-    static async findParty(partyNo, useHotPanIfAvailable = true) {
+    static async findParty(partyNo = undefined, useHotPanIfAvailable = true) {
 
         if (this.isBusy()) {
             Logger.warn(this.findParty.name, false, Config.localize("errMsg.pleaseWaitStillBusy"));
             return;
         }
 
+        if (partyNo === undefined) {
+            const prompt = await this.#promptForPartySelection();
+            if (prompt.cancelled) {
+                return;
+            }
+            partyNo = prompt.partyNo;
+        }
         Logger.debug(this.findParty.name, `partyNo: ${partyNo}, useHotPan: ${useHotPanIfAvailable} ...`);
 
         try {
@@ -319,17 +325,67 @@ export class PartyCruncher {
             await this.setBusy(true);
 
             // ==================================================================================================
-            // Step 1 - Parse & validate party definitions from module settings
+            // Step 1 - Read party definition from stored settings
             // ==================================================================================================
             // grab raw input values from user prefs
-            let validatedNames = this.#collectValidatedTokenNamesFromModuleSettings(partyNo);
-            Logger.debug(this.findParty.name, "validatedNames: ", validatedNames);
+            let partyConfig = this.#getPartyConfig(partyNo);
+            Logger.debug(this.findParty.name, "partyConfig: ", partyConfig);
+
+            if (partyConfig?.definition === undefined) {
+                throw new Error(Config.localize("errMsg.partyConfigNotDefined").replace("{partyNo}", partyNo));
+            }
 
             // ==================================================================================================
-            // Step 2 - gather and validate all the involved tokens from current scene
+            // Step 2 - Scan the scene for the best possible target
             // ==================================================================================================
-            let involvedTokens = this.#collectInvolvedTokens(validatedNames, partyNo);
-            Logger.debug(this.findParty.name, "involvedTokens: ", involvedTokens);
+            let targetTokens = [];
+
+            // First prio is the party token, but only if it is unique in the scene and visible
+            let partyTokenCount =
+                this.#countTokensByNames([partyConfig.definition.partyTokenName])
+                .find(c => c.name === partyConfig.definition.partyTokenName);
+            Logger.debug(this.findParty.name, "partyTokenCount: ", partyTokenCount);
+
+            if (partyTokenCount?.count > 1) {
+                throw new Error(Config.localize("notUniqueInScene").replace("{tokenName}", partyConfig.definition.partyTokenName));
+            }
+            if (partyTokenCount?.count === 1 && !partyTokenCount.tokens[0].hidden) {
+                targetTokens.push(partyTokenCount.tokens[0]);
+            }
+            // Otherwise, scan for any member tokens, which also must be unique and visible
+            else {
+                let memberTokenCounts =
+                    this.#countTokensByNames(partyConfig.definition.memberTokenNames);
+                let duplicateTokenCounts = memberTokenCounts.filter(mt => mt.count > 1);
+                if (duplicateTokenCounts.length > 0) {
+                    let duplicateTokenNames = duplicateTokenCounts
+                        .reduce(
+                            (accumulatedTokens, currentCount) =>
+                            {
+                                accumulatedTokens = accumulatedTokens.concat(currentCount.tokens);
+                                return accumulatedTokens;
+                            }, [])
+                        .filter(t => !t.hidden)
+                        .map(t => t.name);
+                    throw new Error(Config.localize("notUniqueInScenePlural").replace("{tokenNames}", duplicateTokenNames.join(", ")));
+                }
+                let visibleUniqueMemberTokens = memberTokenCounts
+                    .reduce(
+                        (accumulatedTokens, currentCount) =>
+                        {
+                            accumulatedTokens = accumulatedTokens.concat(currentCount.tokens);
+                            return accumulatedTokens;
+                        }, [])
+                    .filter(t => !t.hidden);
+                targetTokens = targetTokens.concat(visibleUniqueMemberTokens);
+            }
+            if (!targetTokens || targetTokens.length === 0) {
+                throw new Error(Config.localize("errMsg.tokensMissingInScene")
+                    .replace("{partyNo}", partyNo)
+                    .replace("{partyName}", partyConfig.definition.partyTokenName));
+            }
+
+            Logger.debug(this.findParty.name, "targetTokens: ", targetTokens.map(t => t.name).join(", "));
 
             // ==================================================================================================
             // Step 3 - Finally... just FIND it!
@@ -339,41 +395,38 @@ export class PartyCruncher {
                 HotPan.switchOn(true); // true means: silentMode (no UI message)
             }
 
-            // Decide what to focus on, depending on the chosen party's status in the scene:
-            // Either The party token (if crunched) or one of its member tokens (if exploded)
-            if (involvedTokens.partyToken.document.hidden) { // i.e. EXPLODED
-                canvas.tokens.releaseAll();
-                for (let token of involvedTokens.memberTokens) {
-                    token.control({releaseOthers: false});
-                }
-                canvas.animatePan(involvedTokens.memberTokens[0].getCenter(involvedTokens.memberTokens[0].x, involvedTokens.memberTokens[0].y));
-            } else { // i.e. CRUNCHED
-                involvedTokens.partyToken.control({releaseOthers: true});
-                canvas.animatePan(involvedTokens.partyToken.getCenter(involvedTokens.partyToken.x, involvedTokens.partyToken.y));
-            }
+            let centerPosition = this.#calculateCenterPosition(targetTokens);
+            canvas.animatePan(centerPosition);
 
             if (useHotPanIfAvailable && optionalDependenciesAvailable.includes('hot-pan')) {
                 setTimeout(function () {
-                    Logger.debug(this.findParty.name, `switching HotPan BACK (useHotPan: ${useHotPanIfAvailable})`);
+                    Logger.debug(PartyCruncher.findParty.name, `switching HotPan BACK (useHotPan: ${useHotPanIfAvailable})`);
                     HotPan.switchBack(true); // true means: silentMode (no UI message)
                 }, 1000);
             }
         } catch (e) {
             Logger.error(this.findParty.name, false, e); // This will also print an error msg to the screen
-            return;
         } finally {
             await this.setBusy(false);
+            Logger.debug(this.findParty.name, `Finding of Party with partyNo #${partyNo} complete.`);
         }
-
-        Logger.debug(this.findParty.name, `Finding of Party with partyNo #${partyNo} complete.`);
-        await this.setBusy(false);
     }
 
-    static #collectValidatedTokenNamesFromModuleSettings(partyNo) {
-        let memberTokenNamesString = Config.setting(`memberTokenNames${partyNo}`);
-        let partyTokenNameString = Config.setting(`partyTokenName${partyNo}`);
-        let propertiesFromSettings = this.#collectNamesFromStrings(partyNo, memberTokenNamesString, partyTokenNameString);
-        return this.#createPartyDefinition(partyNo, propertiesFromSettings);
+    static #calculateCenterPosition(tokens) {
+        Logger.debug(this.#calculateCenterPosition.name, `tokens`, tokens);
+        Logger.debug(this.#calculateCenterPosition.name, `token positions`, tokens.map(t => `{${t.x}, ${t.y}}`).join(", "));
+        let xValues = tokens.map(t => t.x);
+        let yValues = tokens.map(t => t.y);
+        let minX = Math.min(...xValues);
+        let maxX = Math.max(...xValues);
+        let minY = Math.min(...yValues);
+        let maxY = Math.max(...yValues);
+        let pos = {
+            x: minX + (maxX - minX) / 2,
+            y: minY + (maxY - minY) / 2,
+        }
+        Logger.debug(this.#calculateCenterPosition.name, `center position result`, pos);
+        return pos;
     }
 
     static async deleteParty(partyInfo) {
@@ -387,34 +440,6 @@ export class PartyCruncher {
             allConfigs[partyInfo.partyNo] = null;
             Config.modifySetting("partyConfigs", allConfigs);
         }
-    }
-
-    /**
-     * Parse & split given list of token names from module settings.
-     * Throw meaningful UI errors if anything isn't valid.
-     * @param partyNo
-     * @param memberTokenNamesString
-     * @param partyTokenNameString
-     * @returns {{partyTokenName: string[], memberTokenNames: string[]}}
-     */
-    static #collectNamesFromStrings(partyNo = 1, memberTokenNamesString, partyTokenNameString) {
-
-        // Parse & split given list of party names from module settings
-        let memberTokenNames = memberTokenNamesString
-            .split(",")
-            .filter(name => name.length > 0); // ignore empty strings resulting from input like ",," or ", ,"
-        let partyTokenNames = partyTokenNameString
-            .split(",")
-            .filter(name => name.length > 0); // ignore empty strings resulting from input like ",," oder ", ,"
-
-        Logger.debug(this.#collectNamesFromStrings.name,
-            "memberTokenNames:", memberTokenNames,
-            "partyTokenNames:", partyTokenNames);
-
-        return {
-            memberTokenNames: memberTokenNames,
-            partyTokenName: partyTokenNames
-        };
     }
 
     static #collectNamesFromTokenSelection() {
@@ -454,12 +479,18 @@ export class PartyCruncher {
         Logger.debug(this.#countTokensByNames.name, namesArr.join(", "));
 
         let tokenCounts = [];
-        namesArr.forEach(
+        namesArr.forEach
+        (
             name =>
+            {
+                const tokensFound = canvas.scene.tokens.filter(t => t.name.toLowerCase() === name.toLowerCase());
                 tokenCounts.push({
                     name: name,
-                    count: canvas.scene.tokens.filter(t => t.name.toLowerCase() === name.toLowerCase()).length
-                }));
+                    count: canvas.scene.tokens.filter(t => t.name.toLowerCase() === name.toLowerCase()).length,
+                    tokens: tokensFound
+                });
+            }
+        );
         Logger.debug(this.#countTokensByNames.name, `results of token count: `, tokenCounts);
 
         tokenCounts = tokenCounts.filter(tc => tc.count >= minCount);
@@ -588,54 +619,6 @@ export class PartyCruncher {
 
     static #isEmptyConfig(partyConfig) {
         return partyConfig === undefined || partyConfig === null || partyConfig === {};
-    }
-
-    /**
-     * Identify and collect all the tokens corresponding to the names lists in the scene and register them for later.
-     * Throw meaningful UI error if some tokens can't be found or are not unique.
-     * @param names
-     * @param partyNo
-     * @returns {{partyToken: any, memberTokens: *[]}}
-     */
-    static #collectInvolvedTokens(names, partyNo = 1) {
-        // TODO - function probably unused
-        let errMsg = "";
-
-        // Check 1: Does any of the member tokens exist more than once in the scene?
-        const memberTokens = this.#collectTokensByNamesIfUnique(names.memberTokenNames);
-        const partyToken = this.#collectTokensByNamesIfUnique([names.partyTokenName])[0];
-
-        // Check 2: Are there any tokens that could NOT be found?
-        let missingTokens = names.memberTokenNames
-            .filter(() => false/*!memberTokens // (DEACTIVATED FEATURE as of 11.0.4)
-                .map(t => t.name.toUpperCase())
-                .includes((name))*/);
-        if (!partyToken) {
-            missingTokens.push(names.partyTokenName);
-        }
-
-        if (missingTokens.length > 0) {
-            errMsg += `${Config.localize(`errMsg.tokensMissingInScene`)}: ${missingTokens.join(`, `)}<br/>`;
-        }
-
-        if (errMsg) {
-            errMsg =
-                // Collect all errors into one biiiiig message
-                Config.localize('errMsg.pleaseCheckYourTokenSelection') + ":<br/>" +
-                "<br/>" +
-                "- " + Config.localize(`setting.memberTokenNames#.name`).replace("#", partyNo) +
-                ": <strong>[ " + Config.setting(`memberTokenNames${partyNo}`) + " ]</strong><br/>" +
-                "- " + Config.localize(`setting.partyTokenName#.name`).replace("#", partyNo) +
-                ": <strong>[ " + Config.setting(`partyTokenName${partyNo}`) + " ]</strong><br/>" +
-                "<br/>" +
-                errMsg;
-            throw new Error(errMsg);
-        }
-
-        return {
-            memberTokens: memberTokens,
-            partyToken: partyToken
-        };
     }
 
     /**
@@ -978,7 +961,6 @@ export class PartyCruncher {
         const memberTokensToKeep = [];
 
         const memberTokenCounts = this.#countTokensByNames(partyConfig.definition.memberTokenNames);
-        let applyToAll = false;
         let tokenConflictResolution;
         let cnt = 0;
         for (const memberCount of memberTokenCounts) {
@@ -1201,7 +1183,7 @@ export class PartyCruncher {
         return movementVector[counter];
     }
 
-    static async #promptForPartyDefinition(partyNo = 1) {
+    static async #promptForPartyDefinition() {
 
         const title = Config.localize('promptForPartyDefinition.title');
 
@@ -1340,47 +1322,6 @@ export class PartyCruncher {
         });
     }
 
-    static async #promptForDuplicateDelete(duplicateData, allowApplyToAll = false) {
-
-        let content = `
-            <form>
-                <div style="max-height: 600px; max-width: 600px; overflow: auto">
-                    <legend>${Config.localize('promptForDuplicateDelete.text')
-            .replace("{tokenName}", duplicateData.name)
-            .replace("{count}", duplicateData.count)}</legend><br/>`;
-        if (allowApplyToAll) {
-            content += `
-                    <label>
-                        <input type="checkbox" name="applyToAll" checked 
-                               alt="${Config.localize('applyToAll')}"/>
-                               ${Config.localize('applyToAll')}</label><br/>`;
-        }
-        content += `
-                </div>
-            </form>`;
-
-        return new Promise(resolve => {
-            new foundry.applications.api.DialogV2({
-                window: {title: Config.localize('promptForDuplicateDelete.title')},
-                content: content,
-                buttons: [
-                    {
-                        action: "delete",
-                        label: Config.localize('promptForDuplicateDelete.delete'),
-                        default: true,
-                        callback: (event, button) => resolve({
-                            delete: true,
-                            applyToAll: (allowApplyToAll && button.form.elements.applyToAll.checked)
-                        })
-                    }, {
-                        action: "cancel",
-                        label: Config.localize('cancelButton'),
-                        callback: () => resolve({cancelled: true})
-                    }]
-            }).render({force: true});
-        });
-    }
-
     static #resolvePromptForPartyDefinition(tokenChoice, modeChoice, partyNoChoice) {
         let result = {
             tokenName: tokenChoice,
@@ -1425,7 +1366,6 @@ export class PartyCruncher {
         const {divTemplate, tableTemplate, tableRowTemplate, imgTemplate, radioButtonTemplate} = this.#getPartyTableTemplates(tableConfig);
         const allConfigs = this.#getAllPartyConfigs();
 
-        let divContentHTML = "";
         let tableContentHTML = "";
         let tableBodyHTML = "";
         let buttons = [];
@@ -1554,7 +1494,7 @@ export class PartyCruncher {
 
         tableContentHTML += await this.#renderHTML(tableTemplate, tableRenderData);
 
-        divContentHTML = await this.#renderHTML(divTemplate, {
+        const divContentHTML = await this.#renderHTML(divTemplate, {
             divContent: tableContentHTML
         });
 
@@ -1640,7 +1580,7 @@ export class PartyCruncher {
             }
         });
 
-        return new Promise(resolve => {
+        return new Promise(() => {
             new foundry.applications.api.DialogV2({
                 window: {title: Config.localize('settingsMenu.partyConfigSection')},
                 content: tableData.contentHTML,

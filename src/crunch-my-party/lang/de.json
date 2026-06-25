@@ -80,7 +80,7 @@
       "invalidNumberOfMemberTokens": "Ungültige Anzahl an Tokens ausgewählt! Eine Gruppe muss aus mindestens 2 und maximal {maxMembers} Mitgliedern bestehen.",
       "notUniqueInScene": "Token [{tokenName}] existiert mehrfach in der Szene.",
       "notUniqueInScenePlural": "Die folgenden Tokens existieren mehrfach in der Szene. Die gewählte Aktion unterstützt keine Tokens gleichen Namens",
-      "tokensMissingInScene": "Fehlende Tokens: In der Scene gibt es für Gruppe #{partyNo} [{partyName}] weder einen Gruppentoken noch Mitglieder. Deshalb kann die erforderliche Aktion nicht ermittelt werden.",
+      "tokensMissingInScene": "Fehlende Tokens: In der Scene sind für Gruppe #{partyNo} [{partyName}] weder ein Gruppentoken noch Mitglieder sichtbar. Deshalb kann die erforderliche Aktion nicht ermittelt werden.",
       "partyTokenMissingInScene": "Der Gruppentoken namens '#partyTokenName' fehlt in der Szene. Bitte füge ihn hinzu und versuche es erneut.",
       "partyTokenMissingInConfig": "Die Gruppenkonfiguration enthält keine Daten für den Gruppentoken '#tokenName'. Bitte füge ihn der Szene hinzu oder erstelle die Gruppe neu mit dem \"Group\"-Macro.",
       "cannotDetermineAction": "Aktion kann nicht ermittelt werden!",
@@ -91,7 +91,8 @@
       "movementActionNotFound": "Token kann nicht verschoben werden: Die folgende Movement Action ist nicht in CONFIG.Token.movement.actions vorhanden: ",
       "pleaseReportThisError": "Bitte melde dieses Problem an den Autor des Moduls auf https://github.com/coffiarts/FoundryVTT-crunch-my-party.",
       "pleaseActivateTokenLayer": "Bitte aktiviere für diese Funktion den Token Layer (Menübutton links oben).",
-      "pleaseSelectTargetToken": "Bitte ein einzelnes Gruppenmitglied auswählen, welches Zielposition und -höhe (Elevation) für diese Aktion festlegt."
+      "pleaseSelectTargetToken": "Bitte ein einzelnes Gruppenmitglied auswählen, welches Zielposition und -höhe (Elevation) für diese Aktion festlegt.",
+      "partyConfigNotDefined": "Gruppe #{partyNo} ist scheinbar nicht definiert. Bitte prüfe die Liste der Gruppenkonfigurationen."
     },
     "promptForPartyDefinition": {
       "title": "Gruppendefinition",
