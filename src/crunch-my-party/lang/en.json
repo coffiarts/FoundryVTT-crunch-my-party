@@ -54,7 +54,6 @@
         "hint": "Audio file (relative path) to be played on \"Explode\"?"
       }
     },
-    "party":  "Party",
     "labels" : {
       "partyTokenName": "Party Token",
       "memberTokenNames": "Members",
@@ -81,17 +80,11 @@
       "notUniqueInScene": "Token [{tokenName}] is not unique in scene!",
       "notUniqueInScenePlural": "The following tokens are not unique in the scene. The current action does not support this:",
       "tokensMissingInScene": "Missing tokens: There are neither a party token nor any members visible in this scene for party #{partyNo} [{partyName}]. The appropriate action cannot be determined.",
-      "partyTokenMissingInScene": "The party token named '#partyTokenName' is missing in the scene. Please add it, then try again.",
       "partyTokenMissingInConfig": "The party configuration is missing data for the party token named '#tokenName'. Please add it to the scene, or recreate the party using the \"Group\" macro.",
       "cannotDetermineAction": "Cannot determine action!",
       "noTokensVisible": "Either the party token OR at least one of the party members must be visible (activated) in the scene to perform this action.",
       "membersAndPartyTokenVisible": "Party token and members cannot be visible at the same time to perform this action.",
       "pleaseWaitStillBusy": "Please wait for current action to complete ...",
-      "pleaseSelectToken": "Please select at least one scene token to use this function.",
-      "movementActionNotFound": "Unable to move token: The following movement action was not found in CONFIG.Token.movement.actions: ",
-      "pleaseReportThisError": "Please report this error to the mod author on https://github.com/coffiarts/FoundryVTT-crunch-my-party.",
-      "pleaseActivateTokenLayer": "Please activate the token layer (menu button on top left) to use this function.",
-      "pleaseSelectTargetToken": "Please select a unique group member to define the target position and elevation for this action.",
       "partyConfigNotDefined": "Party #{partyNo} doesn't seem to be configured. Please check your Party definitions list."
     },
     "promptForPartyDefinition": {
@@ -123,18 +116,12 @@
       "replace": "Replace",
       "keep": "Keep"
     },
-    "promptForDuplicateDelete" : {
-      "title": "Token already exists in scene!",
-      "text": "Token {tokenName} exists {count}x in this scene. If you proceed, they'll all be deleted. What do you want to do?",
-      "delete": "Delete"
-    },
     "promptForSimpleConfirmation":  "Confirmation required",
     "confirmDeleteParty": "Do you want to delete Party # ({partyName}) with {noOfMembers} members from the list and release this slot?",
     "okButton": "OK",
     "saveButton": "Save",
     "cancelButton": "Cancel",
     "closeButton": "Close",
-    "deletePartyButton": "Delete Party #",
     "partyTable": {
       "deleteButton": "Delete\n#{partyNo}",
       "findButton": "Find\n#{partyNo}"

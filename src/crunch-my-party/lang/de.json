@@ -54,7 +54,6 @@
         "hint": "Audiodatei (relativer Pfad), die beim \"Explode\" abgespielt wird."
       }
     },
-    "party":  "Gruppe",
     "labels" : {
       "partyTokenName": "Gruppentoken",
       "memberTokenNames": "Mitglieder",
@@ -81,17 +80,11 @@
       "notUniqueInScene": "Token [{tokenName}] existiert mehrfach in der Szene.",
       "notUniqueInScenePlural": "Die folgenden Tokens existieren mehrfach in der Szene. Die gewählte Aktion unterstützt keine Tokens gleichen Namens",
       "tokensMissingInScene": "Fehlende Tokens: In der Scene sind für Gruppe #{partyNo} [{partyName}] weder ein Gruppentoken noch Mitglieder sichtbar. Deshalb kann die erforderliche Aktion nicht ermittelt werden.",
-      "partyTokenMissingInScene": "Der Gruppentoken namens '#partyTokenName' fehlt in der Szene. Bitte füge ihn hinzu und versuche es erneut.",
       "partyTokenMissingInConfig": "Die Gruppenkonfiguration enthält keine Daten für den Gruppentoken '#tokenName'. Bitte füge ihn der Szene hinzu oder erstelle die Gruppe neu mit dem \"Group\"-Macro.",
       "cannotDetermineAction": "Aktion kann nicht ermittelt werden!",
       "noTokensVisible": "Entweder der Gruppentoken ODER mindestens eines der Gruppenmitglieder muss in der Szene sichtbar (aktiviert) sein, damit diese Aktion ausgeführt werden kann.",
       "membersAndPartyTokenVisible": "Gruppentoken und Gruppenmitglieder dürfen nicht zugleich in der Szene sichtbar sein, um diese Aktion auszuführen",
       "pleaseWaitStillBusy": "Bitte warten, bis laufende Aktion beendet ist ...",
-      "pleaseSelectToken": "Für diese Funktion muss mindestens ein Token ausgewählt sein.",
-      "movementActionNotFound": "Token kann nicht verschoben werden: Die folgende Movement Action ist nicht in CONFIG.Token.movement.actions vorhanden: ",
-      "pleaseReportThisError": "Bitte melde dieses Problem an den Autor des Moduls auf https://github.com/coffiarts/FoundryVTT-crunch-my-party.",
-      "pleaseActivateTokenLayer": "Bitte aktiviere für diese Funktion den Token Layer (Menübutton links oben).",
-      "pleaseSelectTargetToken": "Bitte ein einzelnes Gruppenmitglied auswählen, welches Zielposition und -höhe (Elevation) für diese Aktion festlegt.",
       "partyConfigNotDefined": "Gruppe #{partyNo} ist scheinbar nicht definiert. Bitte prüfe die Liste der Gruppenkonfigurationen."
     },
     "promptForPartyDefinition": {
@@ -123,18 +116,12 @@
       "replace": "Ersetzen",
       "keep": "Behalten"
     },
-    "promptForDuplicateDelete" : {
-      "title": "Token bereits vorhanden!",
-      "text": "Der Token {tokenName} existiert {count}x in der Szene. Wenn du fortfährst, werden sie alle gelöscht. Was möchtest Du tun?",
-      "delete": "Löschen"
-    },
     "promptForSimpleConfirmation":  "Bestätigung erforderlich",
     "confirmDeleteParty": "Willst du die Gruppe # ({partyName}) mit {noOfMembers} Mitgliedern aus der Liste löschen und den Slot freigeben?",
     "okButton": "OK",
     "saveButton": "Speichern",
     "cancelButton": "Abbrechen",
     "closeButton": "Schliessen",
-    "deletePartyButton": "Delete Party #",
     "partyTable": {
       "deleteButton": "Gruppe #{partyNo}\nlöschen",
       "findButton": "Gruppe #{partyNo}\nfinden"

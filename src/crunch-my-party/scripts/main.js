@@ -666,62 +666,10 @@ export class PartyCruncher {
     }
 
     static #detectRequestedState(partyConfig) {
-
         Logger.debug(this.#detectRequestedState.name, `lastKnownState of party#${partyConfig.definition.partyNo}: ${partyConfig.lastKnownState}`);
-
-        // TODO - decide whether simplified logic can be upheld ...
         const requestedState = (partyConfig.lastKnownState === Config.globals.states.EXPLODED) ? Config.globals.states.CRUNCHED : Config.globals.states.EXPLODED;
         Logger.debug(this.#detectRequestedState.name, `requestedState: ${requestedState}`);
         return requestedState;
-
-        // TODO - ... otherwise replace the code above by this ...
-        /*const partyNo = partyConfig.definition.partyNo;
-
-        let membersVisibleInScene = canvas.scene.tokens.filter(
-            t =>
-                partyConfig.definition.memberTokenNames.map(
-                    n =>
-                        n !== partyConfig.definition.partyTokenName
-                        && n.toLowerCase()).indexOf(t.name.toLowerCase()) > -1
-                && !t.hidden);
-        Logger.debug(this.#detectRequestedState.name, `membersVisibleInScene: `, membersVisibleInScene);
-
-        let partyTokensVisibleInScene = canvas.scene.tokens.filter(
-            t =>
-                partyConfig.definition.partyTokenName.toLowerCase() === t.name.toLowerCase()
-                && !t.hidden);
-        Logger.debug(this.#detectRequestedState.name, `partyTokensVisibleInScene: `, partyTokensVisibleInScene);
-
-        let errMsg = "";
-
-        // Check: Either the party token or any of the member tokens need to be present and visible
-        if (membersVisibleInScene.length === 0 && partyTokensVisibleInScene.length === 0) {
-            errMsg = Config.localize('errMsg.noTokensVisible');
-        }
-        // Check: Party and member tokens must not be present at the same time
-        else if (partyConfig.definition.partyTokenMode === Config.globals.partyTokenModes.PLACEHOLDER
-            && membersVisibleInScene.length > 0 && partyTokensVisibleInScene.length > 0) {
-            errMsg = Config.localize('errMsg.membersAndPartyTokenVisible');
-        }
-
-        if (errMsg) {
-            errMsg =
-                Config.localize('errMsg.cannotDetermineAction') + "<br/>" +
-                "<br/>" +
-                errMsg + ":<br/>" +
-                "<br/>" +
-                Config.localize('errMsg.pleaseCheckYourTokenSelection') + ":<br/>" +
-                "<br/>" +
-                "<strong>" + Config.localize("party") + "#" + partyNo + ":</strong><br/>" +
-                "- " + partyConfig.definition.partyTokenName + " (" + Config.localize("labels.partyTokenName") + ")<br/>- " +
-                "- " + partyConfig.definition.memberTokenNames.join("<br/>");
-            throw new Error(errMsg);
-        }
-
-        const requestedState = (membersVisibleInScene.length > 0) ? Config.globals.states.CRUNCHED : Config.globals.states.EXPLODED;
-
-        Logger.debug(this.#detectRequestedState.name, `requestedState: ${requestedState}`);
-        return requestedState;*/
     }
 
     static async #crunchParty(partyConfig, useHotPanIfAvailable = true) {
@@ -873,7 +821,7 @@ export class PartyCruncher {
 
                 } else {
                     // Otherwise throw an error
-                    Logger.error(this.#crunchParty.name, false, Config.localize("partyTokenMissingInConfig").replace("#tokenName", partyConfig.partyTokenName));
+                    Logger.error(this.#crunchParty.name, false, Config.localize("errMsg.partyTokenMissingInConfig").replace("#tokenName", partyConfig.partyTokenName));
                     return;
                 }
             }

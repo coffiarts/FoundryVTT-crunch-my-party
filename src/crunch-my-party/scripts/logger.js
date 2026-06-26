@@ -19,7 +19,7 @@ export class Logger {
         Config.registerSettings(settingsData);
     }
     static info(...args) {
-        console.log(`${Config?.globals?.modTitle ?? "" } [${Config?.globals?.modID ?? "" }] | INFO |`, ...args);
+        console.log(`${Config?.globals?.modTitle ?? "" } [${Config?.globals?.modID ?? "" }] | INFO | `, ...args);
     }
 
     static infoGreen(msg) {
