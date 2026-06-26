@@ -2,8 +2,8 @@ The **major** version number in my modules (like "13") always reflects the
 Foundry VTT **core** version it is compatible with (and recommended for).
 
 ## 14.0.0
-### 2026-06-27 - v14 compatibility and a HUGE overhaul [#13](https://github.com/coffiarts/FoundryVTT-crunch-my-party/issues/13))
-- ***v14 compatibility**: Hurray, it is here! And much more than that: Foundry's new version finally forced me to completely overhaul the mechanics - which was long due anyway.  So I took the chance to improve tons of things and add new features, such as ...
+### 2026-06-27 - v14 compatibility and a HUGE overhaul (compatibility fix [#13](https://github.com/coffiarts/FoundryVTT-crunch-my-party/issues/13))
+- **v14 compatibility**: Hurray, it is here! And much more than that: Foundry's new version finally forced me to completely overhaul the mechanics - which was long due anyway.  So I took the chance to improve tons of things and add new features, such as ...
 
 [Crunch My Party! - Video Howto (new v14 overhaul!)](https://youtu.be/KCJD19fJnMg)
 

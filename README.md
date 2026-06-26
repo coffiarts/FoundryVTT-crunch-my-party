@@ -53,14 +53,6 @@ This is absolutely optional! Don't feel obliged in any way to do so. My mod is a
 - [What it does ...](#what-it-does-)
 - [Changelog](#changelog)
 - [How it works ...](#how-it-works-)
-  * [GROUP - Define a new party](#group---define-a-new-party)
-  * [TOGGLE - CRUNCH an exploded party into one single party token](#toggle---crunch-an-exploded-party-into-one-single-party-token)
-  * [TOGGLE - EXPLODE a collapsed party into separate member tokens](#toggle---explode-a-collapsed-party-into-separate-member-tokens)
-  * [FIND - Jump to an already defined party in the scene](#find---jump-to-an-already-defined-party-in-the-scene)
-- [Known restrictions](#known-restrictions)
-- [Find and toggle by hotkeys](#find-and-toggle-by-hotkeys)
-- [Control it by macro](#control-it-by-macro)
-- [Adjustable module settings](#adjustable-module-settings)
 - [Recommended modules in combination with this one](#recommended-modules-in-combination-with-this-one)
   * [Notes on using Hot Pan and Zoom](#notes-on-using-hot-pan-and-zoom)
   * [Notes on using JB2A - Automated Animations - Sequencer](#notes-on-using-jb2a---automated-animations---sequencer)
@@ -145,7 +137,7 @@ If you do NOT want players' views to be synchronized (e.g. if you don't want the
 ### Notes on using JB2A - Automated Animations - Sequencer
 Installing these 3 optional mods (strongly recommended!) will play atmospheric animations on crunch and explode. All 3 mods are used in combination (simply installing one or two of them won't work!).
 
-You may choose to override the default animation with another one of your choice by adjusting the game setting **"Explode animation (optional)"**. See [Adjustable module settings](#adjustable-module-settings).
+You may choose to override the default animation with another one of your choice by adjusting the game setting **"Explode animation (optional)"**.
 
 ## Compatibility and Dependencies
 - Tested on Foundry VTT 13 + 14 and higherin world system "dsa5" / "tde5" (The Dark Eye). But I consider it system-agnostic.
