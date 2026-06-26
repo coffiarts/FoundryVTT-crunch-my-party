@@ -135,7 +135,11 @@ export class PartyCruncher {
             // Step 1 - Read partyConfig
             // ==================================================================================================
             const partyConfig = this.#getPartyConfig(partyNo);
-            if (!this.isValidDefinition(partyConfig)) {
+
+            if (!this.#checkActionPreconditions(partyConfig)) {
+                ui.notifications.warn(Config.localize("errMsg.partyConfigNotDefined")
+                    .replace("{partyNo}", partyNo.toString()));
+                await this.setBusy(false);
                 return;
             }
             Logger.debug(this.toggleParty.name, `partyConfig(${partyNo}) is valid: `, partyConfig);
@@ -226,6 +230,7 @@ export class PartyCruncher {
             // ask the GM for the name and mode of the party token to use
             let partyDefinitionInput = await this.#promptForPartyDefinition(partyNo);
             if (partyDefinitionInput.cancelled) {
+                await this.setBusy(false);
                 return;
             } else {
                 propertiesFromSelection.partyTokenName = partyDefinitionInput.tokenName;
@@ -322,11 +327,13 @@ export class PartyCruncher {
             // ==================================================================================================
             // grab raw input values from user prefs
             let partyConfig = this.#getPartyConfig(partyNo);
-            Logger.debug(this.findParty.name, "partyConfig: ", partyConfig);
 
-            if (partyConfig?.definition === undefined) {
-                throw new Error(Config.localize("errMsg.partyConfigNotDefined").replace("{partyNo}", partyNo));
-            }
+            if (!this.#checkActionPreconditions(partyConfig)) {
+                ui.notifications.warn(Config.localize("errMsg.partyConfigNotDefined")
+                    .replace("{partyNo}", partyNo.toString()));
+                await this.setBusy(false);
+                return;
+            }Logger.debug(this.findParty.name, "partyConfig: ", partyConfig);
 
             // ==================================================================================================
             // Step 2 - Scan the scene for the best possible target
@@ -717,10 +724,6 @@ export class PartyCruncher {
 
     static async #crunchParty(partyConfig, useHotPanIfAvailable = true) {
 
-        if (!this.#checkActionPreconditions(partyConfig)) {
-            return;
-        }
-
         // Apart from a regular preconditions above, the config also needs a stored partyToken
         if (!this.#hasPartyToken(partyConfig)) {
             return;
@@ -930,10 +933,6 @@ export class PartyCruncher {
 
     static async #explodeParty(partyConfig, useHotPanIfAvailable = true) {
 
-        if (!this.#checkActionPreconditions(partyConfig)) {
-            return;
-        }
-
         // Apart from a regular preconditions above, the config also needs stored memberTokens
         if (!this.#hasMemberTokens(partyConfig)) {
             return;
@@ -979,7 +978,7 @@ export class PartyCruncher {
                 Logger.debug(this.#explodeParty.name, `Existing token [${memberCount.name}] flagged for KEEP (by GM confirmation).`);
                 memberTokensToKeep.push(memberCount.tokens[0]);
             }
-            // cancelled
+            // canceled
             else {
                 Logger.debug(this.#explodeParty.name, `Duplicate confirmation cancelled by the GM. This cancels the EXPLODE action.`);
                 return;
@@ -1609,28 +1608,28 @@ export class PartyCruncher {
 
     static isValidDefinition(partyConfig) {
         if (!partyConfig) {
-            Logger.error(this.isValidDefinition.name, true, 'this.isValidDefinition(partyConfig) - partyConfig is empty.');
+            Logger.warn(this.isValidDefinition.name, true, 'this.isValidDefinition(partyConfig) - partyConfig is empty.');
             return false;
         }
         if (partyConfig.definition === undefined) {
-            Logger.error(this.isValidDefinition.name, true, 'this.isValidDefinition(partyConfig) - definition is empty.');
+            Logger.warn(this.isValidDefinition.name, true, 'this.isValidDefinition(partyConfig) - definition is empty.');
             return false;
         }
         if (partyConfig.definition.partyNo === undefined || isNaN(partyConfig.definition.partyNo) || partyConfig.definition.partyNo < 1 || partyConfig.definition.partyNo > Config.setting("maxNoOfParties")) {
-            Logger.error(this.isValidDefinition.name, true, `this.#isValid(partyConfig) - definition does not contain a  valid partyNo (must be a number between 1 and ${Config.setting("maxNoOfParties")}): `, partyNo);
+            Logger.warn(this.isValidDefinition.name, true, `this.#isValid(partyConfig) - definition does not contain a  valid partyNo (must be a number between 1 and ${Config.setting("maxNoOfParties")}): `, partyNo);
             return false;
         }
         if (partyConfig.definition.partyTokenName === undefined) {
-            Logger.error(this.isValidDefinition.name, true, 'this.isValidDefinition(partyConfig) - definition.partyTokenName is missing or empty: ', partyConfig.definition.partyTokenName);
+            Logger.warn(this.isValidDefinition.name, true, 'this.isValidDefinition(partyConfig) - definition.partyTokenName is missing or empty: ', partyConfig.definition.partyTokenName);
             return false;
         }
         const allowedModes = Object.values(Config.globals.partyTokenModes);
         if (partyConfig.definition.partyTokenMode === undefined || !allowedModes.find(m => m === partyConfig.definition.partyTokenMode)) {
-            Logger.error(this.isValidDefinition.name, true, `this.#isValid(partyConfig) - definition.partyTokenMode is invalid (must be one of: ${allowedModes.join((", "))}) `, definition.partyTokenName);
+            Logger.warn(this.isValidDefinition.name, true, `this.#isValid(partyConfig) - definition.partyTokenMode is invalid (must be one of: ${allowedModes.join((", "))}) `, definition.partyTokenName);
             return false;
         }
         if (partyConfig.definition.memberTokenNames === undefined || partyConfig.definition.memberTokenNames.length === 0) {
-            Logger.error(this.isValidDefinition.name, true, 'this.isValidDefinition(partyConfig) - definition.memberTokenNames is missing or an empty list: ', definition.memberTokenNames);
+            Logger.warn(this.isValidDefinition.name, true, 'this.isValidDefinition(partyConfig) - definition.memberTokenNames is missing or an empty list: ', definition.memberTokenNames);
             return false;
         }
 
@@ -1674,7 +1673,7 @@ export class PartyCruncher {
             && optionalDependenciesAvailable.includes('autoanimations')) {
             Logger.debug(this.#playAnimation.name, `animationPath: ${animationPath}`);
 
-            new Sequence()
+            new Sequence({ moduleName: Config.globals.modTitle })
                 .effect()
                 .file(animationPath)
                 .atLocation(targetToken)
