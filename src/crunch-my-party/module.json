@@ -1,8 +1,8 @@
 {
   "id": "crunch-my-party",
   "title": "Crunch My Party!",
-  "description": "A neat little utility for the game master handling multiple tokens as one party. Easily collapse arbitrary groups of scene tokens (representing parties) into an easy-to-use single \"party token\", and vice versa. Manage up to 5 separate parties with up to 25 members each!",
-  "version": "13.1.0",
+  "description": "A neat little utility for the game master handling multiple tokens as one party. Easily collapse arbitrary groups of scene tokens (representing parties) into an easy-to-use single \"party token\", and vice versa. Manage up to 10 separate parties with up to 25 members each!",
+  "version": "13.0.3",
   "url": "https://github.com/coffiarts/FoundryVTT-crunch-my-party",
   "manifest": "https://github.com/coffiarts/FoundryVTT-crunch-my-party/releases/download/latest/module.json",
   "download": "https://github.com/coffiarts/FoundryVTT-crunch-my-party/releases/download/latest/module.zip",
@@ -29,34 +29,22 @@
       {
         "id": "JB2A_DnD5e",
         "type": "module",
-        "manifest": "https://github.com/Jules-Bens-Aa/JB2A_DnD5e/releases/latest/download/module.json",
-        "compatibility": {
-          "verified": "0.8.2"
-        }
+        "manifest": "https://github.com/Jules-Bens-Aa/JB2A_DnD5e/releases/latest/download/module.json"
       },
       {
         "id": "autoanimations",
         "type": "module",
-        "manifest": "https://github.com/theripper93/autoanimations/releases/download/6.2.3/module.json",
-        "compatibility": {
-          "verified": "6.2.5"
-        }
+        "manifest": "https://github.com/theripper93/autoanimations/releases/download/6.2.3/module.json"
       },
       {
         "id": "sequencer",
         "type": "module",
-        "manifest": "https://github.com/fantasycalendar/FoundryVTT-Sequencer/releases/latest/download/module.json",
-        "compatibility": {
-          "verified": "3.6.10"
-        }
+        "manifest": "https://github.com/fantasycalendar/FoundryVTT-Sequencer/releases/latest/download/module.json"
       },
       {
         "id": "hot-pan",
         "type": "module",
-        "manifest": "https://github.com/coffiarts/FoundryVTT-hot-pan/releases/download/latest/module.json",
-        "compatibility": {
-          "verified": "13"
-        }
+        "manifest": "https://github.com/coffiarts/FoundryVTT-hot-pan/releases/download/latest/module.json"
       }
     ]
   },
@@ -64,7 +52,8 @@
     "/scripts/main.js",
     "/scripts/config.js",
     "/scripts/logger.js",
-    "/scripts/chatinfo.js"
+    "/scripts/chatinfo.js",
+    "/scripts/localizationcheck.js"
   ],
   "languages": [
     {

@@ -403,6 +403,7 @@ export class PartyCruncher {
                 HotPan.switchOn(true); // true means: silentMode (no UI message)
             }
 
+            targetTokens.forEach(t => t.control({releaseOthers:false}));
             let centerPosition = this.#calculateCenterPosition(targetTokens);
             canvas.animatePan(centerPosition);
 
