@@ -134,6 +134,7 @@
     "saveButton": "Speichern",
     "cancelButton": "Abbrechen",
     "closeButton": "Schliessen",
+    "deletePartyButton": "Delete Party #",
     "partyTable": {
       "deleteButton": "Gruppe #{partyNo}\nlöschen",
       "findButton": "Gruppe #{partyNo}\nfinden"

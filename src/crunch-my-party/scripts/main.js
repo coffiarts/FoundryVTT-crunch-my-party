@@ -1,11 +1,13 @@
 import {Logger} from './logger.js';
 import {Config} from './config.js'
 import {ChatInfo} from "./chatinfo.js";
+import {LocalizationCheck} from "./localizationcheck.js";
 
 const SUBMODULES = {
     MODULE: Config,
     logger: Logger,
-    chatinfo: ChatInfo
+    chatinfo: ChatInfo,
+    localizationcheck: LocalizationCheck
 };
 
 const optionalDependencies = ['hot-pan', 'JB2A_DnD5e', 'jb2a_patreon', 'autoanimations'];

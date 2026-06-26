@@ -18,6 +18,8 @@ export class Config {
         // keep these values in sync with your module.json!
         modID: MOD_ID,
         modPath: MOD_PATH,
+        templatePath: `${MOD_PATH}/tpl`,
+        langPath: `${MOD_PATH}/lang`,
         modTitle: MOD_TITLE,
         modDescription: MOD_DESCRIPTION,
         modlink: MOD_LINK,
@@ -31,8 +33,7 @@ export class Config {
         states: {
             CRUNCHED: "CRUNCHED",
             EXPLODED: "EXPLODED",
-        },
-        templatePath: `modules/${MOD_ID}/tpl/`
+        }
     };
     static NO_AUDIO_FILE = '../modules/crunch-my-party/audio/audio_null.mp3';
 
