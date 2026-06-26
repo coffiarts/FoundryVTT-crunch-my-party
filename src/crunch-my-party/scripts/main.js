@@ -105,6 +105,9 @@ export class PartyCruncher {
         //if (!isBusy) await Config.sleep(1000);
         this.#isBusy = isBusy;
         Logger.debug(this.setBusy.name, (isBusy) ? "BUSY!" : "NOT BUSY");
+        if (isBusy) {
+            setInterval(function(){PartyCruncher.setBusy(false)},Config.globals.safetyTimeoutMsec); // just for safety - preventing weird permanent locks.
+        }
     }
 
     /**
@@ -122,7 +125,8 @@ export class PartyCruncher {
 
         if (partyNo === undefined) {
             const prompt = await this.#promptForPartySelection();
-            if (prompt.cancelled) {
+            if (!prompt || prompt.cancelled) {
+                await this.setBusy(false);
                 return;
             }
             partyNo = prompt.partyNo;
@@ -166,7 +170,7 @@ export class PartyCruncher {
             }
 
         } catch (e) {
-            Logger.error(this.toggleParty.name, false, e); // This will also print an error msg to the screen
+            Logger.error(this.toggleParty.name, false, e.message); // This will also print an error msg to the screen
             return;
         } finally {
             await this.setBusy(false);
@@ -231,15 +235,15 @@ export class PartyCruncher {
 
             // ask the GM for the name and mode of the party token to use
             let partyDefinitionInput = await this.#promptForPartyDefinition(partyNo);
-            if (partyDefinitionInput.cancelled) {
+            if (!partyDefinitionInput || partyDefinitionInput.cancelled) {
                 await this.setBusy(false);
                 return;
-            } else {
-                propertiesFromSelection.partyTokenName = partyDefinitionInput.tokenName;
-                propertiesFromSelection.partyTokenMode = partyDefinitionInput.mode;
-                partyNo = partyDefinitionInput.partyNo;
-                Logger.debug(this.groupParty.name, `propertiesFromSelection for grouping party #${partyNo}:`, propertiesFromSelection);
             }
+            propertiesFromSelection.partyTokenName = partyDefinitionInput.tokenName;
+            propertiesFromSelection.partyTokenMode = partyDefinitionInput.mode;
+            partyNo = partyDefinitionInput.partyNo;
+            Logger.debug(this.groupParty.name, `propertiesFromSelection for grouping party #${partyNo}:`, propertiesFromSelection);
+
             const partyDefinition = this.#createPartyDefinition(partyNo, propertiesFromSelection);
             const partyToken = canvas.tokens.ownedTokens.find(t => t.name === partyDefinition.partyTokenName);
             const memberTokens = canvas.tokens.ownedTokens.filter(t => partyDefinition.memberTokenNames.indexOf(t.document.name) > -1);
@@ -285,7 +289,8 @@ export class PartyCruncher {
             this.#promptForImmediateCrunch(partyNo);
 
         } catch (e) {
-            Logger.error(this.groupParty.name, false, e); // This will also print an error msg to the screen
+            Logger.error(this.groupParty.name, false, e.message); // This will also print an error msg to the screen
+            await this.setBusy(false);
             return;
         } finally {
             await this.setBusy(false);
@@ -313,7 +318,8 @@ export class PartyCruncher {
 
         if (partyNo === undefined) {
             const prompt = await this.#promptForPartySelection();
-            if (prompt.cancelled) {
+            if (!prompt || prompt.cancelled) {
+                await this.setBusy(false);
                 return;
             }
             partyNo = prompt.partyNo;
@@ -407,7 +413,7 @@ export class PartyCruncher {
                 }, 1000);
             }
         } catch (e) {
-            Logger.error(this.findParty.name, false, e); // This will also print an error msg to the screen
+            Logger.error(this.findParty.name, false, e.message); // This will also print an error msg to the screen
         } finally {
             await this.setBusy(false);
             Logger.debug(this.findParty.name, `Finding of Party with partyNo #${partyNo} complete.`);
@@ -496,12 +502,6 @@ export class PartyCruncher {
         Logger.debug(this.#countTokensByNames.name, `results of token count: `, tokenCounts);
 
         tokenCounts = tokenCounts.filter(tc => tc.count >= minCount);
-
-        // TODO - can we get rid of this?
-        /*const returnArr = [];
-        tokenCounts.forEach(
-            entry =>
-                returnArr[entry.name] = entry.count);*/
 
         Logger.debug(this.#countTokensByNames.name, `tokenCounts returned: `, tokenCounts);
         return tokenCounts;
@@ -900,12 +900,6 @@ export class PartyCruncher {
 
         // Collect member tokens in scene, then check how to handle duplicates
         const memberTokensToKeep = [];
-
-        // TODO - Probably unnecessary (see below)
-        const memberTokensToRemove = [];
-        // let tokenConflictResolution;
-        // let cnt = 0;
-
         const memberTokenCounts = this.#countTokensByNames(partyConfig.definition.memberTokenNames);
         for (const memberCount of memberTokenCounts) {
             if (memberCount.name === partyConfig.definition.partyTokenName) {
@@ -913,34 +907,8 @@ export class PartyCruncher {
                 continue;
             }
             memberTokensToKeep.push(memberCount.tokens[0]);
-
-            // TODO - Decide whether the original elaborate (user-interactive) check below is unnecessary (assumption: we never need to ask the GM - just use "keep" mode as the standard)
-            /*cnt++;
-            Logger.debug(this.#explodeParty.name, `memberCount:`, memberCount);
-            if (!tokenConflictResolution?.applyToAll) {
-                tokenConflictResolution = await this.#promptForDuplicateReplaceOrKeep(memberCount, (cnt < memberTokenCounts.length));
-            }
-            if (tokenConflictResolution.replace) {
-                Logger.debug(this.#explodeParty.name, `Existing token [${memberCount.name}] flagged for REPLACE (by GM confirmation).`);
-                memberTokensToRemove.push(memberCount.tokens[0]);
-            }
-            else if (tokenConflictResolution.keep){
-                Logger.debug(this.#explodeParty.name, `Existing token [${memberCount.name}] flagged for KEEP (by GM confirmation).`);
-                memberTokensToKeep.push(memberCount.tokens[0]);
-            }
-            // canceled
-            else {
-                Logger.debug(this.#explodeParty.name, `Duplicate confirmation cancelled by the GM. This cancels the EXPLODE action.`);
-                return;
-            }*/
         }
-        Logger.debug(this.#explodeParty.name, `memberTokensToRemove`, memberTokensToRemove); // TODO - Probably unnecessary (see above)
         Logger.debug(this.#explodeParty.name, `memberTokensToKeep`, memberTokensToKeep);
-
-        // Remove unnecessary tokens
-        for (const token of memberTokensToRemove) {
-            await token.document.delete();
-        }
 
         // Identify target token
         // Case 1: Use the party token in the scene (if present)
@@ -1164,7 +1132,6 @@ export class PartyCruncher {
                     {
                         action: "submit",
                         label: Config.localize('saveButton'),
-                        default: true,
                         callback: (event, button) => resolve(
                             this.#resolvePromptForPartyDefinition(
                                 button.form.elements.tokenChoice.value,
@@ -1173,6 +1140,7 @@ export class PartyCruncher {
                     },
                     {
                         action: "cancel",
+                        default: true,
                         label: Config.localize('cancelButton'),
                         callback: () => resolve({cancelled: true})
                     }]
@@ -1197,11 +1165,11 @@ export class PartyCruncher {
                     {
                         action: "yes",
                         label: Config.localize('promptForCrunchAfterGrouping.yes'),
-                        default: true,
                         callback: () => resolve(this.toggleParty(partyNo))
                     },
                     {
                         action: "no",
+                        default: true,
                         label: Config.localize('promptForCrunchAfterGrouping.no'),
                         callback: () => resolve({cancelled: true})
                     }]
@@ -1244,7 +1212,6 @@ export class PartyCruncher {
                     {
                         action: "replace",
                         label: Config.localize('promptForDuplicateReplaceOrKeep.replace'),
-                        default: true,
                         callback: (event, button) => resolve({
                             replace: true,
                             applyToAll: (hasMore && button.form.elements.applyToAll.checked)
@@ -1253,7 +1220,6 @@ export class PartyCruncher {
                     {
                         action: "keep",
                         label: Config.localize('promptForDuplicateReplaceOrKeep.keep'),
-                        default: true,
                         disabled: (duplicateData.count > 1),
                         callback: (event, button) => resolve({
                             keep: true,
@@ -1261,6 +1227,7 @@ export class PartyCruncher {
                         })
                     }, {
                         action: "cancel",
+                        default: true,
                         label: Config.localize('cancelButton'),
                         callback: () => resolve({cancelled: true})
                     }]
@@ -1293,13 +1260,13 @@ export class PartyCruncher {
                     {
                         action: "select",
                         label: Config.localize('okButton'),
-                        default: true,
                         callback: (event, button) => resolve({
                             partyNo: button.form.elements.partyNo.value
                         })
                     },
                     {
                         action: "cancel",
+                        default: true,
                         label: Config.localize('cancelButton'),
                         callback: () => resolve({cancelled: true})
                     }],
@@ -1503,7 +1470,6 @@ export class PartyCruncher {
                     {
                         action: "ok",
                         label: Config.localize('okButton'),
-                        default: false,
                         callback: () => resolve({ok: true})
                     },
                     {
@@ -1551,7 +1517,7 @@ export class PartyCruncher {
         try {
             return foundry.utils.deepClone(Config.setting("partyConfigs")[partyNo]);
         } catch (e) {
-            Logger.error(this.#getAllPartyConfigs.name, true, 'this.#getPartyConfig', e);
+            Logger.error(this.#getAllPartyConfigs.name, true, e.message);
             ui.notifications.error(`[${Config?.globals?.modTitle ?? ""}] Can't read Party Configuration for Party #${partyNo}. Please check the logs`);
         }
     }
@@ -1590,7 +1556,7 @@ export class PartyCruncher {
     static #hasPartyToken(partyConfig) {
         if (partyConfig.partyToken === undefined
             || typeof partyConfig.partyToken !== "object") {
-            Logger.error(this.#hasPartyToken.name, false, 'this.#hasPartyToken(partyConfig) - no partyToken in partyConfig: ', partyConfig);
+            Logger.error(this.#hasPartyToken.name, false, 'no partyToken in partyConfig: ', partyConfig);
             return false;
         }
         return true;
@@ -1599,7 +1565,7 @@ export class PartyCruncher {
     static #hasMemberTokens(partyConfig) {
         if (partyConfig.memberTokens === undefined
             || typeof partyConfig.memberTokens !== "object") {
-            Logger.error(this.#hasMemberTokens.name, false, 'this.##hasMemberTokens(partyConfig) - no memberTokens in partyConfig: ', partyConfig);
+            Logger.error(this.#hasMemberTokens.name, false, 'no memberTokens in partyConfig: ', partyConfig);
             return false;
         }
         return true;

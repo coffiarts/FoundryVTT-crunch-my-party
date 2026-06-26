@@ -84,7 +84,7 @@
       "cannotDetermineAction": "Cannot determine action!",
       "noTokensVisible": "Either the party token OR at least one of the party members must be visible (activated) in the scene to perform this action.",
       "membersAndPartyTokenVisible": "Party token and members cannot be visible at the same time to perform this action.",
-      "pleaseWaitStillBusy": "Please wait for current action to complete ...",
+      "pleaseWaitStillBusy": "Please wait for current action to complete. If this issue persists, please reload the scene.",
       "partyConfigNotDefined": "Party #{partyNo} doesn't seem to be configured. Please check your Party definitions list."
     },
     "promptForPartyDefinition": {

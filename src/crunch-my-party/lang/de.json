@@ -84,7 +84,7 @@
       "cannotDetermineAction": "Aktion kann nicht ermittelt werden!",
       "noTokensVisible": "Entweder der Gruppentoken ODER mindestens eines der Gruppenmitglieder muss in der Szene sichtbar (aktiviert) sein, damit diese Aktion ausgeführt werden kann.",
       "membersAndPartyTokenVisible": "Gruppentoken und Gruppenmitglieder dürfen nicht zugleich in der Szene sichtbar sein, um diese Aktion auszuführen",
-      "pleaseWaitStillBusy": "Bitte warten, bis laufende Aktion beendet ist ...",
+      "pleaseWaitStillBusy": "Bitte warten, bis laufende Aktion beendet ist. Falls diese Meldung wiederkehrt, bitte die Szene neu laden.",
       "partyConfigNotDefined": "Gruppe #{partyNo} ist scheinbar nicht definiert. Bitte prüfe die Liste der Gruppenkonfigurationen."
     },
     "promptForPartyDefinition": {

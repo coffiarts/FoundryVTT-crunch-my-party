@@ -1,8 +1,14 @@
-import { Config } from './config.js'
+import {Config} from './config.js'
 
 export class Logger {
 
-    static init(){
+    static MODE = {
+        DEBUG: "DEBUG",
+        INFO: "INFO",
+        WARN: "WARN",
+        ERROR: "ERROR"};
+
+    static init() {
         // create separator and title at the beginning of this settings section
         Hooks.on('renderSettingsConfig', (app, html) => {
             const inputEl = html.querySelector(`#settings-config-${Config.globals.modID.replace(/\./g, "\\.")}\\.debug`);
@@ -12,18 +18,19 @@ export class Logger {
 
         // Register game settings relevant to this class specifically (all globally relevant settings are maintained by class Config)
         const settingsData = {
-            debug : {
+            debug: {
                 scope: "client", config: true, type: Boolean, default: false,
             },
         };
         Config.registerSettings(settingsData);
     }
+
     static info(...args) {
-        console.log(`${Config?.globals?.modTitle ?? "" } [${Config?.globals?.modID ?? "" }] | INFO | `, ...args);
+        console.log(`${Config?.globals?.modTitle ?? ""} [${Config?.globals?.modID ?? ""}] | INFO | `, ...args);
     }
 
     static infoGreen(msg) {
-        console.log(`%c${Config?.globals?.modTitle ?? "" } [${Config?.globals?.modID ?? "" }] | INFO | ${msg}`, 'color: green');
+        console.log(`%c${Config?.globals?.modTitle ?? ""} [${Config?.globals?.modID ?? ""}] | INFO | ${msg}`, 'color: green');
     }
 
     static debug(caller, ...args) {
@@ -32,20 +39,57 @@ export class Logger {
         let isDebugMode = false;
         try {
             isDebugMode = Config.setting('debug');
-        } catch {}
+        } catch {
+        }
         if (isDebugMode)
-            console.debug(`${Config?.globals?.modTitle ?? "" } [${Config?.globals?.modID ?? "" }] | DEBUG | (${caller}) - `, ...args);
+            console.debug(`${Config?.globals?.modTitle ?? ""} [${Config?.globals?.modID ?? ""}] | DEBUG | (${caller}) - `, ...args);
     }
 
-    static warn(caller, suppressUIMsg = false, ...args) {
-        console.warn(`${Config?.globals?.modTitle ?? "" } [${Config?.globals?.modID ?? "" }] | WARNING | (${caller}) - `, ...args);
+    static async warn(caller, suppressUIMsg = false, ...args) {
+        console.warn(`${Config?.globals?.modTitle ?? ""} [${Config?.globals?.modID ?? ""}] | WARNING | (${caller}) - `, ...args);
         if (!suppressUIMsg)
-            ui.notifications.warn(`[${Config?.globals?.modTitle ?? "" }] ${args[0]}`);
+            await this.#showUIMsg(args[0], this.MODE.WARN);
     }
 
-    static error(caller, suppressUIMsg = false, ...args) {
-        console.error(`${Config?.globals?.modTitle ?? "" } [${Config?.globals?.modID ?? "" }] | ERROR | (${caller}) - `, ...args);
+    static async error(caller, suppressUIMsg = false, ...args) {
+        console.error(`${Config?.globals?.modTitle ?? ""} [${Config?.globals?.modID ?? ""}] | ERROR | (${caller}) - `, ...args);
         if (!suppressUIMsg)
-            ui.notifications.error(`[${Config?.globals?.modTitle ?? "" }] ${args[0]}`);
+            await this.#showUIMsg(args[0], this.MODE.ERROR);
+    }
+
+    static async #showUIMsg(message, mode = this.MODE.INFO) {
+        //ui.notifications.warn(`[${Config?.globals?.modTitle ?? "" }] ${args[0]}`);
+        let color;
+        switch (mode) {
+            case this.MODE.WARN:
+                color = "#fbe4b4";
+                break;
+            case this.MODE.ERROR:
+                color = "#fbc1c1";
+                break;
+            default:
+                color = '#cccccc';
+        }
+
+        let content = `
+            <form>
+                <div style="background-color: ${color}; max-height: 600px; max-width: 600px; overflow: auto; padding: 5px">
+                    <legend>${message}</legend><br/>
+                </div>
+            </form>`;
+
+        return new Promise(resolve => {
+            new foundry.applications.api.DialogV2({
+                window: {title: Config.globals.modTitle},
+                content: content,
+                buttons: [
+                    {
+                        action: "ok",
+                        label: Config.localize('okButton'),
+                        default: true,
+                        callback: () => resolve({ok: true})
+                    }]
+            }).render({force: true});
+        });
     }
 }

@@ -12,6 +12,7 @@ const DEFAULT_NO_OF_PARTIES = 5;
 const MAX_MEMBERS_PER_PARTY = 25;
 const ICON_SUBMIT = "<i class='fas fa-check'></i>";
 const ICON_CANCEL = "<i class='fas fa-cancel'></i>";
+const SAFETY_TIMEOUT_MSEC = 5000;
 
 export class Config {
     static globals = {
@@ -33,7 +34,8 @@ export class Config {
         states: {
             CRUNCHED: "CRUNCHED",
             EXPLODED: "EXPLODED",
-        }
+        },
+        safetyTimeoutMsec: SAFETY_TIMEOUT_MSEC
     };
     static NO_AUDIO_FILE = '../modules/crunch-my-party/audio/audio_null.mp3';
 
@@ -272,7 +274,7 @@ export class Config {
         Object.entries(settingsData).forEach(([key, data]) => {
 
             // Special treatment for the generic "party settings": Use ony localization key for all
-            // TODO - v13 only. Encapsulate or remove once possible.
+            // TODO - v13 only. Remove once these legacy settings are dropped.
             let localizeKey = key;
             const isPartySetting = (key.startsWith('memberTokenNames') || key.startsWith('partyTokenName'));
             if (isPartySetting) {
