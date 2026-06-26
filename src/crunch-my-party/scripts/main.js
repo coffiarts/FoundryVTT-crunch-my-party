@@ -105,13 +105,6 @@ export class PartyCruncher {
         Logger.debug(this.setBusy.name, (isBusy) ? "BUSY!" : "NOT BUSY");
     }
 
-    static Actions = Object.freeze({
-        CRUNCH: Symbol("CRUNCH"),
-        EXPLODE: Symbol("EXPLODE"),
-        GROUP: Symbol("GROUP"),
-        FIND: Symbol("FIND")
-    });
-
     /**
      * Public method for usage in macros: Toggle existing party between CRUNCH and EXPLODE
      * @param partyNo
@@ -295,7 +288,7 @@ export class PartyCruncher {
         await this.setBusy(false);
     }
 
-    static toInitCap(string) {
+    static #toInitCap(string) {
         return string.substring(0, 1).toUpperCase() + string.substring(1);
     }
 
@@ -449,7 +442,7 @@ export class PartyCruncher {
         // Pre-Check 1: Is number of tokens within allowed range?
         if (tokensSelected.length < 2 || tokensSelected.length > Config.globals.maxMembersPerParty + 1) {
             throw new Error(
-                Config.localize('errMsg.invalidNumberOfMemberTokens').replace("{maxMembers}", Config.globals.maxMembersPerParty));
+                Config.localize('errMsg.invalidNumberOfMemberTokens').replace("{maxMembers}", Config.globals.maxMembersPerParty.toString()));
         }
 
         // Pre-Check 2: None of the selected tokens may exist more than once in the scene (by name, case-insensitive)
@@ -483,10 +476,10 @@ export class PartyCruncher {
         (
             name =>
             {
-                const tokensFound = canvas.scene.tokens.filter(t => t.name.toLowerCase() === name.toLowerCase());
+                const tokensFound = canvas.tokens.ownedTokens.filter(t => t.name.toLowerCase() === name.toLowerCase());
                 tokenCounts.push({
                     name: name,
-                    count: canvas.scene.tokens.filter(t => t.name.toLowerCase() === name.toLowerCase()).length,
+                    count: canvas.tokens.ownedTokens.filter(t => t.name.toLowerCase() === name.toLowerCase()).length,
                     tokens: tokensFound
                 });
             }
@@ -547,9 +540,9 @@ export class PartyCruncher {
             throw new Error(
                 // Error: groupAndMembersIntersect => Names must not exist both as member and as group.
                 Config.localize('errMsg.tooManyMemberTokens') + ` (${properties.memberTokenNames.length})!<br/>` +
-                Config.localize('errMsg.invalidNumberOfMemberTokens').replace("{maxMembers}", Config.globals.maxMembersPerParty) + `<br/>` +
+                Config.localize('errMsg.invalidNumberOfMemberTokens').replace("{maxMembers}", Config.globals.maxMembersPerParty.toString()) + `<br/>` +
                 "<br/>" +
-                Config.localize(`setting.memberTokenNames#.name`).replace("#", partyNo) + ": <strong>[ " + properties.memberTokenNames + " ]</strong>"
+                Config.localize(`setting.memberTokenNames#.name`).replace("#", partyNo.toString()) + ": <strong>[ " + properties.memberTokenNames + " ]</strong>"
             );
         }
 
@@ -610,7 +603,7 @@ export class PartyCruncher {
             Logger.debug(this.#updatePartyConfig.name, `new lastKnownState: `, allConfigs[partyNo].lastKnownState);
         }
 
-        Config.modifySetting("partyConfigs", allConfigs);
+        await Config.modifySetting("partyConfigs", allConfigs);
 
         Logger.debug(this.#updatePartyConfig.name, `updated Config for Party #${partyNo}: `, allConfigs[partyNo]);
         Logger.debug(this.#updatePartyConfig.name, `new full config (all Parties): `, allConfigs);
@@ -625,7 +618,7 @@ export class PartyCruncher {
      * Searches the current scene for all token names given in names, and creates an array from them.
      * Throws an error if multiple tokens with the same name are found.
      * @param names
-     * @returns tokensFound {*[]}
+     * @returns *[] {*[]}
      */
     static #collectTokensByNamesIfUnique(names) {
 
@@ -957,38 +950,42 @@ export class PartyCruncher {
         const partyConfigUpdates = {};
 
         // Collect member tokens in scene, then check how to handle duplicates
-        const memberTokensToRemove = [];
         const memberTokensToKeep = [];
 
+        // TODO - Probably unnecessary (see below)
+        const memberTokensToRemove = [];
+        // let tokenConflictResolution;
+        // let cnt = 0;
+
         const memberTokenCounts = this.#countTokensByNames(partyConfig.definition.memberTokenNames);
-        let tokenConflictResolution;
-        let cnt = 0;
         for (const memberCount of memberTokenCounts) {
-            cnt++;
-            if (memberCount.name === partyConfig.definition.partyTokenName && memberCount.count === 1) {
-                // If the member is also the Party token and exists only once in the scene, that's absolutely fine
+            if (memberCount.name === partyConfig.definition.partyTokenName) {
+                // If the member is also the Party token, ignore it
                 continue;
             }
+            memberTokensToKeep.push(memberCount.tokens[0]);
+
+            // TODO - Decide whether the original elaborate (user-interactive) check below is unnecessary (assumption: we never need to ask the GM - just use "keep" mode as the standard)
+            /*cnt++;
             Logger.debug(this.#explodeParty.name, `memberCount:`, memberCount);
             if (!tokenConflictResolution?.applyToAll) {
                 tokenConflictResolution = await this.#promptForDuplicateReplaceOrKeep(memberCount, (cnt < memberTokenCounts.length));
             }
-            const tokenFound = canvas.tokens.ownedTokens.find(t => t.name === memberCount.name);
             if (tokenConflictResolution.replace) {
                 Logger.debug(this.#explodeParty.name, `Existing token [${memberCount.name}] flagged for REPLACE (by GM confirmation).`);
-                memberTokensToRemove.push(tokenFound);
+                memberTokensToRemove.push(memberCount.tokens[0]);
             }
             else if (tokenConflictResolution.keep){
                 Logger.debug(this.#explodeParty.name, `Existing token [${memberCount.name}] flagged for KEEP (by GM confirmation).`);
-                memberTokensToKeep.push(tokenFound);
+                memberTokensToKeep.push(memberCount.tokens[0]);
             }
             // cancelled
             else {
                 Logger.debug(this.#explodeParty.name, `Duplicate confirmation cancelled by the GM. This cancels the EXPLODE action.`);
                 return;
-            }
+            }*/
         }
-        Logger.debug(this.#explodeParty.name, `memberTokensToRemove`, memberTokensToRemove);
+        Logger.debug(this.#explodeParty.name, `memberTokensToRemove`, memberTokensToRemove); // TODO - Probably unnecessary (see above)
         Logger.debug(this.#explodeParty.name, `memberTokensToKeep`, memberTokensToKeep);
 
         // Remove unnecessary tokens
@@ -1040,7 +1037,7 @@ export class PartyCruncher {
 
         // Move all existing members to keep to the target token (including aligning their elevation!)
         for (const existingToken of memberTokensToKeep) {
-            tokenUpdates.document.update(
+            existingToken.document.update(
                 {
                     x: targetToken.document.x,
                     y: targetToken.document.y,
@@ -1439,7 +1436,7 @@ export class PartyCruncher {
                     buttons.push(
                         {
                             action: `find${partyNo}`,
-                            label: Config.localize('partyTable.findButton').replace('{partyNo}', partyNo),
+                            label: Config.localize('partyTable.findButton').replace('{partyNo}', partyNo.toString()),
                             callback: () => this.findParty(partyNo)
                         });
                 }
@@ -1447,7 +1444,7 @@ export class PartyCruncher {
                     buttons.push(
                         {
                             action: `delete${partyNo}`,
-                            label: Config.localize('partyTable.deleteButton').replace('{partyNo}', partyNo),
+                            label: Config.localize('partyTable.deleteButton').replace('{partyNo}', partyNo.toString()),
                             callback: () => this.deleteParty({
                                 partyNo: partyNo,
                                 partyName: partyName,
@@ -1611,25 +1608,29 @@ export class PartyCruncher {
     }
 
     static isValidDefinition(partyConfig) {
+        if (!partyConfig) {
+            Logger.error(this.isValidDefinition.name, true, 'this.isValidDefinition(partyConfig) - partyConfig is empty.');
+            return false;
+        }
         if (partyConfig.definition === undefined) {
-            Logger.error(this.isValidDefinition.name, false, 'this.isValidDefinition(partyConfig) - definition is empty.');
+            Logger.error(this.isValidDefinition.name, true, 'this.isValidDefinition(partyConfig) - definition is empty.');
             return false;
         }
         if (partyConfig.definition.partyNo === undefined || isNaN(partyConfig.definition.partyNo) || partyConfig.definition.partyNo < 1 || partyConfig.definition.partyNo > Config.setting("maxNoOfParties")) {
-            Logger.error(this.isValidDefinition.name, false, `this.#isValid(partyConfig) - definition does not contain a  valid partyNo (must be a number between 1 and ${Config.setting("maxNoOfParties")}): `, partyNo);
+            Logger.error(this.isValidDefinition.name, true, `this.#isValid(partyConfig) - definition does not contain a  valid partyNo (must be a number between 1 and ${Config.setting("maxNoOfParties")}): `, partyNo);
             return false;
         }
         if (partyConfig.definition.partyTokenName === undefined) {
-            Logger.error(this.isValidDefinition.name, false, 'this.isValidDefinition(partyConfig) - definition.partyTokenName is missing or empty: ', definition.partyTokenName);
+            Logger.error(this.isValidDefinition.name, true, 'this.isValidDefinition(partyConfig) - definition.partyTokenName is missing or empty: ', partyConfig.definition.partyTokenName);
             return false;
         }
         const allowedModes = Object.values(Config.globals.partyTokenModes);
         if (partyConfig.definition.partyTokenMode === undefined || !allowedModes.find(m => m === partyConfig.definition.partyTokenMode)) {
-            Logger.error(this.isValidDefinition.name, false, `this.#isValid(partyConfig) - definition.partyTokenMode is invalid (must be one of: ${allowedModes.join((", "))}) `, definition.partyTokenName);
+            Logger.error(this.isValidDefinition.name, true, `this.#isValid(partyConfig) - definition.partyTokenMode is invalid (must be one of: ${allowedModes.join((", "))}) `, definition.partyTokenName);
             return false;
         }
         if (partyConfig.definition.memberTokenNames === undefined || partyConfig.definition.memberTokenNames.length === 0) {
-            Logger.error(this.isValidDefinition.name, false, 'this.isValidDefinition(partyConfig) - definition.memberTokenNames is missing or an empty list: ', definition.memberTokenNames);
+            Logger.error(this.isValidDefinition.name, true, 'this.isValidDefinition(partyConfig) - definition.memberTokenNames is missing or an empty list: ', definition.memberTokenNames);
             return false;
         }
 
