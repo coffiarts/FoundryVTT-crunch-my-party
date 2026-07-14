@@ -1,5 +1,10 @@
-The **major** version number in my modules (like "13") always reflects the
+The **major** version number in my modules (like "14") always reflects the
 Foundry VTT **core** version it is compatible with (and recommended for).
+
+
+## 14.?.?
+### 2026-??-?? - ???
+- fixed broken image links in this changelog
 
 ## 14.0.0
 ### 2026-06-27 - v14 compatibility and a HUGE overhaul (compatibility fix [#13](https://github.com/coffiarts/FoundryVTT-crunch-my-party/issues/13))
@@ -7,25 +12,25 @@ Foundry VTT **core** version it is compatible with (and recommended for).
 
 [Crunch My Party! - Video Howto (new v14 overhaul!)](https://youtu.be/KCJD19fJnMg)
 
-[<img src="src/crunch-my-party/artwork/cmp-video-howto-thumb.jpg" alt="crunch-my-party - Video Howto on youtube" width="800"/>](https://youtu.be/KCJD19fJnMg)
+[<img src="/modules/crunch-my-party/artwork/cmp-video-howto-thumb.jpg" alt="crunch-my-party - Video Howto on youtube" width="800"/>](https://youtu.be/KCJD19fJnMg)
 
 - **New Party Management**: Defining groups is way more elegant now, with extended prompt support. E.g.: Use a new macro button (to be found in the included compendium) to show all your party assignments at once (with images), and to quickly find or delete party configurations.
 
-<img src="src/crunch-my-party/artwork/cmp-party-management.jpg" alt="crunch-my-party - Video Howto on youtube" width="800"/>
+<img src="/modules/crunch-my-party/artwork/cmp-party-management.jpg" alt="crunch-my-party - Video Howto on youtube" width="800"/>
 
 - **Party members be leaders**: Now you can (optionally) pick any party member to serve as the party token - getting rid of the necessity to always have a separate "group token" at hand.
 - **Graceful handling of missing or duplicate scene tokens**: A token of your party is missing in the scene, because you forgot to drop it there? No problem: The mod will now handle this tolerantly. You can work with incomplete groups. On the other hand, detection of unintended duplicate tokens in the scene has been improved and made better understandable.
 - **Macros be simple**: The predefined Macros / Macro Buttons (in the compendium) have been extended by "generic" versions without a fixed party number. They'll prompt you to conveniently pick the party you want, so there's a lot more flexibility.
 
-<img src="src/crunch-my-party/artwork/cmp-macro-toggle.png" alt="Macro: Toggle Party (generic)" width="100"/>
+<img src="/modules/crunch-my-party/artwork/cmp-macro-toggle.png" alt="Macro: Toggle Party (generic)" width="100"/>
 
-<img src="src/crunch-my-party/artwork/cmp-macro-group.png" alt="Macro: Group Party (generic)" width="100"/>
+<img src="/modules/crunch-my-party/artwork/cmp-macro-group.png" alt="Macro: Group Party (generic)" width="100"/>
 
-<img src="src/crunch-my-party/artwork/cmp-macro-find.png" alt="Macro: Find Party #1" width="100"/>
+<img src="/modules/crunch-my-party/artwork/cmp-macro-find.png" alt="Macro: Find Party #1" width="100"/>
 
 - **So what's the hook??** Yes, of course, there's always one ;-) - Your previous group settings can't be migrated automatically - you'll have to recreate them by hand. I apologize for this tradeoff. BUT it's not THAT bad: Just refer to the lists in your mod settings (though out-of-function and deprecated, I'll leave them in for now so that your party definitions aren't lost. They'll be dropped in one of the future versions).
 
-<img src="src/crunch-my-party/artwork/cmp-deprecated-settings.jpg" alt="Macro: Find Party #1" width="800"/>
+<img src="/modules/crunch-my-party/artwork/cmp-deprecated-settings.jpg" alt="Macro: Find Party #1" width="800"/>
 
 - **Famous last words**: Please say good-bye to v12. I've dropped support for it, because I am confident that this should be fine by now. But of course we're still backward compatible with v13!
 
