@@ -79,7 +79,7 @@
       "invalidNumberOfMemberTokens": "Ungültige Anzahl an Tokens ausgewählt! Eine Gruppe muss aus mindestens 2 und maximal {maxMembers} Mitgliedern bestehen.",
       "notUniqueInScene": "Token [{tokenName}] existiert mehrfach in der Szene.",
       "notUniqueInScenePlural": "Die folgenden Tokens existieren mehrfach in der Szene. Die gewählte Aktion unterstützt keine Tokens gleichen Namens",
-      "tokensMissingInScene": "Fehlende Tokens: In der Scene sind für Gruppe #{partyNo} [{partyName}] weder ein Gruppentoken noch Mitglieder sichtbar. Deshalb kann die erforderliche Aktion nicht ermittelt werden.",
+      "tokensMissingInScene": "Fehlende Tokens: In der Szene sind für Gruppe #{partyNo} [{partyName}] weder ein Gruppentoken noch Mitglieder sichtbar. Deshalb kann die erforderliche Aktion nicht ermittelt werden.",
       "partyTokenMissingInConfig": "Die Gruppenkonfiguration enthält keine Daten für den Gruppentoken '#tokenName'. Bitte füge ihn der Szene hinzu oder erstelle die Gruppe neu mit dem \"Group\"-Macro.",
       "cannotDetermineAction": "Aktion kann nicht ermittelt werden!",
       "noTokensVisible": "Entweder der Gruppentoken ODER mindestens eines der Gruppenmitglieder muss in der Szene sichtbar (aktiviert) sein, damit diese Aktion ausgeführt werden kann.",
