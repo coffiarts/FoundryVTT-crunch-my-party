@@ -112,7 +112,7 @@
     "promptForDuplicateReplaceOrKeep": {
       "title": "Le jeton existe déjà dans la scène.",
       "text": "Le jeton [{tokenName}] existe {count} fois dans cette scène. Que veux-tu faire ?",
-      "disallowKeepText": "Comme il y en a plusieurs, il est impossible de les conserver. Choisis « Remplacer » pour remplacer les {count} jetons (tous !),\\nou choisis « Annuler », supprime les jetons redondants portant ce nom, puis répète le processus.",
+      "disallowKeepText": "Comme il y en a plusieurs, il est impossible de les conserver. Choisis « Remplacer » pour remplacer les {count} jetons (tous !),\nou choisis « Annuler », supprime les jetons redondants portant ce nom, puis répète le processus.",
       "replace": "Remplacer",
       "keep": "Conserver"
     },
@@ -123,8 +123,8 @@
     "cancelButton": "Annuler",
     "closeButton": "Fermer",
     "partyTable": {
-      "deleteButton": "Supprimer\\n#{partyNo}",
-      "findButton": "Trouver\\n#{partyNo}"
+      "deleteButton": "Supprimer\n#{partyNo}",
+      "findButton": "Trouver\n#{partyNo}"
     },
     "empty": "vide",
     "groupingConfirmation": "Les jetons suivants ont été affectés au <strong>groupe n°{partyNo} [{partyTokenName}]</strong>",

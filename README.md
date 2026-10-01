@@ -80,7 +80,7 @@ Easily collapse arbitrary groups of scene tokens (representing parties) into an 
 Has been moved to [CHANGELOG.md](CHANGELOG.md)
 
 ## Translations
-Thanks to my new **Foundry Translation Tool**, which is free to use and download on GitHub ...
+Thanks to my new **Foundry Translation Tool**, which you can download and use for free ...
 
 [![CFBT - Coffiarts' Foundry Babele Translator](https://raw.githubusercontent.com/coffiarts/FoundryVTT-Babele-translator/fbefbc94f01ecf23e88c54afa420f34e44056f86/docs/img/readme-screenshot-theme-fantasy.jpg)](https://github.com/coffiarts/FoundryVTT-Babele-translator)
 **[=> Coffiart's Foundry VTT Babele Translator](https://github.com/coffiarts/FoundryVTT-Babele-translator)**
@@ -91,7 +91,9 @@ Thanks to my new **Foundry Translation Tool**, which is free to use and download
 - Français
 - Italiano
 - Español
-- 日本語 (Japanese) => (experimental)
+- 日本語 (Japanese, experimental) => (experimental)
+
+Want your favuorite language to be added to this list? Feel free to [request it on github](https://github.com/coffiarts/FoundryVTT-Babele-translator/issues).
 
 ## How it works ...
 At first, before experimenting by yourself, please have a look at the [Video Howto (demonstrating the v14 overhaul!)](https://youtu.be/KCJD19fJnMg)

@@ -123,8 +123,8 @@
     "cancelButton": "キャンセル",
     "closeButton": "閉じる",
     "partyTable": {
-      "deleteButton": "削除\\n#{partyNo}",
-      "findButton": "検索\\n#{partyNo}"
+      "deleteButton": "削除\n#{partyNo}",
+      "findButton": "検索\n#{partyNo}"
     },
     "empty": "空",
     "groupingConfirmation": "以下のトークンが<strong>パーティー #{partyNo} [{partyTokenName}]</strong>に割り当てられています",
