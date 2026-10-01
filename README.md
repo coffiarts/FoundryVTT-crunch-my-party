@@ -31,7 +31,7 @@ This module has ben overhauled immensly. Please watch the completely overdone [H
 
 ## Support This Project
 
-Crnch My Party! is free and always will be. If it brings you fun, or saved you time (or your sanity), consider buying me a Stamina Potion 𖠞
+Crunch My Party! is free and always will be. If it brings you fun, or saved you time (or your sanity), consider buying me a Stamina Potion 𖠞
 
 [![GitHub Sponsors](src/crunch-my-party/artwork/the-forge-logo.png)](https://eu.forge-vtt.com/bazaar#terms=Crunch%20My%20Party!&sort=featured&package=crunch-my-party)
 &nbsp;[![Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/coffiarts) &nbsp;

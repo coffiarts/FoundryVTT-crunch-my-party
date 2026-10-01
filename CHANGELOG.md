@@ -4,7 +4,7 @@ Foundry VTT **core** version it is compatible with (and recommended for).
 
 ## 14.0.1
 ### 2026-10-01 - Additional translations
-- Mod now works in an increasing number of languages. So far (more to come): English (as before), Deutsch (as before), Français, Italiano, Español, 日本語 (Japanese, experimental). This is possible due to my new tool, which you can download and use for free: **[Foundry VTT Babele Translator](https://github.com/coffiarts/FoundryVTT-Babele-translator)**. If you want your favourite language to be added, just create me a request on github. Want your favuorite language to be added to this list? Feel free to [request it on github](https://github.com/coffiarts/FoundryVTT-Babele-translator/issues).
+- Mod now works in an increasing number of languages. So far (more to come): English (as before), Deutsch (as before), Français, Italiano, Español, 日本語 (Japanese, experimental). This is possible due to my new tool, which you can download and use for free: **[Foundry VTT Babele Translator](https://github.com/coffiarts/FoundryVTT-Babele-translator)**. Want your favourite language to be added to this list? Feel free to [request it on github](https://github.com/coffiarts/FoundryVTT-Babele-translator/issues).
 - fixed broken image links in this changelog
 
 ## 14.0.0
