@@ -1,0 +1,146 @@
+{
+  "crunch-my-party": {
+    "setting": {
+      "modVersion": {
+        "name": "Versión",
+        "hint": "Versión del módulo instalada actualmente (no se puede cambiar aquí)."
+      },
+      "debug": {
+        "name": "Modo de depuración",
+        "hint": "Configuración del cliente que activa un registro de depuración ampliado."
+      },
+      "forceUniqueTargetToken": {
+        "name": "Forzar la selección del token objetivo",
+        "hint": "Impedir la «fusión» cuando no se ha seleccionado ningún miembro único del grupo. Es especialmente relevante para escenas que utilizan niveles y elevación, porque los miembros del grupo se teletransportan a la misma posición y elevación que el objetivo."
+      },
+      "maxNoOfParties": {
+        "name": "Número máximo de grupos",
+        "hint": "¿Cuántos grupos definidos por separado se deben mantener a la vez?"
+      },
+      "memberTokenNames#": {
+        "name": "Grupo n.º - Miembros (obsoleto)",
+        "hint": "Ya no se utiliza desde la v14. Solo es visible para facilitar la adopción de configuraciones antiguas."
+      },
+      "partyTokenName#": {
+        "name": "Grupo n.º - Nombre del grupo (obsoleto)",
+        "hint": "Ya no se utiliza desde la v14. Solo es visible para facilitar la adopción de configuraciones antiguas."
+      },
+      "hideChatInfo": {
+        "name": "Ocultar la información del módulo en la ventana de chat",
+        "hint": "Oculta el texto informativo sobre este módulo en la ventana de chat al iniciar la partida, para que no aparezca una y otra vez (desactiva esta opción para volver a verlo)."
+      },
+      "animationFileCRUNCHED": {
+        "name": "Animación de «fusión» (opcional)",
+        "hint": "Animación que se reproduce al fusionar tokens individuales en un token de grupo. Requiere la instalación de J2BA (consulta el archivo Readme)."
+      },
+      "playAudioCRUNCHED": {
+        "name": "¿Reproducir audio al «fusionar»?",
+        "hint": "Reproduce el archivo de audio especificado a continuación, si está activado."
+      },
+      "audioFileCRUNCHED": {
+        "name": "Archivo de audio al «fusionar»",
+        "hint": "¿Archivo de audio (ruta relativa) que se reproducirá al «fusionar»?"
+      },
+      "animationFileEXPLODED": {
+        "name": "Animación de «separación» (opcional)",
+        "hint": "Animación que se reproduce al separar un token de grupo en tokens de miembros individuales. Requiere la instalación de J2BA (consulta el archivo Readme)."
+      },
+      "playAudioEXPLODED": {
+        "name": "¿Reproducir audio al «separar»?",
+        "hint": "Reproduce el archivo de audio especificado a continuación, si está activado."
+      },
+      "audioFileEXPLODED": {
+        "name": "Archivo de audio al «separar»",
+        "hint": "¿Archivo de audio (ruta relativa) que se reproducirá al «separar»?"
+      }
+    },
+    "labels": {
+      "partyTokenName": "Token de grupo",
+      "memberTokenNames": "Miembros",
+      "partyState": "Estado"
+    },
+    "partyState": {
+      "CRUNCHED": "AGRUPADO",
+      "EXPLODED": "SEPARADO",
+      "UNKNOWN": "?"
+    },
+    "chatInfoContent": {
+      "title": "¡Fusionar mi grupo!",
+      "text1": "«Érase una vez tres pequeños goblins...<br/>¡ansiosos por formar un GRUPO!<br/>Así que esta es su historia...»",
+      "text2": "Colapsa fácilmente grupos arbitrarios de tokens de escena (que representan grupos) en un único «token de grupo» fácil de usar, y viceversa. ¡Gestiona hasta 5 grupos separados con hasta 25 miembros cada uno!",
+      "text3": "Consulta las distintas preferencias del módulo en la configuración de la partida. Encuentra aún más detalles en GitHub.",
+      "footer": "Esta tarjeta de chat solo se mostrará una vez. Actívala de nuevo en la configuración del módulo si es necesario."
+    },
+    "errMsg": {
+      "pleaseCheckYourTokenSelection": "Comprueba la selección de tokens",
+      "invalidTokenCount": "Requerido: exactamente UN grupo y MÁS DE UN miembro",
+      "duplicateTokens": "La selección contiene tokens con el mismo nombre (¿quizá alguno está oculto?). Los tokens homónimos impiden una configuración coherente del grupo.",
+      "tooManyMemberTokens": "La lista de miembros es demasiado larga",
+      "invalidNumberOfMemberTokens": "¡Número de tokens seleccionados no válido! Un grupo debe constar de entre 2 y {maxMembers} miembros.",
+      "notUniqueInScene": "¡El token [{tokenName}] no es único en la escena!",
+      "notUniqueInScenePlural": "Los siguientes tokens no son únicos en la escena. La acción actual no admite esto:",
+      "tokensMissingInScene": "Faltan tokens: no hay ningún token de grupo ni miembros visibles en esta escena para el grupo n.º {partyNo} [{partyName}]. No se puede determinar la acción adecuada.",
+      "partyTokenMissingInConfig": "Faltan datos en la configuración del grupo para el token de grupo llamado «#tokenName». Añádelo a la escena o vuelve a crear el grupo utilizando la macro «Group».",
+      "cannotDetermineAction": "¡No se puede determinar la acción!",
+      "noTokensVisible": "Para realizar esta acción, debe estar visible (activado) en la escena el token de grupo o al menos uno de los miembros del grupo.",
+      "membersAndPartyTokenVisible": "El token de grupo y los miembros no pueden estar visibles al mismo tiempo para realizar esta acción.",
+      "pleaseWaitStillBusy": "Espera a que se complete la acción actual. Si el problema persiste, vuelve a cargar la escena.",
+      "partyConfigNotDefined": "Parece que el grupo n.º {partyNo} no está configurado. Comprueba la lista de definiciones de grupos."
+    },
+    "promptForPartyDefinition": {
+      "title": "Definiciones de grupos",
+      "text": "¿Cuál de los tokens seleccionados debe servir como token de grupo compartido?",
+      "partyTokenMode": {
+        "text": "¿Este token es un marcador de posición independiente o es un miembro del grupo?",
+        "placeholder": "Marcador de posición",
+        "member": "Miembro"
+      },
+      "partyNo": {
+        "text": "¿A qué ranura de grupo quieres asignarlo?<br/>(El número de ranuras disponibles se puede cambiar en la configuración del módulo)"
+      }
+    },
+    "promptForPartySelection": {
+      "windowTitle": "Selecciona un grupo",
+      "tableTitle": "¿Para qué grupo quieres hacer esto?"
+    },
+    "promptForCrunchAfterGrouping": {
+      "title": "¿Aplicar inmediatamente?",
+      "text": "¿Quieres «fusionar» los miembros de tu nuevo grupo ahora mismo?",
+      "yes": "¡Sí, fusiónalos!",
+      "no": "No, déjalos separados."
+    },
+    "promptForDuplicateReplaceOrKeep": {
+      "title": "El token ya existe en la escena.",
+      "text": "El token [{tokenName}] aparece {count} veces en esta escena. ¿Qué quieres hacer?",
+      "disallowKeepText": "Como hay más de uno, no es posible conservarlos. Elige «Reemplazar» para reemplazar los {count} tokens (!), o bien elige «Cancelar», elimina los tokens redundantes con este nombre y repite el proceso.",
+      "replace": "Reemplazar",
+      "keep": "Conservar"
+    },
+    "promptForSimpleConfirmation": "Se requiere confirmación",
+    "confirmDeleteParty": "¿Quieres eliminar el grupo n.º ({partyName}) con {noOfMembers} miembros de la lista y liberar esta ranura?",
+    "okButton": "Aceptar",
+    "saveButton": "Guardar",
+    "cancelButton": "Cancelar",
+    "closeButton": "Cerrar",
+    "partyTable": {
+      "deleteButton": "Eliminar\n#{partyNo}",
+      "findButton": "Buscar\n#{partyNo}"
+    },
+    "empty": "vacío",
+    "groupingConfirmation": "Los siguientes tokens se han asignado al <strong>grupo n.º {partyNo} [{partyTokenName}]</strong>",
+    "applyToAll": "¡Aplicar a todos!",
+    "keybindingLabels": {
+      "find": "Buscar grupo n.º",
+      "findGeneric": "Buscar CUALQUIER grupo (seleccionar de la lista)",
+      "toggle": "Alternar grupo n.º",
+      "toggleGeneric": "Alternar CUALQUIER grupo (seleccionar de la lista)",
+      "groupGeneric": "Agrupar los tokens seleccionados en un grupo",
+      "showConfig": "Mostrar configuraciones de grupos"
+    },
+    "settingsMenu": {
+      "behaviourSection": "Comportamiento",
+      "partyConfigSection": "Configuración de miembros del grupo",
+      "animationsSection": "Animación y audio (requiere JB2A y Automated Animations)"
+    }
+  }
+}

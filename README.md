@@ -29,14 +29,16 @@ This module has ben overhauled immensly. Please watch the completely overdone [H
   </tr>
 </table>
 
-- Are you on [Forge VTT](https://forge-vtt.com/)?
-- Do you like my work?
-- Do you REALLY like my work?
-- Could you even imagine to DONATE?
+## Support This Project
 
-Feel free to [head over to this mod on Forge](https://eu.forge-vtt.com/bazaar/package/crunch-my-party), where you can even pay for it what you like.
+Crnch My Party! is free and always will be. If it brings you fun, or saved you time (or your sanity), consider buying me a Stamina Potion 𖠞
 
-This is absolutely optional! Don't feel obliged in any way to do so. My mod is and will remain available for free.
+[![GitHub Sponsors](src/crunch-my-party/artwork/the-forge-logo.png)](https://eu.forge-vtt.com/bazaar#terms=Crunch%20My%20Party!&sort=featured&package=crunch-my-party)
+&nbsp;[![Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/coffiarts) &nbsp;
+[![GitHub Sponsors](src/crunch-my-party/artwork/github-sponsor.png)](https://github.com/sponsors/coffiarts)
+
+In "The Forge Bazaar" <img src="src/crunch-my-party/artwork/the-forge-logo.png" alt="The Forge - Bazaar" width="20"/>, you can download this mod for free, or - which would make my heart go booom! - voluntarily pay for it whatever you want (PWYW)?
+
 
 ## Video demos on youtube
 ### Some quick impressions for fun
@@ -75,6 +77,20 @@ Easily collapse arbitrary groups of scene tokens (representing parties) into an 
 
 ## Changelog
 Has been moved to [CHANGELOG.md](CHANGELOG.md)
+
+## Translations
+Thanks to my own **Foundry Translation Tool**, which is free to use and download on GitHub ...
+
+[![CFBT - Coffiarts' Foundry Babele Translator](https://raw.githubusercontent.com/coffiarts/FoundryVTT-Babele-translator/fbefbc94f01ecf23e88c54afa420f34e44056f86/docs/img/readme-screenshot-theme-fantasy.jpg)](https://github.com/coffiarts/FoundryVTT-Babele-translator)
+**[=> Coffiart's Foundry VTT Babele Translator](https://github.com/coffiarts/FoundryVTT-Babele-translator)**
+
+... this mod now works in an increasing number of languages. So far (more to come):
+- English
+- Deutsch
+- Français
+- Italiano
+- Español
+- 日本語 (Japanese) => (experimental)
 
 ## How it works ...
 At first, before experimenting by yourself, please have a look at the [Video Howto (demonstrating the v14 overhaul!)](https://youtu.be/KCJD19fJnMg)

@@ -3,143 +3,143 @@
     "setting": {
       "modVersion": {
         "name": "Version",
-        "hint": "Aktuell installierte Modulversion (hier nicht änderbar)."
+        "hint": "Aktuell installierte Modulversion (kann hier nicht geändert werden)."
       },
       "debug": {
         "name": "Debug-Modus",
-        "hint": "Aktiviert das Debug Logging."
+        "hint": "Clientseitige Einstellung zur Aktivierung ausführlicher Debug-Protokollierung."
       },
       "forceUniqueTargetToken": {
-        "name": "Eindeutige Zielauswahl erzwingen",
-        "hint": "Verhindert \"Crunching\", wenn kein eindeutiges Gruppenmitglied als Ziel ausgewählt ist. V.a relevant für Szenen mit Levels and Höhe, denn Gruppenmitglieder werden immer auf die Höhe des Ziel-Tokens teleportiert."
+        "name": "Auswahl des Ziel-Tokens erzwingen",
+        "hint": "Verhindert das „Zusammenfassen“, wenn kein eindeutiges Gruppenmitglied ausgewählt wurde. Besonders relevant für Szenen, die Levels und Elevation verwenden, da Gruppenmitglieder an dieselbe Position und Elevation wie das Ziel teleportiert werden!"
       },
       "maxNoOfParties": {
-        "name": "Maximale Anzahl definierbarer Gruppen",
-        "hint": "Wieviele separate Gruppen (mit jeweils bis zu 25 Mitgliedern) sollen zeitgleich verwaltet werden können?"
+        "name": "Maximale Anzahl an Gruppen",
+        "hint": "Wie viele separat definierte Gruppen sollen gleichzeitig verwaltet werden?"
       },
       "memberTokenNames#": {
-        "name": "Gruppe # - Mitglieder (deprecated)",
-        "hint": "Seit v14 nicht mehr verwendet. Dient nur noch der Übernahme alter Settings."
+        "name": "Gruppe # – Mitglieder (veraltet)",
+        "hint": "Seit v14 nicht mehr verwendet. Nur sichtbar, um die Übernahme alter Einstellungen zu erleichtern."
       },
       "partyTokenName#": {
-        "name": "Gruppe # - Gruppenname (deprecated)",
-        "hint": "Seit v14 nicht mehr verwendet. Dient nur noch der Übernahme alter Settings."
+        "name": "Gruppe # – Gruppenname (veraltet)",
+        "hint": "Seit v14 nicht mehr verwendet. Nur sichtbar, um die Übernahme alter Einstellungen zu erleichtern."
       },
       "hideChatInfo": {
-        "name": "Modulinfo im Chat ausblenden",
-        "hint": "Unterdrückt beim Start von Foundry den Chat-Infotext zu diesem Modul, damit er nicht immer wieder erscheint (zum einmaligen Wiederanzeigen hier deaktivieren)."
+        "name": "Modulinformationen im Chatfenster ausblenden",
+        "hint": "Blendet den Informationstext zu diesem Modul beim Spielstart im Chatfenster aus, damit er nicht immer wieder angezeigt wird (deaktiviere diese Option, um ihn erneut anzuzeigen)."
       },
       "animationFileCRUNCHED": {
-        "name": "\"Crunch\"-Animation (optional)",
-        "hint": "Animation beim Verschmelzen Einzel-Tokens zum Gruppen-Token. Benötigt Zusatzmodul J2BA (siehe Readme)."
+        "name": "„Zusammenfassen“-Animation (optional)",
+        "hint": "Animation, die beim Zusammenfassen einzelner Tokens zu einem Gruppen-Token abgespielt wird. Erfordert die Installation von J2BA (siehe Readme)."
       },
       "playAudioCRUNCHED": {
-        "name": "Audiosignal bei \"Crunch\"?",
-        "hint": "Wenn aktiviert, so wird das nachfolgende Audio File abgespielt."
+        "name": "Audio beim „Zusammenfassen“ abspielen?",
+        "hint": "Spielt bei Aktivierung die unten angegebene Audiodatei ab."
       },
       "audioFileCRUNCHED": {
-        "name": "Audiodatei bei \"Crunch\"",
-        "hint": "Audiodatei (relativer Pfad), die beim \"Crunch\" abgespielt wird."
+        "name": "Audiodatei beim „Zusammenfassen“",
+        "hint": "Audiodatei (relativer Pfad), die beim „Zusammenfassen“ abgespielt werden soll?"
       },
       "animationFileEXPLODED": {
-        "name": "\"Explode\"-Animation (optional)",
-        "hint": "Animation beim Trennen von Gruppen-Tokens in Einzel-Tokens. Benötigt Zusatzmodul J2BA (siehe Readme)."
+        "name": "„Aufteilen“-Animation (optional)",
+        "hint": "Animation, die beim Aufteilen eines Gruppen-Tokens in einzelne Tokens der Gruppenmitglieder abgespielt wird. Erfordert die Installation von J2BA (siehe Readme)."
       },
       "playAudioEXPLODED": {
-        "name": "Audiosignal bei \"Explode\"?",
-        "hint": "Wenn aktiviert, so wird das nachfolgende Audio File abgespielt."
+        "name": "Audio beim „Aufteilen“ abspielen?",
+        "hint": "Spielt bei Aktivierung die unten angegebene Audiodatei ab."
       },
       "audioFileEXPLODED": {
-        "name": "Audiodatei bei \"Explode\"",
-        "hint": "Audiodatei (relativer Pfad), die beim \"Explode\" abgespielt wird."
+        "name": "Audiodatei beim „Aufteilen“",
+        "hint": "Audiodatei (relativer Pfad), die beim „Aufteilen“ abgespielt werden soll?"
       }
     },
-    "labels" : {
-      "partyTokenName": "Gruppentoken",
+    "labels": {
+      "partyTokenName": "Gruppen-Token",
       "memberTokenNames": "Mitglieder",
       "partyState": "Status"
     },
     "partyState": {
-      "CRUNCHED": "GRUPPIERT",
+      "CRUNCHED": "ZUSAMMENGEFASST",
       "EXPLODED": "GETRENNT",
-      "UNKNOWN":  "?"
+      "UNKNOWN": "?"
     },
     "chatInfoContent": {
       "title": "Crunch My Party!",
-      "text1": "\"Es waren einmal drei kleine Goblins... Sie wünschten sich nichts sehnlicher, als eine ECHTE GRUPPE zu sein!<br/>Dies ist ihre Geschichte...\"",
-      "text2": "Mit dieser Erweiterung können frei definierbare Zusammenstellungen von Tokens (die eine Gruppe repräsentieren sollen) in einfach zu handhabende \"Gruppen-Tokens\" umgewandelt werden, und wieder zurück. Es können bis zu 5 separate Gruppen von 2 bis 25 Mitgliedern verwaltet werden!",
-      "text3": "Bitte Moduleinstellungen in den Spieleinstellungen beachten. Mehr Details auf GitHub",
-      "footer": "Diese Nachricht wird nur einmal angezeigt. Zum Wiederanzeigen bitte die entsprechende Option in den Moduleinstellungen verwenden."
+      "text1": "„Einst lebten drei kleine Goblins ... voller Eifer, eine GRUPPE zu bilden!<br/>Und dies ist ihre Geschichte ...“",
+      "text2": "Fasse beliebige Gruppen von Szene-Tokens (die Gruppen darstellen) einfach zu einem benutzerfreundlichen einzelnen „Gruppen-Token“ zusammen und teile sie umgekehrt wieder auf. Verwalte bis zu 5 separate Gruppen mit jeweils bis zu 25 Mitgliedern!",
+      "text3": "Weitere Informationen findest du in den verschiedenen Moduleinstellungen unter den Spieleinstellungen. Noch mehr Details findest du auf GitHub.",
+      "footer": "Diese Chatkarte wird nur einmal angezeigt. Aktiviere sie bei Bedarf erneut in den Moduleinstellungen."
     },
     "errMsg": {
-      "pleaseCheckYourTokenSelection": "Bitte Tokenauswahl prüfen",
-      "invalidTokenCount": "Erforderlich: Genau EIN Gruppen-Token und MEHR ALS EIN Mitglieder-Token.",
-      "duplicateTokens": "Die Szene enthält Tokens mit gleichem Namen (evtl. ausgeblendet). Dadurch kann keine endeutige Gruppenkonfiguration gewährleistet werden.",
-      "tooManyMemberTokens": "Mitgliederliste ist zu lang",
-      "invalidNumberOfMemberTokens": "Ungültige Anzahl an Tokens ausgewählt! Eine Gruppe muss aus mindestens 2 und maximal {maxMembers} Mitgliedern bestehen.",
-      "notUniqueInScene": "Token [{tokenName}] existiert mehrfach in der Szene.",
-      "notUniqueInScenePlural": "Die folgenden Tokens existieren mehrfach in der Szene. Die gewählte Aktion unterstützt keine Tokens gleichen Namens",
-      "tokensMissingInScene": "Fehlende Tokens: In der Szene sind für Gruppe #{partyNo} [{partyName}] weder ein Gruppentoken noch Mitglieder sichtbar. Deshalb kann die erforderliche Aktion nicht ermittelt werden.",
-      "partyTokenMissingInConfig": "Die Gruppenkonfiguration enthält keine Daten für den Gruppentoken '#tokenName'. Bitte füge ihn der Szene hinzu oder erstelle die Gruppe neu mit dem \"Group\"-Macro.",
-      "cannotDetermineAction": "Aktion kann nicht ermittelt werden!",
-      "noTokensVisible": "Entweder der Gruppentoken ODER mindestens eines der Gruppenmitglieder muss in der Szene sichtbar (aktiviert) sein, damit diese Aktion ausgeführt werden kann.",
-      "membersAndPartyTokenVisible": "Gruppentoken und Gruppenmitglieder dürfen nicht zugleich in der Szene sichtbar sein, um diese Aktion auszuführen",
-      "pleaseWaitStillBusy": "Bitte warten, bis laufende Aktion beendet ist. Falls diese Meldung wiederkehrt, bitte die Szene neu laden.",
-      "partyConfigNotDefined": "Gruppe #{partyNo} ist scheinbar nicht definiert. Bitte prüfe die Liste der Gruppenkonfigurationen."
+      "pleaseCheckYourTokenSelection": "Überprüfe bitte deine Token-Auswahl.",
+      "invalidTokenCount": "Erforderlich: Genau EINE Gruppe und MEHR ALS EIN Gruppenmitglied",
+      "duplicateTokens": "Die Auswahl enthält Tokens mit demselben Namen (möglicherweise ausgeblendet?). Namenszwillinge verhindern eine eindeutige Gruppenkonfiguration.",
+      "tooManyMemberTokens": "Mitgliederliste zu lang",
+      "invalidNumberOfMemberTokens": "Ungültige Anzahl ausgewählter Tokens! Eine Gruppe muss aus 2 bis zu {maxMembers} Mitgliedern bestehen.",
+      "notUniqueInScene": "Token [{tokenName}] ist in der Szene nicht eindeutig!",
+      "notUniqueInScenePlural": "Die folgenden Tokens sind in der Szene nicht eindeutig. Die aktuelle Aktion unterstützt dies nicht:",
+      "tokensMissingInScene": "Fehlende Tokens: In dieser Szene sind weder ein Gruppen-Token noch Gruppenmitglieder für Gruppe #{partyNo} [{partyName}] sichtbar. Die entsprechende Aktion kann nicht bestimmt werden.",
+      "partyTokenMissingInConfig": "In der Gruppenkonfiguration fehlen Daten für den Gruppen-Token namens „#tokenName“. Füge ihn bitte zur Szene hinzu oder erstelle die Gruppe mit dem Makro „Group“ neu.",
+      "cannotDetermineAction": "Aktion kann nicht bestimmt werden!",
+      "noTokensVisible": "Damit diese Aktion ausgeführt werden kann, muss entweder der Gruppen-Token ODER mindestens eines der Gruppenmitglieder in der Szene sichtbar (aktiviert) sein.",
+      "membersAndPartyTokenVisible": "Der Gruppen-Token und die Gruppenmitglieder dürfen für diese Aktion nicht gleichzeitig sichtbar sein.",
+      "pleaseWaitStillBusy": "Warte bitte, bis die aktuelle Aktion abgeschlossen ist. Falls dieses Problem weiterhin besteht, lade die Szene bitte neu.",
+      "partyConfigNotDefined": "Gruppe #{partyNo} scheint nicht konfiguriert zu sein. Überprüfe bitte deine Liste der Gruppendefinitionen."
     },
     "promptForPartyDefinition": {
-      "title": "Gruppendefinition",
-      "text": "Welcher der ausgewählten Tokens soll als gemeinsamer Gruppentoken verwendet werden?",
+      "title": "Gruppendefinitionen",
+      "text": "Welcher der ausgewählten Tokens soll als gemeinsamer Gruppen-Token dienen?",
       "partyTokenMode": {
-        "text": "Ist dieser Token ein separater Stellvertreter, oder selbst ein Mitglied der Gruppe?",
-        "placeholder": "Stellvertreter",
+        "text": "Ist dieser Token ein separater Platzhalter oder ein Gruppenmitglied?",
+        "placeholder": "Platzhalter",
         "member": "Gruppenmitglied"
       },
       "partyNo": {
-        "text": "Welchen Gruppenslot möchtest du belegen<br/>(Die Anzahl verfügbarer Slots kann in den Modueinstellungen geändert werden)?"
+        "text": "Welchen Gruppenplatz möchtest du zuweisen?<br/>(Die Anzahl verfügbarer Plätze kann in den Moduleinstellungen geändert werden.)"
       }
     },
     "promptForPartySelection": {
-      "windowTitle": "Gruppe auswählen",
-      "tableTitle": "Für welche Gruppe soll diese Aktion ausgeführt werden?"
+      "windowTitle": "Eine Gruppe auswählen",
+      "tableTitle": "Für welche Gruppe möchtest du dies tun?"
     },
-    "promptForCrunchAfterGrouping" : {
-      "title": "Gleich anwenden?",
-      "text": "Soll für die neue Gruppe gleich ein \"Crunching\" durchgeführt werden?",
-      "yes": "Ja, bitte \"crunchen\"!",
-      "no": "Nein, so stehen lassen."
+    "promptForCrunchAfterGrouping": {
+      "title": "Sofort anwenden?",
+      "text": "Möchtest du die Mitglieder deiner neuen Gruppe sofort „zusammenfassen“?",
+      "yes": "Ja, zusammenfassen!",
+      "no": "Nein, getrennt lassen."
     },
-    "promptForDuplicateReplaceOrKeep" : {
-      "title": "Tokens bereits vorhanden.",
-      "text": "Der Token [{tokenName}] existiert {count}x in der Szene. Was möchtest Du tun?",
-      "disallowKeepText": "Da es mehr als einen Token gibt, ist ein automatisches \"Behalten\" nicht möglich. Bitte wähle entweder \"Ersetzen\", um alle(!) {count} Tokens zu ersetzen.\nOder wähle \"Abbrechen\", entferne alle überzähligen Tokens dieses Namens und wiederhole den Vorgang.",
+    "promptForDuplicateReplaceOrKeep": {
+      "title": "Token ist bereits in der Szene vorhanden.",
+      "text": "Token [{tokenName}] ist {count}-mal in dieser Szene vorhanden. Was möchtest du tun?",
+      "disallowKeepText": "Da mehr als einer vorhanden ist, können sie nicht behalten werden. Wähle „Ersetzen“, um alle (!) {count} Tokens zu ersetzen.\nWähle alternativ „Abbrechen“, lösche die überzähligen Tokens dieses Namens und wiederhole dann den Vorgang.",
       "replace": "Ersetzen",
       "keep": "Behalten"
     },
-    "promptForSimpleConfirmation":  "Bestätigung erforderlich",
-    "confirmDeleteParty": "Willst du die Gruppe # ({partyName}) mit {noOfMembers} Mitgliedern aus der Liste löschen und den Slot freigeben?",
+    "promptForSimpleConfirmation": "Bestätigung erforderlich",
+    "confirmDeleteParty": "Möchtest du Gruppe # ({partyName}) mit {noOfMembers} Mitgliedern aus der Liste löschen und diesen Gruppenplatz freigeben?",
     "okButton": "OK",
     "saveButton": "Speichern",
     "cancelButton": "Abbrechen",
-    "closeButton": "Schliessen",
+    "closeButton": "Schließen",
     "partyTable": {
-      "deleteButton": "Gruppe #{partyNo}\nlöschen",
-      "findButton": "Gruppe #{partyNo}\nfinden"
+      "deleteButton": "Löschen\n#{partyNo}",
+      "findButton": "Suchen\n#{partyNo}"
     },
     "empty": "leer",
-    "groupingConfirmation": "Die folgenden Tokens sind nun der <strong>Gruppe #{partyNo} [{partyTokenName}]</strong> zugewiesen",
+    "groupingConfirmation": "Die folgenden Tokens wurden <strong>Gruppe #{partyNo} [{partyTokenName}]</strong> zugewiesen.",
     "applyToAll": "Auf alle anwenden!",
     "keybindingLabels": {
-      "find": "Gruppe # finden",
-      "findGeneric": "Beliebige Gruppe finden (per Auswahlliste)",
+      "find": "Gruppe # suchen",
+      "findGeneric": "BELIEBIGE Gruppe suchen (aus Liste auswählen)",
       "toggle": "Gruppe # umschalten",
-      "toggleGeneric": "Beliebige Gruppe umschalten (per Auswahlliste)",
-      "groupGeneric": "Group selected tokens into a party",
-      "showConfig": "Liste der Gruppenkonfigurationen anzeigen"
+      "toggleGeneric": "BELIEBIGE Gruppe umschalten (aus Liste auswählen)",
+      "groupGeneric": "Ausgewählte Tokens zu einer Gruppe zusammenfassen",
+      "showConfig": "Gruppenkonfigurationen anzeigen"
     },
     "settingsMenu": {
       "behaviourSection": "Verhalten",
-      "partyConfigSection": "Gruppenkonfiguration",
+      "partyConfigSection": "Konfiguration der Gruppenmitglieder",
       "animationsSection": "Animation & Audio (erfordert JB2A & Automated Animations)"
     }
   }

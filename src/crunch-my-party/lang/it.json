@@ -1,0 +1,146 @@
+{
+  "crunch-my-party": {
+    "setting": {
+      "modVersion": {
+        "name": "Versione",
+        "hint": "Versione del modulo attualmente installata (non può essere modificata qui)."
+      },
+      "debug": {
+        "name": "Modalità di debug",
+        "hint": "Impostazione lato client che abilita la registrazione estesa dei log di debug."
+      },
+      "forceUniqueTargetToken": {
+        "name": "Forza la selezione del token bersaglio",
+        "hint": "Impedisce la \"compattazione\" quando non è stato selezionato alcun membro univoco del gruppo. È particolarmente rilevante per le scene che utilizzano livelli ed elevazione, perché i membri del gruppo vengono teletrasportati nella stessa posizione e alla stessa elevazione del bersaglio!"
+      },
+      "maxNoOfParties": {
+        "name": "Numero massimo di gruppi",
+        "hint": "Quanti gruppi definiti separatamente devono essere mantenuti contemporaneamente?"
+      },
+      "memberTokenNames#": {
+        "name": "Gruppo # - Membri (obsoleto)",
+        "hint": "Non più utilizzato dalla v14. Visibile solo per facilitare il trasferimento delle vecchie impostazioni."
+      },
+      "partyTokenName#": {
+        "name": "Gruppo # - Nome del gruppo (obsoleto)",
+        "hint": "Non più utilizzato dalla v14. Visibile solo per facilitare il trasferimento delle vecchie impostazioni."
+      },
+      "hideChatInfo": {
+        "name": "Nascondi le informazioni sul modulo nella finestra della chat",
+        "hint": "Nasconde il testo informativo su questo modulo nella finestra della chat all'avvio del gioco, così che non venga mostrato continuamente (disattiva questa opzione per visualizzarlo di nuovo)."
+      },
+      "animationFileCRUNCHED": {
+        "name": "Animazione di \"compattazione\" (facoltativa)",
+        "hint": "Animazione da riprodurre quando si compattano singoli token in un token del gruppo. Richiede l'installazione di J2BA (vedi il file Readme)."
+      },
+      "playAudioCRUNCHED": {
+        "name": "Riprodurre l'audio durante la \"compattazione\"?",
+        "hint": "Riproduce il file audio specificato qui sotto, se attivato."
+      },
+      "audioFileCRUNCHED": {
+        "name": "File audio durante la \"compattazione\"",
+        "hint": "File audio (percorso relativo) da riprodurre durante la \"compattazione\"?"
+      },
+      "animationFileEXPLODED": {
+        "name": "Animazione di \"separazione\" (facoltativa)",
+        "hint": "Animazione da riprodurre quando si separa un token del gruppo in singoli token dei membri. Richiede l'installazione di J2BA (vedi il file Readme)."
+      },
+      "playAudioEXPLODED": {
+        "name": "Riprodurre l'audio durante la \"separazione\"?",
+        "hint": "Riproduce il file audio specificato qui sotto, se attivato."
+      },
+      "audioFileEXPLODED": {
+        "name": "File audio durante la \"separazione\"",
+        "hint": "File audio (percorso relativo) da riprodurre durante la \"separazione\"?"
+      }
+    },
+    "labels": {
+      "partyTokenName": "Token del gruppo",
+      "memberTokenNames": "Membri",
+      "partyState": "Stato"
+    },
+    "partyState": {
+      "CRUNCHED": "RAGGRUPPATI",
+      "EXPLODED": "SEPARATI",
+      "UNKNOWN": "?"
+    },
+    "chatInfoContent": {
+      "title": "Compatta il mio gruppo!",
+      "text1": "\"C'erano una volta tre piccoli goblin... desiderosi di formare un GRUPPO!<br/>Ecco la loro storia...\"",
+      "text2": "Compatta facilmente gruppi arbitrari di token della scena (che rappresentano gruppi) in un singolo \"token del gruppo\" facile da usare e viceversa. Gestisci fino a 5 gruppi separati, con un massimo di 25 membri ciascuno!",
+      "text3": "Consulta le varie preferenze del modulo nelle impostazioni del gioco. Trovi ulteriori dettagli su GitHub",
+      "footer": "Questa scheda della chat verrà mostrata una sola volta. Attivala di nuovo nelle impostazioni del modulo, se necessario."
+    },
+    "errMsg": {
+      "pleaseCheckYourTokenSelection": "Controlla la selezione dei token",
+      "invalidTokenCount": "Richiesto: esattamente UN gruppo e PIÙ DI UN membro",
+      "duplicateTokens": "La selezione contiene token con lo stesso nome (forse nascosti?). I token con lo stesso nome impediscono una configurazione coerente del gruppo.",
+      "tooManyMemberTokens": "Elenco dei membri troppo lungo",
+      "invalidNumberOfMemberTokens": "Numero di token selezionati non valido! Un gruppo deve essere composto da 2 a {maxMembers} membri.",
+      "notUniqueInScene": "Il token [{tokenName}] non è univoco nella scena!",
+      "notUniqueInScenePlural": "I seguenti token non sono univoci nella scena. L'azione attuale non li supporta:",
+      "tokensMissingInScene": "Token mancanti: nella scena non sono visibili né un token del gruppo né alcun membro per il gruppo #{partyNo} [{partyName}]. Non è possibile determinare l'azione appropriata.",
+      "partyTokenMissingInConfig": "Alla configurazione del gruppo mancano dati per il token del gruppo denominato '#tokenName'. Aggiungilo alla scena oppure ricrea il gruppo usando la macro \"Raggruppa\".",
+      "cannotDetermineAction": "Impossibile determinare l'azione!",
+      "noTokensVisible": "Per eseguire questa azione, nella scena deve essere visibile (attivato) il token del gruppo OPPURE almeno uno dei membri del gruppo.",
+      "membersAndPartyTokenVisible": "Per eseguire questa azione, il token del gruppo e i membri non possono essere visibili contemporaneamente.",
+      "pleaseWaitStillBusy": "Attendi il completamento dell'azione corrente. Se il problema persiste, ricarica la scena.",
+      "partyConfigNotDefined": "Il gruppo #{partyNo} non sembra essere configurato. Controlla l'elenco delle definizioni dei gruppi."
+    },
+    "promptForPartyDefinition": {
+      "title": "Definizioni dei gruppi",
+      "text": "Quale dei token selezionati deve fungere da token condiviso del gruppo?",
+      "partyTokenMode": {
+        "text": "Questo token è un segnaposto separato oppure è un membro del gruppo?",
+        "placeholder": "Segnaposto",
+        "member": "Membro"
+      },
+      "partyNo": {
+        "text": "A quale slot del gruppo vuoi assegnarlo?<br/>(Il numero di slot disponibili può essere modificato nelle impostazioni del modulo)"
+      }
+    },
+    "promptForPartySelection": {
+      "windowTitle": "Seleziona un gruppo",
+      "tableTitle": "Per quale gruppo vuoi farlo?"
+    },
+    "promptForCrunchAfterGrouping": {
+      "title": "Applicare immediatamente?",
+      "text": "Vuoi \"compattare\" subito i membri del tuo nuovo gruppo?",
+      "yes": "Sì, compattali!",
+      "no": "No, lasciali separati."
+    },
+    "promptForDuplicateReplaceOrKeep": {
+      "title": "Il token esiste già nella scena.",
+      "text": "Il token [{tokenName}] esiste {count} volte in questa scena. Cosa vuoi fare?",
+      "disallowKeepText": "Poiché ce n'è più di uno, non è possibile mantenerli. Scegli \"Sostituisci\" per sostituire tutti i {count} token,\noppure scegli \"Annulla\", elimina i token ridondanti con questo nome e ripeti il processo.",
+      "replace": "Sostituisci",
+      "keep": "Mantieni"
+    },
+    "promptForSimpleConfirmation": "Conferma richiesta",
+    "confirmDeleteParty": "Vuoi eliminare il gruppo # ({partyName}) con {noOfMembers} membri dall'elenco e liberare questo slot?",
+    "okButton": "OK",
+    "saveButton": "Salva",
+    "cancelButton": "Annulla",
+    "closeButton": "Chiudi",
+    "partyTable": {
+      "deleteButton": "Elimina\n#{partyNo}",
+      "findButton": "Trova\n#{partyNo}"
+    },
+    "empty": "vuoto",
+    "groupingConfirmation": "I seguenti token sono stati assegnati al <strong>gruppo #{partyNo} [{partyTokenName}]</strong>",
+    "applyToAll": "Applica a tutti!",
+    "keybindingLabels": {
+      "find": "Trova il gruppo #",
+      "findGeneric": "Trova QUALSIASI gruppo (seleziona dall'elenco)",
+      "toggle": "Attiva/disattiva il gruppo #",
+      "toggleGeneric": "Attiva/disattiva QUALSIASI gruppo (seleziona dall'elenco)",
+      "groupGeneric": "Raggruppa i token selezionati in un gruppo",
+      "showConfig": "Mostra le configurazioni dei gruppi"
+    },
+    "settingsMenu": {
+      "behaviourSection": "Comportamento",
+      "partyConfigSection": "Configurazione dei membri del gruppo",
+      "animationsSection": "Animazione e audio (richiede JB2A e Automated Animations)"
+    }
+  }
+}

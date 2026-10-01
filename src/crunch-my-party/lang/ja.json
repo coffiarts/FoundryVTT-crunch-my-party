@@ -1,0 +1,146 @@
+{
+  "crunch-my-party": {
+    "setting": {
+      "modVersion": {
+        "name": "バージョン",
+        "hint": "現在インストールされているモジュールのバージョン（ここでは変更できません）。"
+      },
+      "debug": {
+        "name": "デバッグモード",
+        "hint": "詳細なデバッグログを有効にするクライアント側の設定。"
+      },
+      "forceUniqueTargetToken": {
+        "name": "対象トークン選択を強制",
+        "hint": "一意のグループメンバーが選択されていない場合は「クランチ（統合）」を実行できないようにします。レベルと高度を使用するシーンでは特に重要です。グループメンバーが対象と同じ位置と高度にテレポートされるためです！"
+      },
+      "maxNoOfParties": {
+        "name": "パーティーの最大数",
+        "hint": "同時に維持するパーティー定義の数。"
+      },
+      "memberTokenNames#": {
+        "name": "パーティー # - メンバー（非推奨）",
+        "hint": "v14以降は使用されていません。古い設定を簡単に引き継ぐためだけに表示されます。"
+      },
+      "partyTokenName#": {
+        "name": "パーティー # - パーティー名（非推奨）",
+        "hint": "v14以降は使用されていません。古い設定を簡単に引き継ぐためだけに表示されます。"
+      },
+      "hideChatInfo": {
+        "name": "チャットウィンドウにモジュール情報を表示しない",
+        "hint": "ゲーム開始時にチャットウィンドウへこのモジュールに関する情報を表示しません。何度も表示されるのを防ぎます（もう一度表示するにはこのオプションを無効にしてください）。"
+      },
+      "animationFileCRUNCHED": {
+        "name": "「クランチ（統合）」アニメーション（任意）",
+        "hint": "個々のトークンをパーティートークンにクランチ（統合）するときに再生するアニメーション。J2BAのインストールが必要です（Readmeを参照）。"
+      },
+      "playAudioCRUNCHED": {
+        "name": "「クランチ（統合）」時に音声を再生する？",
+        "hint": "有効にすると、下記で指定した音声ファイルを再生します。"
+      },
+      "audioFileCRUNCHED": {
+        "name": "「クランチ（統合）」時の音声ファイル",
+        "hint": "「クランチ（統合）」時に再生する音声ファイル（相対パス）。"
+      },
+      "animationFileEXPLODED": {
+        "name": "「エクスプロード（分離）」アニメーション（任意）",
+        "hint": "パーティートークンを個々のメンバートークンにエクスプロード（分離）するときに再生するアニメーション。J2BAのインストールが必要です（Readmeを参照）。"
+      },
+      "playAudioEXPLODED": {
+        "name": "「エクスプロード（分離）」時に音声を再生する？",
+        "hint": "有効にすると、下記で指定した音声ファイルを再生します。"
+      },
+      "audioFileEXPLODED": {
+        "name": "「エクスプロード（分離）」時の音声ファイル",
+        "hint": "「エクスプロード（分離）」時に再生する音声ファイル（相対パス）。"
+      }
+    },
+    "labels": {
+      "partyTokenName": "パーティートークン",
+      "memberTokenNames": "メンバー",
+      "partyState": "ステータス"
+    },
+    "partyState": {
+      "CRUNCHED": "グループ化済み",
+      "EXPLODED": "分離済み",
+      "UNKNOWN": "？"
+    },
+    "chatInfoContent": {
+      "title": "パーティーをクランチ（統合）！",
+      "text1": "「昔々、3匹の小さなゴブリンがいました……<br/>彼らはパーティーを結成したくてたまりませんでした！<br/>そんな彼らの物語をどうぞ……」",
+      "text2": "シーン内の任意のトークン群（パーティーを表すもの）を、使いやすい1つの「パーティートークン」に簡単にまとめたり、元に戻したりできます。最大5つの別々のパーティーを管理でき、各パーティーには最大25人のメンバーを登録できます！",
+      "text3": "ゲーム設定にある各種モジュール設定を確認してください。GitHubではさらに詳しい情報を確認できます。",
+      "footer": "このチャットカードは1回だけ表示されます。必要に応じて、モジュール設定でもう一度有効にしてください。"
+    },
+    "errMsg": {
+      "pleaseCheckYourTokenSelection": "トークンの選択を確認してください",
+      "invalidTokenCount": "必要条件：グループはちょうど1つ、メンバーは2人以上",
+      "duplicateTokens": "選択範囲に同名トークンが含まれています（非表示になっている可能性があります）。同名トークンがあると、一貫したパーティー設定を作成できません。",
+      "tooManyMemberTokens": "メンバーリストが長すぎます",
+      "invalidNumberOfMemberTokens": "選択したトークン数が無効です！パーティーは2～{maxMembers}人のメンバーで構成する必要があります。",
+      "notUniqueInScene": "トークン [{tokenName}] はシーン内で一意ではありません！",
+      "notUniqueInScenePlural": "以下のトークンはシーン内で一意ではありません。現在の操作には対応していません：",
+      "tokensMissingInScene": "トークンがありません：このシーンにはパーティー #{partyNo} [{partyName}] のパーティートークンもメンバーも表示されていません。適切な操作を判断できません。",
+      "partyTokenMissingInConfig": "パーティー設定に、'#tokenName'という名前のパーティートークンのデータがありません。シーンに追加するか、「Group」マクロを使ってパーティーを作り直してください。",
+      "cannotDetermineAction": "操作を判断できません！",
+      "noTokensVisible": "この操作を実行するには、パーティートークンまたはパーティーメンバーのうち少なくとも1人がシーンに表示（有効化）されている必要があります。",
+      "membersAndPartyTokenVisible": "この操作を実行するには、パーティートークンとメンバーを同時に表示することはできません。",
+      "pleaseWaitStillBusy": "現在の操作が完了するまでお待ちください。この問題が続く場合は、シーンを再読み込みしてください。",
+      "partyConfigNotDefined": "パーティー #{partyNo} は設定されていないようです。パーティー定義リストを確認してください。"
+    },
+    "promptForPartyDefinition": {
+      "title": "パーティー定義",
+      "text": "選択したトークンのうち、共有パーティートークンにするものはどれですか？",
+      "partyTokenMode": {
+        "text": "このトークンは独立したプレースホルダーですか、それともパーティーのメンバーですか？",
+        "placeholder": "プレースホルダー",
+        "member": "メンバー"
+      },
+      "partyNo": {
+        "text": "割り当てるパーティースロットを選択してください。<br/>（利用可能なスロット数はモジュール設定で変更できます）"
+      }
+    },
+    "promptForPartySelection": {
+      "windowTitle": "パーティーを選択",
+      "tableTitle": "どのパーティーに対して実行しますか？"
+    },
+    "promptForCrunchAfterGrouping": {
+      "title": "すぐに適用しますか？",
+      "text": "新しいパーティーのメンバーを今すぐ「クランチ（統合）」しますか？",
+      "yes": "はい、クランチ（統合）する！",
+      "no": "いいえ、分離したままにする。"
+    },
+    "promptForDuplicateReplaceOrKeep": {
+      "title": "トークンはすでにシーンに存在します。",
+      "text": "トークン [{tokenName}] はこのシーンに {count} 個存在します。どうしますか？",
+      "disallowKeepText": "同じものが複数あるため、保持することはできません。「置換」を選んですべての{count}個のトークンを置き換えるか、\\n「キャンセル」を選んでこの名前の余分なトークンを削除してから、この処理をもう一度実行してください。",
+      "replace": "置換",
+      "keep": "保持"
+    },
+    "promptForSimpleConfirmation": "確認が必要です",
+    "confirmDeleteParty": "パーティー #（{partyName}、メンバー{noOfMembers}人）をリストから削除し、このスロットを解放しますか？",
+    "okButton": "OK",
+    "saveButton": "保存",
+    "cancelButton": "キャンセル",
+    "closeButton": "閉じる",
+    "partyTable": {
+      "deleteButton": "削除\\n#{partyNo}",
+      "findButton": "検索\\n#{partyNo}"
+    },
+    "empty": "空",
+    "groupingConfirmation": "以下のトークンが<strong>パーティー #{partyNo} [{partyTokenName}]</strong>に割り当てられています",
+    "applyToAll": "すべてに適用！",
+    "keybindingLabels": {
+      "find": "パーティー #を検索",
+      "findGeneric": "任意のパーティーを検索（リストから選択）",
+      "toggle": "パーティー #を切り替え",
+      "toggleGeneric": "任意のパーティーを切り替え（リストから選択）",
+      "groupGeneric": "選択したトークンをパーティーにグループ化",
+      "showConfig": "パーティー設定を表示"
+    },
+    "settingsMenu": {
+      "behaviourSection": "動作",
+      "partyConfigSection": "パーティーメンバー設定",
+      "animationsSection": "アニメーションと音声（JB2AとAutomated Animationsが必要）"
+    }
+  }
+}

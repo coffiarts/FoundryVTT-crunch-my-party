@@ -1,0 +1,146 @@
+{
+  "crunch-my-party": {
+    "setting": {
+      "modVersion": {
+        "name": "Version",
+        "hint": "Version du module actuellement installée (impossible de la modifier ici)."
+      },
+      "debug": {
+        "name": "Mode débogage",
+        "hint": "Paramètre côté client activant la journalisation étendue du débogage."
+      },
+      "forceUniqueTargetToken": {
+        "name": "Forcer la sélection du jeton cible",
+        "hint": "Empêche le « regroupement » lorsqu'aucun membre unique du groupe n'a été sélectionné. Particulièrement utile pour les scènes qui utilisent des niveaux et l'élévation, car les membres du groupe sont téléportés à la même position et à la même élévation que la cible !"
+      },
+      "maxNoOfParties": {
+        "name": "Nombre maximal de groupes",
+        "hint": "Combien de groupes définis séparément doivent être conservés simultanément ?"
+      },
+      "memberTokenNames#": {
+        "name": "Groupe n° - Membres (obsolète)",
+        "hint": "N'est plus utilisé depuis la v14. Visible uniquement pour faciliter la reprise des anciens paramètres."
+      },
+      "partyTokenName#": {
+        "name": "Groupe n° - Nom du groupe (obsolète)",
+        "hint": "N'est plus utilisé depuis la v14. Visible uniquement pour faciliter la reprise des anciens paramètres."
+      },
+      "hideChatInfo": {
+        "name": "Masquer les informations du module dans la fenêtre de discussion",
+        "hint": "Masque le texte d'information sur ce module dans la fenêtre de discussion au démarrage du jeu, afin qu'il ne s'affiche pas encore et encore (désactive cette option pour l'afficher à nouveau)."
+      },
+      "animationFileCRUNCHED": {
+        "name": "Animation de « regroupement » (facultative)",
+        "hint": "Animation à jouer lors du regroupement de jetons individuels en un jeton de groupe. Nécessite l'installation de J2BA (voir le Readme)."
+      },
+      "playAudioCRUNCHED": {
+        "name": "Lire un son lors du « regroupement » ?",
+        "hint": "Lit le fichier audio indiqué ci-dessous si l'option est activée."
+      },
+      "audioFileCRUNCHED": {
+        "name": "Fichier audio lors du « regroupement »",
+        "hint": "Quel fichier audio (chemin relatif) doit être lu lors du « regroupement » ?"
+      },
+      "animationFileEXPLODED": {
+        "name": "Animation de « dissociation » (facultative)",
+        "hint": "Animation à jouer lors de la dissociation d'un jeton de groupe en jetons individuels représentant ses membres. Nécessite l'installation de J2BA (voir le Readme)."
+      },
+      "playAudioEXPLODED": {
+        "name": "Lire un son lors de la « dissociation » ?",
+        "hint": "Lit le fichier audio indiqué ci-dessous si l'option est activée."
+      },
+      "audioFileEXPLODED": {
+        "name": "Fichier audio lors de la « dissociation »",
+        "hint": "Quel fichier audio (chemin relatif) doit être lu lors de la « dissociation » ?"
+      }
+    },
+    "labels": {
+      "partyTokenName": "Jeton de groupe",
+      "memberTokenNames": "Membres",
+      "partyState": "Statut"
+    },
+    "partyState": {
+      "CRUNCHED": "REGROUPÉS",
+      "EXPLODED": "SÉPARÉS",
+      "UNKNOWN": "?"
+    },
+    "chatInfoContent": {
+      "title": "Crunch My Party!",
+      "text1": "« Il était une fois trois petits gobelins... impatients de former un GROUPE !<br/>Voici leur histoire... »",
+      "text2": "Regroupe facilement des groupes arbitraires de jetons de scène (représentant des groupes) en un seul « jeton de groupe » facile à utiliser, et inversement. Gère jusqu'à 5 groupes distincts de 25 membres chacun !",
+      "text3": "Consulte les différentes préférences du module dans les paramètres du jeu. Trouve encore plus de détails sur GitHub",
+      "footer": "Cette carte de discussion ne sera affichée qu'une seule fois. Active-la à nouveau dans les paramètres du module si nécessaire."
+    },
+    "errMsg": {
+      "pleaseCheckYourTokenSelection": "Vérifie ta sélection de jetons",
+      "invalidTokenCount": "Requis : EXACTEMENT UN groupe et PLUS D'UN membre",
+      "duplicateTokens": "La sélection contient des jetons portant le même nom (peut-être cachés ?). Les doublons de nom empêchent une configuration cohérente du groupe.",
+      "tooManyMemberTokens": "Liste de membres trop longue",
+      "invalidNumberOfMemberTokens": "Nombre de jetons sélectionnés invalide ! Un groupe doit être composé de 2 à {maxMembers} membres.",
+      "notUniqueInScene": "Le jeton [{tokenName}] n'est pas unique dans la scène !",
+      "notUniqueInScenePlural": "Les jetons suivants ne sont pas uniques dans la scène. L'action actuelle ne les prend pas en charge :",
+      "tokensMissingInScene": "Jetons manquants : aucun jeton de groupe ni membre n'est visible dans cette scène pour le groupe n°{partyNo} [{partyName}]. Impossible de déterminer l'action appropriée.",
+      "partyTokenMissingInConfig": "La configuration du groupe ne contient aucune donnée pour le jeton de groupe nommé « #tokenName ». Ajoute-le à la scène ou recrée le groupe à l'aide de la macro « Group ».",
+      "cannotDetermineAction": "Impossible de déterminer l'action !",
+      "noTokensVisible": "Pour effectuer cette action, le jeton de groupe OU au moins un membre du groupe doit être visible (activé) dans la scène.",
+      "membersAndPartyTokenVisible": "Le jeton de groupe et ses membres ne peuvent pas être visibles simultanément pour effectuer cette action.",
+      "pleaseWaitStillBusy": "Attends la fin de l'action en cours. Si le problème persiste, recharge la scène.",
+      "partyConfigNotDefined": "Le groupe n°{partyNo} ne semble pas être configuré. Vérifie ta liste de définitions des groupes."
+    },
+    "promptForPartyDefinition": {
+      "title": "Définitions des groupes",
+      "text": "Lequel des jetons sélectionnés doit servir de jeton de groupe partagé ?",
+      "partyTokenMode": {
+        "text": "Ce jeton est-il un espace réservé distinct ou un membre du groupe ?",
+        "placeholder": "Espace réservé",
+        "member": "Membre"
+      },
+      "partyNo": {
+        "text": "À quel emplacement de groupe veux-tu l'affecter ?<br/>(Le nombre d'emplacements disponibles peut être modifié dans les paramètres du module)"
+      }
+    },
+    "promptForPartySelection": {
+      "windowTitle": "Sélectionne un groupe",
+      "tableTitle": "Pour quel groupe veux-tu faire cela ?"
+    },
+    "promptForCrunchAfterGrouping": {
+      "title": "Appliquer immédiatement ?",
+      "text": "Veux-tu regrouper immédiatement les membres de ton nouveau groupe ?",
+      "yes": "Oui, regroupe-les !",
+      "no": "Non, laisse-les séparés."
+    },
+    "promptForDuplicateReplaceOrKeep": {
+      "title": "Le jeton existe déjà dans la scène.",
+      "text": "Le jeton [{tokenName}] existe {count} fois dans cette scène. Que veux-tu faire ?",
+      "disallowKeepText": "Comme il y en a plusieurs, il est impossible de les conserver. Choisis « Remplacer » pour remplacer les {count} jetons (tous !),\\nou choisis « Annuler », supprime les jetons redondants portant ce nom, puis répète le processus.",
+      "replace": "Remplacer",
+      "keep": "Conserver"
+    },
+    "promptForSimpleConfirmation": "Confirmation requise",
+    "confirmDeleteParty": "Veux-tu supprimer le groupe n° ({partyName}) et ses {noOfMembers} membres de la liste, puis libérer cet emplacement ?",
+    "okButton": "OK",
+    "saveButton": "Enregistrer",
+    "cancelButton": "Annuler",
+    "closeButton": "Fermer",
+    "partyTable": {
+      "deleteButton": "Supprimer\\n#{partyNo}",
+      "findButton": "Trouver\\n#{partyNo}"
+    },
+    "empty": "vide",
+    "groupingConfirmation": "Les jetons suivants ont été affectés au <strong>groupe n°{partyNo} [{partyTokenName}]</strong>",
+    "applyToAll": "Appliquer à tous !",
+    "keybindingLabels": {
+      "find": "Trouver le groupe n°",
+      "findGeneric": "Trouver N'IMPORTE QUEL groupe (sélectionner dans la liste)",
+      "toggle": "Basculer le groupe n°",
+      "toggleGeneric": "Basculer N'IMPORTE QUEL groupe (sélectionner dans la liste)",
+      "groupGeneric": "Regrouper les jetons sélectionnés en un groupe",
+      "showConfig": "Afficher les configurations des groupes"
+    },
+    "settingsMenu": {
+      "behaviourSection": "Comportement",
+      "partyConfigSection": "Configuration des membres du groupe",
+      "animationsSection": "Animation et audio (nécessite JB2A et Automated Animations)"
+    }
+  }
+}
