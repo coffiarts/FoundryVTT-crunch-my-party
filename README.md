@@ -54,6 +54,7 @@ In "The Forge Bazaar" <img src="src/crunch-my-party/artwork/the-forge-logo.png" 
 
 - [What it does ...](#what-it-does-)
 - [Changelog](#changelog)
+- [Translations](#translations)
 - [How it works ...](#how-it-works-)
 - [Recommended modules in combination with this one](#recommended-modules-in-combination-with-this-one)
   * [Notes on using Hot Pan and Zoom](#notes-on-using-hot-pan-and-zoom)
@@ -79,7 +80,7 @@ Easily collapse arbitrary groups of scene tokens (representing parties) into an 
 Has been moved to [CHANGELOG.md](CHANGELOG.md)
 
 ## Translations
-Thanks to my own **Foundry Translation Tool**, which is free to use and download on GitHub ...
+Thanks to my new **Foundry Translation Tool**, which is free to use and download on GitHub ...
 
 [![CFBT - Coffiarts' Foundry Babele Translator](https://raw.githubusercontent.com/coffiarts/FoundryVTT-Babele-translator/fbefbc94f01ecf23e88c54afa420f34e44056f86/docs/img/readme-screenshot-theme-fantasy.jpg)](https://github.com/coffiarts/FoundryVTT-Babele-translator)
 **[=> Coffiart's Foundry VTT Babele Translator](https://github.com/coffiarts/FoundryVTT-Babele-translator)**
