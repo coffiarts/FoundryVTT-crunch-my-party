@@ -93,7 +93,7 @@ Thanks to my new **Foundry Translation Tool**, which you can download and use fo
 - Español
 - 日本語 (Japanese, experimental) => (experimental)
 
-Want your favuorite language to be added to this list? Feel free to [request it on github](https://github.com/coffiarts/FoundryVTT-Babele-translator/issues).
+Want your favourite language to be added to this list? Feel free to [request it on github](https://github.com/coffiarts/FoundryVTT-Babele-translator/issues).
 
 ## How it works ...
 At first, before experimenting by yourself, please have a look at the [Video Howto (demonstrating the v14 overhaul!)](https://youtu.be/KCJD19fJnMg)
