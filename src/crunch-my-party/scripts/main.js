@@ -736,7 +736,7 @@ export class PartyCruncher {
                 Logger.debug(this.#crunchParty.name, `Using single selected member token as target: [${targetToken.name}]`, targetToken);
             } else {
                 // 2b: ... otherwise pick one at random
-                memberTokensToRemove.forEach(t => t.control({releaseOthers: false}));
+                await memberTokensToRemove.forEach(t => t.control({releaseOthers: false}));
                 targetToken = canvas.tokens.controlled[0];
                 Logger.debug(this.#crunchParty.name, `Using last selected token as target: [${targetToken.name}]`, targetToken);
             }
