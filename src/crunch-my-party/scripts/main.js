@@ -158,6 +158,10 @@ export class PartyCruncher {
             // ==================================================================================================
             // Step 3 - And fiiiiiiiiinally.... DO IT!!
             // ==================================================================================================
+            // Force activation of the Token Layer in the UI
+            // The following steps require token selection, which won't work with any other layer active
+            canvas.tokens.activate();
+
             switch (requestedState) {
                 case Config.globals.states.CRUNCHED:
                     Logger.info(`Crunching party ${partyNo} ...`, partyConfig);

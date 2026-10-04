@@ -2,6 +2,10 @@ The **major** version number in my modules (like "14") always reflects the
 Foundry VTT **core** version it is compatible with (and recommended for).
 
 
+## 14.0.2
+### 2026-10-04 - Bugfix
+A fix for error: "Cannot read properties of undefined (reading 'name')", which occurred when trying to toggle parties while Token Layer isn't active. Toggling now auto-activates the Token Layer.
+
 ## 14.0.1
 ### 2026-10-01 - Additional translations
 - Mod now works in an increasing number of languages. So far (more to come): English (as before), Deutsch (as before), Français, Italiano, Español, 日本語 (Japanese, experimental). This is possible due to my new tool, which you can download and use for free: **[Foundry VTT Babele Translator](https://github.com/coffiarts/FoundryVTT-Babele-translator)**. Want your favourite language to be added to this list? Feel free to [request it on github](https://github.com/coffiarts/FoundryVTT-Babele-translator/issues).
