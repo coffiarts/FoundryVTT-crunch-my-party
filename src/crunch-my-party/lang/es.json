@@ -9,21 +9,9 @@
         "name": "Modo de depuración",
         "hint": "Configuración del cliente que activa un registro de depuración ampliado."
       },
-      "forceUniqueTargetToken": {
-        "name": "Forzar la selección del token objetivo",
-        "hint": "Impedir la «fusión» cuando no se ha seleccionado ningún miembro único del grupo. Es especialmente relevante para escenas que utilizan niveles y elevación, porque los miembros del grupo se teletransportan a la misma posición y elevación que el objetivo."
-      },
       "maxNoOfParties": {
         "name": "Número máximo de grupos",
         "hint": "¿Cuántos grupos definidos por separado se deben mantener a la vez?"
-      },
-      "memberTokenNames#": {
-        "name": "Grupo n.º - Miembros (obsoleto)",
-        "hint": "Ya no se utiliza desde la v14. Solo es visible para facilitar la adopción de configuraciones antiguas."
-      },
-      "partyTokenName#": {
-        "name": "Grupo n.º - Nombre del grupo (obsoleto)",
-        "hint": "Ya no se utiliza desde la v14. Solo es visible para facilitar la adopción de configuraciones antiguas."
       },
       "hideChatInfo": {
         "name": "Ocultar la información del módulo en la ventana de chat",
@@ -78,10 +66,12 @@
       "tooManyMemberTokens": "La lista de miembros es demasiado larga",
       "invalidNumberOfMemberTokens": "¡Número de tokens seleccionados no válido! Un grupo debe constar de entre 2 y {maxMembers} miembros.",
       "notUniqueInScene": "¡El token [{tokenName}] no es único en la escena!",
-      "notUniqueInScenePlural": "Los siguientes tokens no son únicos en la escena. La acción actual no admite esto:",
+      "notUniqueInScenePlural": "Los siguientes tokens no son únicos en la escena. La acción actual no admite esto",
       "tokensMissingInScene": "Faltan tokens: no hay ningún token de grupo ni miembros visibles en esta escena para el grupo n.º {partyNo} [{partyName}]. No se puede determinar la acción adecuada.",
       "partyTokenMissingInConfig": "Faltan datos en la configuración del grupo para el token de grupo llamado «#tokenName». Añádelo a la escena o vuelve a crear el grupo utilizando la macro «Group».",
       "cannotDetermineAction": "¡No se puede determinar la acción!",
+      "notActiveScene": "Las acciones de grupo solo se pueden realizar en la escena activa actual ({sceneName}). Cambia a la escena activa (o activa una si no hay ninguna) y vuelve a intentarlo.",
+      "targetOnOtherLevel": "El token objetivo del grupo [{tokenName}] está en otro nivel ({levelName}). Cambia a ese nivel y vuelve a intentarlo.",
       "noTokensVisible": "Para realizar esta acción, debe estar visible (activado) en la escena el token de grupo o al menos uno de los miembros del grupo.",
       "membersAndPartyTokenVisible": "El token de grupo y los miembros no pueden estar visibles al mismo tiempo para realizar esta acción.",
       "pleaseWaitStillBusy": "Espera a que se complete la acción actual. Si el problema persiste, vuelve a cargar la escena.",
@@ -118,6 +108,7 @@
     },
     "promptForSimpleConfirmation": "Se requiere confirmación",
     "confirmDeleteParty": "¿Quieres eliminar el grupo n.º ({partyName}) con {noOfMembers} miembros de la lista y liberar esta ranura?",
+    "confirmDifferentLevelsOrElevations": "Los miembros del grupo se encuentran actualmente en niveles o elevaciones diferentes. Si continúas, todos serán trasladados al nivel y la elevación de [{tokenName}] ({levelName}, {elevation}). ¿Quieres continuar?",
     "okButton": "Aceptar",
     "saveButton": "Guardar",
     "cancelButton": "Cancelar",
@@ -127,6 +118,7 @@
       "findButton": "Buscar\n#{partyNo}"
     },
     "empty": "vacío",
+    "none": "ninguna",
     "groupingConfirmation": "Los siguientes tokens se han asignado al <strong>grupo n.º {partyNo} [{partyTokenName}]</strong>",
     "applyToAll": "¡Aplicar a todos!",
     "keybindingLabels": {
@@ -138,7 +130,6 @@
       "showConfig": "Mostrar configuraciones de grupos"
     },
     "settingsMenu": {
-      "behaviourSection": "Comportamiento",
       "partyConfigSection": "Configuración de miembros del grupo",
       "animationsSection": "Animación y audio (requiere JB2A y Automated Animations)"
     }

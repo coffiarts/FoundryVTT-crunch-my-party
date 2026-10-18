@@ -96,6 +96,7 @@ export class PartyCruncher {
     }
 
     static #isBusy;
+    static #busySafetyTimer;
 
     static isBusy() {
         return this.#isBusy;
@@ -105,8 +106,11 @@ export class PartyCruncher {
         //if (!isBusy) await Config.sleep(1000);
         this.#isBusy = isBusy;
         Logger.debug(this.setBusy.name, (isBusy) ? "BUSY!" : "NOT BUSY");
+        // Cancel the pending safety timer of the previous busy phase, so that it can never interfere with a later action
+        clearTimeout(this.#busySafetyTimer);
         if (isBusy) {
-            setInterval(function(){PartyCruncher.setBusy(false)},Config.globals.safetyTimeoutMsec); // just for safety - preventing weird permanent locks.
+            // Just for safety - preventing weird permanent locks, if an action ever hangs (fires only once per busy phase).
+            this.#busySafetyTimer = setTimeout(() => PartyCruncher.setBusy(false), Config.globals.safetyTimeoutMsec);
         }
     }
 
@@ -120,6 +124,10 @@ export class PartyCruncher {
 
         if (this.isBusy()) {
             Logger.warn(this.toggleParty.name, false, Config.localize("errMsg.pleaseWaitStillBusy"));
+            return;
+        }
+
+        if (!this.#checkActiveSceneIsViewed(this.toggleParty.name)) {
             return;
         }
 
@@ -174,7 +182,7 @@ export class PartyCruncher {
             }
 
         } catch (e) {
-            Logger.error(this.toggleParty.name, false, e.message); // This will also print an error msg to the screen
+            Logger.error(this.toggleParty.name, false, e.message, e); // This will also print an error msg to the screen
             return;
         } finally {
             await this.setBusy(false);
@@ -218,6 +226,10 @@ export class PartyCruncher {
 
         if (this.isBusy()) {
             Logger.warn(this.groupParty.name, false, Config.localize("errMsg.pleaseWaitStillBusy"));
+            return;
+        }
+
+        if (!this.#checkActiveSceneIsViewed(this.groupParty.name)) {
             return;
         }
 
@@ -293,7 +305,7 @@ export class PartyCruncher {
             this.#promptForImmediateCrunch(partyNo);
 
         } catch (e) {
-            Logger.error(this.groupParty.name, false, e.message); // This will also print an error msg to the screen
+            Logger.error(this.groupParty.name, false, e.message, e); // This will also print an error msg to the screen
             await this.setBusy(false);
             return;
         } finally {
@@ -317,6 +329,10 @@ export class PartyCruncher {
 
         if (this.isBusy()) {
             Logger.warn(this.findParty.name, false, Config.localize("errMsg.pleaseWaitStillBusy"));
+            return;
+        }
+
+        if (!this.#checkActiveSceneIsViewed(this.findParty.name)) {
             return;
         }
 
@@ -391,6 +407,8 @@ export class PartyCruncher {
                     .filter(t => !t.hidden);
                 targetTokens = targetTokens.concat(visibleUniqueMemberTokens);
             }
+            // Only tokens on the currently viewed level can be selected and panned to
+            targetTokens = targetTokens.map(t => t.object).filter(t => !!t);
             if (!targetTokens || targetTokens.length === 0) {
                 throw new Error(Config.localize("errMsg.tokensMissingInScene")
                     .replace("{partyNo}", partyNo)
@@ -418,7 +436,7 @@ export class PartyCruncher {
                 }, 1000);
             }
         } catch (e) {
-            Logger.error(this.findParty.name, false, e.message); // This will also print an error msg to the screen
+            Logger.error(this.findParty.name, false, e.message, e); // This will also print an error msg to the screen
         } finally {
             await this.setBusy(false);
             Logger.debug(this.findParty.name, `Finding of Party with partyNo #${partyNo} complete.`);
@@ -487,6 +505,80 @@ export class PartyCruncher {
         return namesFromSelection;
     }
 
+    /**
+     * Returns all TokenDocuments of the current scene that are owned by the current user - on ALL levels.
+     * Note: canvas.tokens only contains tokens of the currently viewed level, so it must not be used for searching.
+     */
+    static #getSceneTokens() {
+        return canvas.scene?.tokens?.filter(t => t.isOwner) ?? [];
+    }
+
+    static #findSceneToken(name) {
+        return this.#getSceneTokens().find(t => t.name === name);
+    }
+
+    /**
+     * Checks if a token is drawn on the canvas (i.e. has a placeable object), so that it can be selected.
+     * This applies to all tokens on the currently viewed level, but ALSO to tokens on other levels which are
+     * configured to be visible from the viewed one. Selecting such a token makes Foundry switch the view to its level.
+     */
+    static #isVisibleOnCurrentLevel(tokenDoc) {
+        return !!tokenDoc?.object;
+    }
+
+    /**
+     * The placeable of a newly created or moved token is drawn with a slight delay.
+     * Wait for it (up to timeoutMs), and return it - or undefined on timeout.
+     */
+    static async #waitForTokenObject(tokenDoc, timeoutMs = 2000) {
+        const start = Date.now();
+        while (!tokenDoc?.object && Date.now() - start < timeoutMs) {
+            await new Promise(resolve => setTimeout(resolve, 50));
+        }
+        if (!tokenDoc?.object) {
+            Logger.debug(this.#waitForTokenObject.name, `Timeout: Token [${tokenDoc?.name}] has not been drawn on the canvas.`);
+        }
+        return tokenDoc?.object ?? undefined;
+    }
+
+    /**
+     * The target token must be drawn on the canvas (see #isVisibleOnCurrentLevel), because it needs to be selected and panned to.
+     * Otherwise (i.e. it's on a level which can't be seen from the viewed one), warn the user and return false.
+     */
+    static #checkTargetVisibleOnCurrentLevel(callerName, targetTokenDoc) {
+        if (this.#isVisibleOnCurrentLevel(targetTokenDoc)) {
+            return true;
+        }
+        const levelName = canvas.scene?.levels?.get(targetTokenDoc.level)?.name ?? targetTokenDoc.level;
+        Logger.warn(callerName, false, Config.localize("errMsg.targetOnOtherLevel")
+            .replace("{tokenName}", targetTokenDoc.name)
+            .replace("{levelName}", levelName));
+        return false;
+    }
+
+    /**
+     * All members get moved to the target's level AND elevation. If any of them is currently on a different level
+     * or elevation (e.g. a scout who has climbed a cliff, or a flying character), ask the user for confirmation first,
+     * to prevent accidentally pulling the whole party up or down.
+     * @returns {Promise<boolean>} true if there are no differences, or if the user confirmed
+     */
+    static async #confirmMoveToTargetLevelAndElevation(callerName, targetTokenDoc, memberTokenDocs) {
+        const differingMembers = memberTokenDocs.filter(t => t !== targetTokenDoc
+            && (t.level !== targetTokenDoc.level || t.elevation !== targetTokenDoc.elevation));
+        if (differingMembers.length === 0) {
+            return true;
+        }
+        Logger.debug(callerName, `Members on a different level or elevation than [${targetTokenDoc.name}]:`, differingMembers.map(t => t.name));
+
+        const levelName = canvas.scene?.levels?.get(targetTokenDoc.level)?.name ?? Config.localize("none");
+        const elevation = `${targetTokenDoc.elevation} ${canvas.scene?.grid?.units ?? ""}`.trim();
+        const prompt = await this.#promptForSimpleConfirmation(Config.localize("confirmDifferentLevelsOrElevations")
+            .replace("{tokenName}", targetTokenDoc.name)
+            .replace("{levelName}", levelName)
+            .replace("{elevation}", elevation));
+        return !!prompt?.ok;
+    }
+
     static #countTokensByNames(namesArr, minCount = 1) {
 
         Logger.debug(this.#countTokensByNames.name, namesArr.join(", "));
@@ -496,11 +588,11 @@ export class PartyCruncher {
         (
             name =>
             {
-                const tokensFound = canvas.tokens.ownedTokens.filter(t => t.name.toLowerCase() === name.toLowerCase());
+                const tokensFound = this.#getSceneTokens().filter(t => t.name.toLowerCase() === name.toLowerCase());
                 tokenCounts.push({
                     name: name,
-                    count: canvas.tokens.ownedTokens.filter(t => t.name.toLowerCase() === name.toLowerCase()).length,
-                    tokens: tokensFound
+                    count: tokensFound.length,
+                    tokens: tokensFound // TokenDocuments (on all levels)
                 });
             }
         );
@@ -556,7 +648,7 @@ export class PartyCruncher {
                 Config.localize('errMsg.tooManyMemberTokens') + ` (${properties.memberTokenNames.length})!<br/>` +
                 Config.localize('errMsg.invalidNumberOfMemberTokens').replace("{maxMembers}", Config.globals.maxMembersPerParty.toString()) + `<br/>` +
                 "<br/>" +
-                Config.localize(`setting.memberTokenNames#.name`).replace("#", partyNo.toString()) + ": <strong>[ " + properties.memberTokenNames + " ]</strong>"
+                Config.localize(`labels.memberTokenNames`) + ": <strong>[ " + properties.memberTokenNames + " ]</strong>"
             );
         }
 
@@ -600,13 +692,13 @@ export class PartyCruncher {
         }
 
         if (updates.partyToken) {
-            allConfigs[partyNo].partyToken = updates.partyToken.document.toObject();
+            allConfigs[partyNo].partyToken = this.#toTokenData(updates.partyToken);
             allConfigs[partyNo].timestamp = Date.now();
             Logger.debug(this.#updatePartyConfig.name, `new partyToken: `, allConfigs[partyNo].partyToken);
         }
 
         if (updates.memberTokens) {
-            allConfigs[partyNo].memberTokens = updates.memberTokens.map(mt => mt.document?.toObject() ?? mt);
+            allConfigs[partyNo].memberTokens = updates.memberTokens.map(mt => this.#toTokenData(mt));
             allConfigs[partyNo].timestamp = Date.now();
             Logger.debug(this.#updatePartyConfig.name, `new memberTokens: `, allConfigs[partyNo].memberTokens);
         }
@@ -624,6 +716,14 @@ export class PartyCruncher {
     }
 
 
+    /**
+     * Converts a Token placeable, a TokenDocument or already plain token data into plain token data for storage.
+     */
+    static #toTokenData(token) {
+        const doc = token?.document ?? token;
+        return doc?.toObject?.() ?? token;
+    }
+
     static #isEmptyConfig(partyConfig) {
         return partyConfig === undefined || partyConfig === null || partyConfig === {};
     }
@@ -639,7 +739,7 @@ export class PartyCruncher {
         let tokensFound = [];
         let errMsg = "";
 
-        for (let token of canvas.tokens.ownedTokens) {
+        for (let token of this.#getSceneTokens()) {
 
             Logger.debug(this.#collectTokensByNamesIfUnique.name, `Checking if scene token '${token.name}' is in list: ...`, names);
 
@@ -698,10 +798,10 @@ export class PartyCruncher {
         const tokenUpdates = [];
         const partyConfigUpdates = {};
 
-        // Collect member tokens in scene
+        // Collect member tokens in scene (TokenDocuments, on all levels)
         let memberTokensToRemove = [];
         for (let memberName of partyConfig.definition.memberTokenNames) {
-            const tokenFound = canvas.tokens.ownedTokens.find(t => t.name === memberName);
+            const tokenFound = this.#findSceneToken(memberName);
             if (tokenFound === undefined) {
                 Logger.info(`this.#crunchParty - member token '${memberName}' not found in scene => skipped`);
                 continue;
@@ -714,46 +814,50 @@ export class PartyCruncher {
             Logger.debug(this.#crunchParty.name, `member token '${memberName}' found => added to list for removal`, tokenFound);
         }
 
-        // Identify target token
-        let targetToken;
-        // Case 1: If a member token is defined and the "leader", and it is present in the scene, it has precedence
+        // Identify target token (as TokenDocument)
+        let targetTokenDoc;
+        // Case 1: If a member token is defined as the party token, and it is present in the scene, it has precedence
         if (Config.globals.partyTokenModes.MEMBER === partyConfig.definition.partyTokenMode) {
-            targetToken = canvas.tokens.ownedTokens.find(t => t.name === partyConfig.definition?.partyTokenName) ?? undefined;
+            targetTokenDoc = this.#findSceneToken(partyConfig.definition?.partyTokenName);
         }
-        if (targetToken) {
-            Logger.debug(this.#crunchParty.name, `Using leading party member as the target: [${partyConfig.definition?.partyTokenName}]`, targetToken);
+        if (targetTokenDoc) {
+            Logger.debug(this.#crunchParty.name, `Using leading party member as the target: [${partyConfig.definition?.partyTokenName}]`, targetTokenDoc);
         }
         // Case 2: If member tokens are present in the scene, use one of them as the target
         else if (memberTokensToRemove.length > 0) {
-            const memberTokensSelected = memberTokensToRemove
-                .filter(t =>
-                    canvas.tokens.controlled.map(tc => tc.name)
-                        .find(tn => tn === t.name));
+            const memberTokensSelected = memberTokensToRemove.filter(t => t.object?.controlled);
             if (memberTokensSelected.length === 1) {
                 // 2a: If only one selected, use that one ...
-                memberTokensSelected[0].control({releaseOthers: true});
-                targetToken = canvas.tokens.controlled[0];
-                Logger.debug(this.#crunchParty.name, `Using single selected member token as target: [${targetToken.name}]`, targetToken);
+                targetTokenDoc = memberTokensSelected[0];
+                Logger.debug(this.#crunchParty.name, `Using single selected member token as target: [${targetTokenDoc.name}]`, targetTokenDoc);
             } else {
-                // 2b: ... otherwise pick one at random
-                await memberTokensToRemove.forEach(t => t.control({releaseOthers: false}));
-                targetToken = canvas.tokens.controlled[0];
-                Logger.debug(this.#crunchParty.name, `Using last selected token as target: [${targetToken.name}]`, targetToken);
+                // 2b: ... otherwise pick the first one (preferably one on the currently viewed level)
+                targetTokenDoc = memberTokensToRemove.find(t => this.#isVisibleOnCurrentLevel(t)) ?? memberTokensToRemove[0];
+                Logger.debug(this.#crunchParty.name, `Using first member token as target: [${targetTokenDoc.name}]`, targetTokenDoc);
             }
         }
         // Case 3: No members in scene, but Party token: This means that the party in this scene is in opposite state as according to config
         else {
-            targetToken = canvas.tokens.ownedTokens.find(t => t.name === partyConfig.definition?.partyTokenName);
-            Logger.debug(this.#crunchParty.name, `Trying to use already existing and crunched Party token as the target: [${targetToken?.name}]`, targetToken);
+            targetTokenDoc = this.#findSceneToken(partyConfig.definition?.partyTokenName);
+            Logger.debug(this.#crunchParty.name, `Trying to use already existing and crunched Party token as the target: [${targetTokenDoc?.name}]`, targetTokenDoc);
         }
         // If nothing was successful, abort
-        if (!targetToken) {
+        if (!targetTokenDoc) {
             Logger.error(this.#crunchParty.name, false,
                 `${Config.localize("errMsg.tokensMissingInScene")
                     .replace("{partyNo}", partyConfig.definition.partyNo)
                     .replace("{partyName}", partyConfig.definition.partyTokenName)}`);
             return;
         }
+        // The target must be drawn on the canvas (i.e. visible from the viewed level) - otherwise, abort before anything is changed
+        if (!this.#checkTargetVisibleOnCurrentLevel(this.#crunchParty.name, targetTokenDoc)) {
+            return;
+        }
+        // If members are spread over different levels or elevations, ask before pulling them all to the target's
+        if (!(await this.#confirmMoveToTargetLevelAndElevation(this.#crunchParty.name, targetTokenDoc, memberTokensToRemove))) {
+            return;
+        }
+        const targetToken = targetTokenDoc.object;
 
         // Select the target and try to set the view onto it
         await this.#panToTarget(targetToken, useHotPanIfAvailable);
@@ -767,10 +871,11 @@ export class PartyCruncher {
                 this.#createTokenTeleportUpdate(
                     token,
                     {
-                        name: token.document.name,
+                        name: token.name,
                         x: targetToken.document.x,
                         y: targetToken.document.y,
                         elevation: targetToken.document.elevation,
+                        level: targetToken.document.level,
                         hidden: true
                     }));
         }
@@ -790,12 +895,12 @@ export class PartyCruncher {
 
                 // Apply the chosen conflict resolution
                 if (tokenConflictResolution.replace) {
-                    for (const t of canvas.tokens.ownedTokens.filter(t => t.name === partyConfig.definition.partyTokenName)) {
+                    for (const t of this.#getSceneTokens().filter(t => t.name === partyConfig.definition.partyTokenName)) {
                         Logger.debug(this.#crunchParty.name, `Deleting redundant party token: `, t);
                         await t.delete();
                     }
                 } else if (tokenConflictResolution.keep) {
-                    effectivePartyToken = canvas.tokens.ownedTokens.find(t => t.name === partyConfig.definition.partyTokenName);
+                    effectivePartyToken = this.#findSceneToken(partyConfig.definition.partyTokenName);
                     partyConfigUpdates.partyToken = effectivePartyToken;
                     Logger.debug(this.#crunchParty.name, `effectivePartyToken reused from scene: `, effectivePartyToken);
                 } else { // tokenConflictResolution.cancelled
@@ -810,19 +915,20 @@ export class PartyCruncher {
         // If one exists in the scene, reuse it. Otherwise, instantiate a new one from partyConfig
         if (!effectivePartyToken) {
             if (partyTokenCount === 1) {
-                effectivePartyToken = canvas.tokens.ownedTokens.find(t => t.name === partyConfig.definition.partyTokenName);
+                effectivePartyToken = this.#findSceneToken(partyConfig.definition.partyTokenName);
             }
             else {
                 // If a partyToken is stored in config, instantiate it (hidden) at the target position
                 if (partyConfig.partyToken !== undefined) {
-                    partyConfig.partyToken.x = targetToken.x;
-                    partyConfig.partyToken.y = targetToken.y;
-                    partyConfig.partyToken.elevation = targetToken.elevation;
+                    partyConfig.partyToken.x = targetToken.document.x;
+                    partyConfig.partyToken.y = targetToken.document.y;
+                    partyConfig.partyToken.elevation = targetToken.document.elevation;
+                    this.#assignLevel(partyConfig.partyToken, targetToken.document.level);
                     partyConfig.partyToken.hidden = true;
-                    await canvas.scene.createEmbeddedDocuments("Token", [partyConfig.partyToken]);
-                    effectivePartyToken = canvas.tokens.ownedTokens.find(t => t.name === partyConfig.definition.partyTokenName);
+                    // Use the returned document - the placeable on the canvas is drawn with a delay!
+                    [effectivePartyToken] = await canvas.scene.createEmbeddedDocuments("Token", [partyConfig.partyToken]);
                     Logger.debug(this.#crunchParty.name, `effectivePartyToken created from partyConfig: `, effectivePartyToken);
-                    Logger.debug(this.#crunchParty.name, `effectivePartyToken pos [x:${effectivePartyToken.document.x}|y:${effectivePartyToken.document.y}|e:${effectivePartyToken.document.elevation}] set to targetToken pos [x:${targetToken.document.x}|y:${targetToken.document.y}|e:${targetToken.document.elevation}]`);
+                    Logger.debug(this.#crunchParty.name, `effectivePartyToken pos [x:${effectivePartyToken.x}|y:${effectivePartyToken.y}|elevation:${effectivePartyToken.elevation}|level: ${effectivePartyToken.level}] set to targetToken pos [x:${targetToken.document.x}|y:${targetToken.document.y}|elevation:${targetToken.document.elevation}|level:${targetToken.document.level}]`);
 
                 } else {
                     // Otherwise throw an error
@@ -837,7 +943,7 @@ export class PartyCruncher {
             this.#createTokenTeleportUpdate(
                 effectivePartyToken,
                 {
-                    name: effectivePartyToken.document.name,
+                    name: effectivePartyToken.name,
                     hidden: false
                 }));
 
@@ -845,14 +951,16 @@ export class PartyCruncher {
         for (const update of tokenUpdates) {
             const tokenDoc = canvas.scene.tokens.get(update._id);
             if (!tokenDoc) return;
-            Logger.debug(this.#crunchParty.name, `Updating token [${update.name}] to [x:${update.x}|y:${update.y}|e:${update.elevation}|hidden:${update.hidden}]`);
+            Logger.debug(this.#crunchParty.name, `Updating token [${update.name}] to [x:${update.x}|y:${update.y}|e:${update.elevation}|level:${update.level}|hidden:${update.hidden}]`);
             await tokenDoc.update(
-                {
-                    x: update.x,
-                    y: update.y,
-                    elevation: update.elevation ?? 0,
-                    hidden: update.hidden
-                });
+                this.#assignLevel(
+                    {
+                        x: update.x,
+                        y: update.y,
+                        elevation: update.elevation ?? 0,
+                        hidden: update.hidden
+                    },
+                    update.level));
         }
 
         // Merge member tokens in the scene into stored list, then remove them from the scene
@@ -863,25 +971,29 @@ export class PartyCruncher {
                 memberTokenFromScene => {
                     Logger.debug(this.#crunchParty.name, `memberTokenFromScene`, memberTokenFromScene);
                     if (partyConfig.definition.memberTokenNames.find(nameFromList => nameFromList === memberTokenFromScene.name)) {
-                        partyConfigUpdates.memberTokens.splice(
-                            partyConfigUpdates.memberTokens.indexOf(
-                                partyConfigUpdates.memberTokens.find(t => t.name === memberTokenFromScene.name)
-                            ), 1, memberTokenFromScene.document)
+                        const storedIndex = partyConfigUpdates.memberTokens.findIndex(t => t.name === memberTokenFromScene.name);
+                        if (storedIndex > -1) {
+                            partyConfigUpdates.memberTokens.splice(storedIndex, 1, memberTokenFromScene);
+                        } else {
+                            partyConfigUpdates.memberTokens.push(memberTokenFromScene);
+                        }
                     }
                 }
             );
             Logger.debug(this.#crunchParty.name, `New merged member token list to store: `, partyConfigUpdates.memberTokens);
             Logger.debug(this.#crunchParty.name, `Removing ${memberTokensToRemove.length} tokens from scene: `, memberTokensToRemove);
             for (const member of memberTokensToRemove) {
-                await member.document.delete();
+                await member.delete();
             }
         }
 
         partyConfigUpdates.lastKnownState = Config.globals.states.CRUNCHED;
         await this.#updatePartyConfig(partyNo, partyConfigUpdates);
 
-        // Finally, make party token the active one
-        await effectivePartyToken.control({releaseOthers: true});
+        // Finally, make party token the active one (only possible if it is drawn on the currently viewed level)
+        if (effectivePartyToken.level === targetTokenDoc.level) {
+            (await this.#waitForTokenObject(effectivePartyToken))?.control({releaseOthers: true});
+        }
 
         Logger.debug(this.#explodeParty.name, `CRUNCH action complete.`);
     }
@@ -915,41 +1027,45 @@ export class PartyCruncher {
         }
         Logger.debug(this.#explodeParty.name, `memberTokensToKeep`, memberTokensToKeep);
 
-        // Identify target token
+        // Identify target token (as TokenDocument)
         // Case 1: Use the party token in the scene (if present)
-        let targetToken;
+        let targetTokenDoc;
         if (partyConfig.definition?.partyTokenName) {
-            targetToken = canvas.tokens.ownedTokens.find(t => t.name === partyConfig.definition.partyTokenName);
+            targetTokenDoc = this.#findSceneToken(partyConfig.definition.partyTokenName);
         }
-        if (targetToken) {
-            Logger.debug(this.#explodeParty.name, `Using party token as the target: [${partyConfig.definition?.partyTokenName}]`, targetToken);
+        if (targetTokenDoc) {
+            Logger.debug(this.#explodeParty.name, `Using party token as the target: [${partyConfig.definition?.partyTokenName}]`, targetTokenDoc);
         }
         // Case 2: If there are tokens to keep (from above), use either of them
         else if (memberTokensToKeep.length > 0) {
-            const keptTokensSelected = memberTokensToKeep
-                .filter(t =>
-                    canvas.tokens.controlled.map(tc => tc.name)
-                        .find(tn => tn === t.name));
+            const keptTokensSelected = memberTokensToKeep.filter(t => t.object?.controlled);
             if (keptTokensSelected.length === 1) {
                 // 2a: If only one selected, use that one ...
-                keptTokensSelected[0].control({releaseOthers: true});
-                targetToken = canvas.tokens.controlled[0];
-                Logger.debug(this.#explodeParty.name, `Using single selected member token as target: [${targetToken.name}]`, targetToken);
+                targetTokenDoc = keptTokensSelected[0];
+                Logger.debug(this.#explodeParty.name, `Using single selected member token as target: [${targetTokenDoc.name}]`, targetTokenDoc);
             } else {
-                // 2b: ... otherwise pick one at random
-                memberTokensToKeep.forEach(t => t.control({releaseOthers: false}));
-                targetToken = canvas.tokens.controlled[0];
-                Logger.debug(this.#explodeParty.name, `Using last selected token as target: [${targetToken.name}]`, targetToken);
+                // 2b: ... otherwise pick the first one (preferably one on the currently viewed level)
+                targetTokenDoc = memberTokensToKeep.find(t => this.#isVisibleOnCurrentLevel(t)) ?? memberTokensToKeep[0];
+                Logger.debug(this.#explodeParty.name, `Using first member token as target: [${targetTokenDoc.name}]`, targetTokenDoc);
             }
         }
         // If nothing was successful, abort
-        if (!targetToken) {
-            Logger.error(this.#crunchParty.name, false,
+        if (!targetTokenDoc) {
+            Logger.error(this.#explodeParty.name, false,
                 `${Config.localize("errMsg.tokensMissingInScene")
                     .replace("{partyNo}", partyConfig.definition.partyNo)
                     .replace("{partyName}", partyConfig.definition.partyTokenName)}`);
             return;
         }
+        // The target must be drawn on the canvas (i.e. visible from the viewed level) - otherwise, abort before anything is changed
+        if (!this.#checkTargetVisibleOnCurrentLevel(this.#explodeParty.name, targetTokenDoc)) {
+            return;
+        }
+        // If members still present in the scene are on different levels or elevations, ask before pulling them all to the target's
+        if (!(await this.#confirmMoveToTargetLevelAndElevation(this.#explodeParty.name, targetTokenDoc, memberTokensToKeep))) {
+            return;
+        }
+        const targetToken = targetTokenDoc.object;
 
         // Select the target and try to set the view onto it
         await this.#panToTarget(targetToken, useHotPanIfAvailable);
@@ -959,13 +1075,15 @@ export class PartyCruncher {
 
         // Move all existing members to keep to the target token (including aligning their elevation!)
         for (const existingToken of memberTokensToKeep) {
-            existingToken.document.update(
-                {
-                    x: targetToken.document.x,
-                    y: targetToken.document.y,
-                    elevation: targetToken.document.elevation,
-                    hidden: false
-                });
+            await existingToken.update(
+                this.#assignLevel(
+                    {
+                        x: targetToken.document.x,
+                        y: targetToken.document.y,
+                        elevation: targetToken.document.elevation,
+                        hidden: false
+                    },
+                    targetToken.document.level));
             Logger.debug(this.#explodeParty.name, `Moving existing token [${existingToken.name}] to target pos:`, existingToken);
         }
 
@@ -978,15 +1096,16 @@ export class PartyCruncher {
             storedTokenData.x = targetToken.document.x;
             storedTokenData.y = targetToken.document.y;
             storedTokenData.elevation = targetToken.document.elevation;
+            this.#assignLevel(storedTokenData, targetToken.document.level);
             storedTokenData.hidden = false;
-            await canvas.scene.createEmbeddedDocuments("Token", [storedTokenData]);
-            const newToken = canvas.tokens.ownedTokens.find(o => o.name === storedTokenData.name);
+            // Use the returned document - the placeable on the canvas is drawn with a delay!
+            const [newToken] = await canvas.scene.createEmbeddedDocuments("Token", [storedTokenData]);
             memberTokensToKeep.push(newToken);
             Logger.debug(this.#explodeParty.name, `Created new token [${newToken.name}] from partyConfig at target pos:`, newToken);
         }
 
         // Update partyConfig by adding all involved tokens
-        const partyToken = canvas.tokens.ownedTokens.find(o => o.name === partyConfig.definition.partyTokenName);
+        const partyToken = this.#findSceneToken(partyConfig.definition.partyTokenName);
         if (partyToken) {
             partyConfigUpdates.partyToken = partyToken;
         }
@@ -1001,23 +1120,18 @@ export class PartyCruncher {
                 activeTokenAfter = memberToken;
             }
 
-            //Set selection to current token.
-            //Otherwise, movement by moveMany below won't have any effect
-            memberToken.control({releaseOthers: true});
-
             // Position each token along an "outward spiral" around the origin (which is the party token)
             let movementPath = this.#getMovementPathToExplodePosition(tokenCounter++);
             Logger.debug(this.#explodeParty.name, `[${memberToken.name}]: movementPath =>`, movementPath);
 
-            const tokenDoc = memberToken.document;
-            if (!tokenDoc) return;
+            const tokenDoc = memberToken;
 
             const relative = movementPath;      // {x: dx, y: dy} from the matrix above
             const gridSize = canvas.grid.size;
 
             let targetX = tokenDoc.x + relative.x * gridSize;
             let targetY = tokenDoc.y + relative.y * gridSize;
-            let targetE = targetToken.elevation;
+            let targetElevation = targetToken.document.elevation;
 
             // Snap to nearest grid
             const point = {x: targetX, y: targetY, elevation: tokenDoc.elevation};
@@ -1028,7 +1142,7 @@ export class PartyCruncher {
             targetY = snapped.y;
 
             await tokenDoc.move(
-                [{ x: targetX, y: targetY, elevation: targetE }],
+                [this.#assignLevel({ x: targetX, y: targetY, elevation: targetElevation }, targetToken.document.level)],
                 {
                     method: "api",
                     showRuler: false,
@@ -1039,13 +1153,14 @@ export class PartyCruncher {
         }
 
         // Set control onto the innermost token
-        activeTokenAfter.control({releaseOthers: true});
+        // (it may have been created just now, so its placeable might still be in the process of being drawn)
+        (await this.#waitForTokenObject(activeTokenAfter))?.control({releaseOthers: true});
 
         // Finally, update the Party configuration
         partyConfigUpdates.memberTokens = memberTokensToKeep;
         partyConfigUpdates.lastKnownState = Config.globals.states.EXPLODED;
         await this.#updatePartyConfig(partyConfig.definition.partyNo, partyConfigUpdates);
-        await partyToken.document.delete();
+        await partyToken?.delete();
 
         Logger.debug(this.#explodeParty.name, `EXPLODE action complete.`);
     }
@@ -1054,20 +1169,65 @@ export class PartyCruncher {
         return canvas.ready && this.isValidDefinition(partyConfig);
     }
 
-    static #createTokenTeleportUpdate(tokenToMove, updates) {
-        const x = (updates.x !== undefined) ? updates.x : tokenToMove.document.x; // NULL target means: don't move, stay where you are!
-        const y = (updates.y !== undefined) ? updates.y : tokenToMove.document.y; // NULL target means: don't move, stay where you are!
-        const elevation = (updates.elevation !== null) ? updates.elevation : tokenToMove.elevation; // NULL target means: don't move, stay where you are!
+    /**
+     * @param tokenDocToMove TokenDocument (it may reside on any level, so it might not be drawn on the canvas)
+     */
+    static #createTokenTeleportUpdate(tokenDocToMove, updates) {
+        const x = (updates.x !== undefined) ? updates.x : tokenDocToMove.x; // NULL target means: don't move, stay where you are!
+        const y = (updates.y !== undefined) ? updates.y : tokenDocToMove.y; // NULL target means: don't move, stay where you are!
+        const elevation = (updates.elevation != null) ? updates.elevation : tokenDocToMove.elevation; // NULL target means: don't move, stay where you are!
+        const level = (updates.level != null) ? updates.level : tokenDocToMove.level; // NULL target means: don't move, stay where you are!
         const update = {
             name: updates.name,
-            _id: tokenToMove.document._id,
+            _id: tokenDocToMove._id,
             x: x,
             y: y,
             elevation: elevation ?? 0,
+            level: level,
             hidden: updates.hidden
         };
         Logger.debug(this.#createTokenTeleportUpdate.name, `update: `, update);
         return update;
+    }
+
+    /**
+     * Returns the first level of the current scene (= the default level), or undefined if the scene has no levels.
+     */
+    static getDefaultSceneLevel() {
+        return canvas.scene?.levels?.contents?.[0]?.id;
+    }
+
+    static #isValidSceneLevel(levelId) {
+        return !!levelId && !!canvas.scene?.levels?.has(levelId);
+    }
+
+    /**
+     * Sets the level of the given token data (in place) and returns it.
+     * Falls back to the scene's default level if the given level doesn't exist in the scene.
+     * If the scene has no levels at all, the level property is left out entirely.
+     */
+    static #assignLevel(data, levelId) {
+        const level = this.#isValidSceneLevel(levelId) ? levelId : this.getDefaultSceneLevel();
+        if (level) {
+            data.level = level;
+        } else {
+            delete data.level;
+        }
+        return data;
+    }
+
+    /**
+     * Party state is persisted globally, so all party actions must only ever run on the scene that is active
+     * for everyone - never on a scene which is merely being viewed by the current user.
+     * @param callerName name of the calling function (for logging only)
+     */
+    static #checkActiveSceneIsViewed(callerName) {
+        if (canvas.scene && canvas.scene.id === game.scenes.active?.id) {
+            return true;
+        }
+        Logger.warn(callerName, false, Config.localize("errMsg.notActiveScene")
+            .replace("{sceneName}", game.scenes.active?.name ?? Config.localize("none")));
+        return false;
     }
 
     /**
@@ -1467,24 +1627,26 @@ export class PartyCruncher {
                 </div>
             </form>`;
 
-        return new Promise(resolve => {
-            new foundry.applications.api.DialogV2({
-                window: {title: Config.localize('promptForSimpleConfirmation')},
-                content: content,
-                buttons: [
-                    {
-                        action: "ok",
-                        label: Config.localize('okButton'),
-                        callback: () => resolve({ok: true})
-                    },
-                    {
-                        action: "cancel",
-                        label: Config.localize('cancelButton'),
-                        default: true,
-                        callback: () => resolve({cancelled: true})
-                    }]
-            }).render({force: true});
+        // DialogV2.wait() resolves with the callback's result - or with null, if the dialog is closed via [X]
+        const result = await foundry.applications.api.DialogV2.wait({
+            window: {title: Config.localize('promptForSimpleConfirmation')},
+            content: content,
+            rejectClose: false,
+            buttons: [
+                {
+                    action: "ok",
+                    label: Config.localize('okButton'),
+                    callback: () => ({ok: true})
+                },
+                {
+                    action: "cancel",
+                    label: Config.localize('cancelButton'),
+                    default: true,
+                    callback: () => ({cancelled: true})
+                }]
         });
+        // Closing the dialog counts as "cancel"
+        return result ?? {cancelled: true};
     }
 
     static async showPartyConfigurations() {

@@ -12,7 +12,7 @@ const DEFAULT_NO_OF_PARTIES = 5;
 const MAX_MEMBERS_PER_PARTY = 25;
 const ICON_SUBMIT = "<i class='fas fa-check'></i>";
 const ICON_CANCEL = "<i class='fas fa-cancel'></i>";
-const SAFETY_TIMEOUT_MSEC = 5000;
+const SAFETY_TIMEOUT_MSEC = 30000;
 
 export class Config {
     static globals = {
@@ -82,28 +82,6 @@ export class Config {
             }
         });
 
-        // =====================================================================
-        // Setting: Member Token Names and Party Token Names per Party
-        // DEPRECATED! REMOVE IN A FUTURE VERSION > 14.0.0
-        // =====================================================================
-        /**
-         * @deprecated since v14 - will be kept for a while to ease manual migration of older party definitions
-         * TODO - exclude from initialization (once it is not needed anymore)
-         */
-        let settingsData_v13 = [];
-        //if (Config.getGameMajorVersion() >= 13) {
-            // Special treatment for generic "party settings"
-            for (let index = 1; index <= DEFAULT_NO_OF_PARTIES; index++) {
-                settingsData_v13[`memberTokenNames${index}`] = {
-                    scope: 'world', config: true, type: String, default: ""
-                };
-                settingsData_v13[`partyTokenName${index}`] = {
-                    scope: 'world', config: true, type: String, default: ""
-                }
-            }
-            Config.registerSettings(settingsData_v13);
-        //}
-
         Config.registerSettings( {
             partyConfigs: {
                 scope: 'world', config: false, type: Object, default: {}
@@ -114,25 +92,7 @@ export class Config {
         // ===========================SEPARATOR ================================
         // =====================================================================
         Hooks.on('renderSettingsConfig', (app, html) => {
-            const inputEl = html.querySelector(`#settings-config-${Config.globals.modID.replace(/\./g, "\\.")}\\.forceUniqueTargetToken`);
-            const formGroup = inputEl?.closest(".form-group");
-            formGroup?.insertAdjacentHTML("beforebegin", `<div><h4 style="margin-top: 0; border-bottom: 1px solid #888; padding-bottom: 4px; margin-bottom: 6px;">${Config.localize('settingsMenu.behaviourSection')}</h4></div>`);
-        });
-
-        // =====================================================================
-        // Setting: Force Unique Target Token
-        // =====================================================================
-        Config.registerSettings({
-            forceUniqueTargetToken: {
-                scope: 'world', config: true, type: Boolean, default: true
-            }
-        });
-
-        // =====================================================================
-        // ===========================SEPARATOR ================================
-        // =====================================================================
-        Hooks.on('renderSettingsConfig', (app, html) => {
-            const inputEl = html.querySelector(`#settings-config-${Config.globals.modID}\\.animation4Crunch`);
+            const inputEl = html.querySelector(`#settings-config-${Config.globals.modID.replace(/\./g, "\\.")}\\.animationFileCRUNCHED`);
             const formGroup = inputEl?.closest(".form-group");
             formGroup?.insertAdjacentHTML("beforebegin", `<div><h4 style="margin-top: 0; border-bottom: 1px solid #888; padding-bottom: 4px; margin-bottom: 6px;">${Config.localize('settingsMenu.animationsSection')}</h4></div>`);
         });
@@ -273,20 +233,8 @@ export class Config {
     static registerSettings(settingsData) {
         Object.entries(settingsData).forEach(([key, data]) => {
 
-            // Special treatment for the generic "party settings": Use ony localization key for all
-            // TODO - v13 only. Remove once these legacy settings are dropped.
-            let localizeKey = key;
-            const isPartySetting = (key.startsWith('memberTokenNames') || key.startsWith('partyTokenName'));
-            if (isPartySetting) {
-                localizeKey = localizeKey.replace(/\d+/, '#'); // maps any setting like partyTokenName2 to partyTokenName#
-            }
-            let name = Config.localize(`setting.${localizeKey}.name`);
-            let hint = Config.localize(`setting.${localizeKey}.hint`);
-            // Another special treatment for the generic "party settings": replace "#" by index number
-            if (isPartySetting) {
-                name = name.replace('#', `#${key.match(/\d+/)}`);
-                hint = hint.replace('#', `#${key.match(/\d+/)}`);
-            }
+            const name = Config.localize(`setting.${key}.name`);
+            const hint = Config.localize(`setting.${key}.hint`);
 
             game.settings.register(
                 Config.globals.modID, key, {

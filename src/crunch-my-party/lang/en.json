@@ -9,21 +9,9 @@
         "name": "Debug mode",
         "hint": "Client-side setting enabling extended debug logging."
       },
-      "forceUniqueTargetToken": {
-        "name": "Force target token selection",
-        "hint": "Prevent \"crunching\" when no unique group member has been selected. Most relevant for scenes that use levels and elevation, because group members get teleported to the same position and elevation! as the target."
-      },
       "maxNoOfParties": {
         "name": "Maximum number of parties",
         "hint": "How many separately defined parties should be maintained at once?"
-      },
-      "memberTokenNames#": {
-        "name": "Party # - Members (deprecated)",
-        "hint": "Not used anymore since v14. Only visible for easier takeover of old settings."
-      },
-      "partyTokenName#": {
-        "name": "Party # - Party name (deprecated)",
-        "hint": "Not used anymore since v14. Only visible for easier takeover of old settings."
       },
       "hideChatInfo": {
         "name": "Hide module info in chat window",
@@ -78,10 +66,12 @@
       "tooManyMemberTokens": "Member list too long",
       "invalidNumberOfMemberTokens": "Invalid number of tokens selected! A party must consist of 2 to {maxMembers} members.",
       "notUniqueInScene": "Token [{tokenName}] is not unique in scene!",
-      "notUniqueInScenePlural": "The following tokens are not unique in the scene. The current action does not support this:",
+      "notUniqueInScenePlural": "The following tokens are not unique in the scene. The current action does not support this",
       "tokensMissingInScene": "Missing tokens: There are neither a party token nor any members visible in this scene for party #{partyNo} [{partyName}]. The appropriate action cannot be determined.",
       "partyTokenMissingInConfig": "The party configuration is missing data for the party token named '#tokenName'. Please add it to the scene, or recreate the party using the \"Group\" macro.",
       "cannotDetermineAction": "Cannot determine action!",
+      "notActiveScene": "Party actions can only be performed on the currently active scene ({sceneName}). Please switch to the active scene (or activate one if there is none), and retry.",
+      "targetOnOtherLevel": "The party's target token [{tokenName}] is on another level ({levelName}). Please switch to that level and retry.",
       "noTokensVisible": "Either the party token OR at least one of the party members must be visible (activated) in the scene to perform this action.",
       "membersAndPartyTokenVisible": "Party token and members cannot be visible at the same time to perform this action.",
       "pleaseWaitStillBusy": "Please wait for current action to complete. If this issue persists, please reload the scene.",
@@ -118,6 +108,7 @@
     },
     "promptForSimpleConfirmation":  "Confirmation required",
     "confirmDeleteParty": "Do you want to delete Party # ({partyName}) with {noOfMembers} members from the list and release this slot?",
+    "confirmDifferentLevelsOrElevations": "Party members are currently on different levels or elevations. If you continue, they will all be moved to the level and elevation of [{tokenName}] ({levelName}, {elevation}). Do you want to continue?",
     "okButton": "OK",
     "saveButton": "Save",
     "cancelButton": "Cancel",
@@ -127,6 +118,7 @@
       "findButton": "Find\n#{partyNo}"
     },
     "empty": "empty",
+    "none": "none",
     "groupingConfirmation": "The following tokens have been assigned to <strong>party #{partyNo} [{partyTokenName}]</strong>",
     "applyToAll": "Apply to all!",
     "keybindingLabels": {
@@ -138,7 +130,6 @@
       "showConfig": "Show Party Configurations"
     },
     "settingsMenu": {
-      "behaviourSection": "Behaviour",
       "partyConfigSection": "Party Member Configuration",
       "animationsSection": "Animation & Audio (requires JB2A & Automated Animations)"
     }

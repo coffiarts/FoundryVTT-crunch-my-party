@@ -9,21 +9,9 @@
         "name": "デバッグモード",
         "hint": "詳細なデバッグログを有効にするクライアント側の設定。"
       },
-      "forceUniqueTargetToken": {
-        "name": "対象トークン選択を強制",
-        "hint": "一意のグループメンバーが選択されていない場合は「クランチ（統合）」を実行できないようにします。レベルと高度を使用するシーンでは特に重要です。グループメンバーが対象と同じ位置と高度にテレポートされるためです！"
-      },
       "maxNoOfParties": {
         "name": "パーティーの最大数",
         "hint": "同時に維持するパーティー定義の数。"
-      },
-      "memberTokenNames#": {
-        "name": "パーティー # - メンバー（非推奨）",
-        "hint": "v14以降は使用されていません。古い設定を簡単に引き継ぐためだけに表示されます。"
-      },
-      "partyTokenName#": {
-        "name": "パーティー # - パーティー名（非推奨）",
-        "hint": "v14以降は使用されていません。古い設定を簡単に引き継ぐためだけに表示されます。"
       },
       "hideChatInfo": {
         "name": "チャットウィンドウにモジュール情報を表示しない",
@@ -78,10 +66,12 @@
       "tooManyMemberTokens": "メンバーリストが長すぎます",
       "invalidNumberOfMemberTokens": "選択したトークン数が無効です！パーティーは2～{maxMembers}人のメンバーで構成する必要があります。",
       "notUniqueInScene": "トークン [{tokenName}] はシーン内で一意ではありません！",
-      "notUniqueInScenePlural": "以下のトークンはシーン内で一意ではありません。現在の操作には対応していません：",
+      "notUniqueInScenePlural": "以下のトークンはシーン内で一意ではありません。現在の操作には対応していません",
       "tokensMissingInScene": "トークンがありません：このシーンにはパーティー #{partyNo} [{partyName}] のパーティートークンもメンバーも表示されていません。適切な操作を判断できません。",
       "partyTokenMissingInConfig": "パーティー設定に、'#tokenName'という名前のパーティートークンのデータがありません。シーンに追加するか、「Group」マクロを使ってパーティーを作り直してください。",
       "cannotDetermineAction": "操作を判断できません！",
+      "notActiveScene": "パーティー操作は現在アクティブなシーン（{sceneName}）でのみ実行できます。アクティブなシーンに切り替えて（アクティブなシーンがない場合は、いずれかのシーンをアクティブにして）から、もう一度お試しください。",
+      "targetOnOtherLevel": "パーティーの対象トークン [{tokenName}] は別のレベル（{levelName}）にあります。そのレベルに切り替えてから、もう一度お試しください。",
       "noTokensVisible": "この操作を実行するには、パーティートークンまたはパーティーメンバーのうち少なくとも1人がシーンに表示（有効化）されている必要があります。",
       "membersAndPartyTokenVisible": "この操作を実行するには、パーティートークンとメンバーを同時に表示することはできません。",
       "pleaseWaitStillBusy": "現在の操作が完了するまでお待ちください。この問題が続く場合は、シーンを再読み込みしてください。",
@@ -118,6 +108,7 @@
     },
     "promptForSimpleConfirmation": "確認が必要です",
     "confirmDeleteParty": "パーティー #（{partyName}、メンバー{noOfMembers}人）をリストから削除し、このスロットを解放しますか？",
+    "confirmDifferentLevelsOrElevations": "パーティーメンバーは現在、異なるレベルまたは高度にいます。続行すると、全員が [{tokenName}] のレベルと高度（{levelName}、{elevation}）に移動します。続行しますか？",
     "okButton": "OK",
     "saveButton": "保存",
     "cancelButton": "キャンセル",
@@ -127,6 +118,7 @@
       "findButton": "検索\n#{partyNo}"
     },
     "empty": "空",
+    "none": "なし",
     "groupingConfirmation": "以下のトークンが<strong>パーティー #{partyNo} [{partyTokenName}]</strong>に割り当てられています",
     "applyToAll": "すべてに適用！",
     "keybindingLabels": {
@@ -138,7 +130,6 @@
       "showConfig": "パーティー設定を表示"
     },
     "settingsMenu": {
-      "behaviourSection": "動作",
       "partyConfigSection": "パーティーメンバー設定",
       "animationsSection": "アニメーションと音声（JB2AとAutomated Animationsが必要）"
     }

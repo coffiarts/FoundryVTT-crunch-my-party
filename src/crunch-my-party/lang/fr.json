@@ -9,21 +9,9 @@
         "name": "Mode débogage",
         "hint": "Paramètre côté client activant la journalisation étendue du débogage."
       },
-      "forceUniqueTargetToken": {
-        "name": "Forcer la sélection du jeton cible",
-        "hint": "Empêche le « regroupement » lorsqu'aucun membre unique du groupe n'a été sélectionné. Particulièrement utile pour les scènes qui utilisent des niveaux et l'élévation, car les membres du groupe sont téléportés à la même position et à la même élévation que la cible !"
-      },
       "maxNoOfParties": {
         "name": "Nombre maximal de groupes",
         "hint": "Combien de groupes définis séparément doivent être conservés simultanément ?"
-      },
-      "memberTokenNames#": {
-        "name": "Groupe n° - Membres (obsolète)",
-        "hint": "N'est plus utilisé depuis la v14. Visible uniquement pour faciliter la reprise des anciens paramètres."
-      },
-      "partyTokenName#": {
-        "name": "Groupe n° - Nom du groupe (obsolète)",
-        "hint": "N'est plus utilisé depuis la v14. Visible uniquement pour faciliter la reprise des anciens paramètres."
       },
       "hideChatInfo": {
         "name": "Masquer les informations du module dans la fenêtre de discussion",
@@ -78,10 +66,12 @@
       "tooManyMemberTokens": "Liste de membres trop longue",
       "invalidNumberOfMemberTokens": "Nombre de jetons sélectionnés invalide ! Un groupe doit être composé de 2 à {maxMembers} membres.",
       "notUniqueInScene": "Le jeton [{tokenName}] n'est pas unique dans la scène !",
-      "notUniqueInScenePlural": "Les jetons suivants ne sont pas uniques dans la scène. L'action actuelle ne les prend pas en charge :",
+      "notUniqueInScenePlural": "Les jetons suivants ne sont pas uniques dans la scène. L'action actuelle ne les prend pas en charge",
       "tokensMissingInScene": "Jetons manquants : aucun jeton de groupe ni membre n'est visible dans cette scène pour le groupe n°{partyNo} [{partyName}]. Impossible de déterminer l'action appropriée.",
       "partyTokenMissingInConfig": "La configuration du groupe ne contient aucune donnée pour le jeton de groupe nommé « #tokenName ». Ajoute-le à la scène ou recrée le groupe à l'aide de la macro « Group ».",
       "cannotDetermineAction": "Impossible de déterminer l'action !",
+      "notActiveScene": "Les actions de groupe ne peuvent être effectuées que dans la scène actuellement active ({sceneName}). Passe à la scène active (ou actives-en une s'il n'y en a aucune), puis réessaie.",
+      "targetOnOtherLevel": "Le jeton cible du groupe [{tokenName}] se trouve sur un autre niveau ({levelName}). Passe à ce niveau, puis réessaie.",
       "noTokensVisible": "Pour effectuer cette action, le jeton de groupe OU au moins un membre du groupe doit être visible (activé) dans la scène.",
       "membersAndPartyTokenVisible": "Le jeton de groupe et ses membres ne peuvent pas être visibles simultanément pour effectuer cette action.",
       "pleaseWaitStillBusy": "Attends la fin de l'action en cours. Si le problème persiste, recharge la scène.",
@@ -118,6 +108,7 @@
     },
     "promptForSimpleConfirmation": "Confirmation requise",
     "confirmDeleteParty": "Veux-tu supprimer le groupe n° ({partyName}) et ses {noOfMembers} membres de la liste, puis libérer cet emplacement ?",
+    "confirmDifferentLevelsOrElevations": "Les membres du groupe se trouvent actuellement sur des niveaux ou des élévations différents. Si tu continues, ils seront tous déplacés au niveau et à l'élévation de [{tokenName}] ({levelName}, {elevation}). Veux-tu continuer ?",
     "okButton": "OK",
     "saveButton": "Enregistrer",
     "cancelButton": "Annuler",
@@ -127,6 +118,7 @@
       "findButton": "Trouver\n#{partyNo}"
     },
     "empty": "vide",
+    "none": "aucune",
     "groupingConfirmation": "Les jetons suivants ont été affectés au <strong>groupe n°{partyNo} [{partyTokenName}]</strong>",
     "applyToAll": "Appliquer à tous !",
     "keybindingLabels": {
@@ -138,7 +130,6 @@
       "showConfig": "Afficher les configurations des groupes"
     },
     "settingsMenu": {
-      "behaviourSection": "Comportement",
       "partyConfigSection": "Configuration des membres du groupe",
       "animationsSection": "Animation et audio (nécessite JB2A et Automated Animations)"
     }

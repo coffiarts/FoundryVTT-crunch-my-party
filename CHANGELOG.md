@@ -2,6 +2,21 @@ The **major** version number in my modules (like "14") always reflects the
 Foundry VTT **core** version it is compatible with (and recommended for).
 
 
+## 14.1.0
+### 2026-10-18 - Full support for v14 scene levels (fix for issue [#14](https://github.com/coffiarts/FoundryVTT-crunch-my-party/issues/14)), and a lot more
+- **Scene levels are now fully supported**: Crunching and exploding failed with errors in scenes using Foundry v14's new levels. Fixed! Party members are now found on all levels of a scene, and get moved to the target token's level along with its position and elevation. May your parties crunch and explode smoothly on every level!
+- **Safety prompt for different levels or elevations**: Your scout has climbed a cliff alone, or one of your heroes is flying? If party members are spread over different levels or elevations, you'll now be asked for confirmation before everyone gets pulled to the target's level and elevation - so nobody gets carried up the cliff by accident.
+- **Target token on a hidden level**: If the target token is on a level that can't be seen from the one you're currently viewing, you'll get a warning asking you to switch to that level first. If its level is visible from yours, the view simply switches over to it.
+- **Active scene only**: Party actions are now restricted to the scene that is active for everyone. As party states are stored globally, running them on a scene you're merely viewing could mess things up. You'll get a hint if you try anyway.
+- **Faster, smoother exploding**: Party members have been secretly trained. They now swarm out faster (if not, then it's not due to the code. Give them some stamina potions instead).
+- **Minor Bugfixes**:
+  - Fixed an internal safety timer that kept running endlessly in the background (spamming the console in debug mode), and which could release the "please wait" lock while another action was still running.
+  - Exploding could calculate the members' spread-out positions from outdated token data.
+  - Crunching could overwrite the stored data of a different party member, if a member wasn't stored in the party configuration yet.
+  - Closing a confirmation dialog via [X] now counts as "Cancel" (instead of leaving the mod blocked for a while).
+  - The "Animation & Audio" section header in the module settings is visible again.
+- **Cleanup**: The deprecated party settings (kept since 14.0.0 to ease manual migration) have finally been removed - as well as the option "Force target token selection", which had no effect anymore since the v14 overhaul. Backward-compatibility for v13 is still given, btw. 
+
 ## 14.0.2
 ### 2026-10-04 - Bugfix
 A fix for error: "Cannot read properties of undefined (reading 'name')", which occurred when trying to toggle parties while Token Layer isn't active. Toggling now auto-activates the Token Layer.

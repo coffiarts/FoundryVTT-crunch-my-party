@@ -9,21 +9,9 @@
         "name": "Debug-Modus",
         "hint": "Clientseitige Einstellung zur Aktivierung ausführlicher Debug-Protokollierung."
       },
-      "forceUniqueTargetToken": {
-        "name": "Auswahl des Ziel-Tokens erzwingen",
-        "hint": "Verhindert das „Zusammenfassen“, wenn kein eindeutiges Gruppenmitglied ausgewählt wurde. Besonders relevant für Szenen, die Levels und Elevation verwenden, da Gruppenmitglieder an dieselbe Position und Elevation wie das Ziel teleportiert werden!"
-      },
       "maxNoOfParties": {
         "name": "Maximale Anzahl an Gruppen",
         "hint": "Wie viele separat definierte Gruppen sollen gleichzeitig verwaltet werden?"
-      },
-      "memberTokenNames#": {
-        "name": "Gruppe # – Mitglieder (veraltet)",
-        "hint": "Seit v14 nicht mehr verwendet. Nur sichtbar, um die Übernahme alter Einstellungen zu erleichtern."
-      },
-      "partyTokenName#": {
-        "name": "Gruppe # – Gruppenname (veraltet)",
-        "hint": "Seit v14 nicht mehr verwendet. Nur sichtbar, um die Übernahme alter Einstellungen zu erleichtern."
       },
       "hideChatInfo": {
         "name": "Modulinformationen im Chatfenster ausblenden",
@@ -78,10 +66,12 @@
       "tooManyMemberTokens": "Mitgliederliste zu lang",
       "invalidNumberOfMemberTokens": "Ungültige Anzahl ausgewählter Tokens! Eine Gruppe muss aus 2 bis zu {maxMembers} Mitgliedern bestehen.",
       "notUniqueInScene": "Token [{tokenName}] ist in der Szene nicht eindeutig!",
-      "notUniqueInScenePlural": "Die folgenden Tokens sind in der Szene nicht eindeutig. Die aktuelle Aktion unterstützt dies nicht:",
+      "notUniqueInScenePlural": "Die folgenden Tokens sind in der Szene nicht eindeutig. Die aktuelle Aktion unterstützt dies nicht",
       "tokensMissingInScene": "Fehlende Tokens: In dieser Szene sind weder ein Gruppen-Token noch Gruppenmitglieder für Gruppe #{partyNo} [{partyName}] sichtbar. Die entsprechende Aktion kann nicht bestimmt werden.",
       "partyTokenMissingInConfig": "In der Gruppenkonfiguration fehlen Daten für den Gruppen-Token namens „#tokenName“. Füge ihn bitte zur Szene hinzu oder erstelle die Gruppe mit dem Makro „Group“ neu.",
       "cannotDetermineAction": "Aktion kann nicht bestimmt werden!",
+      "notActiveScene": "Gruppenaktionen können nur in der aktuell aktiven Szene ({sceneName}) ausgeführt werden. Wechsle bitte zur aktiven Szene (oder aktiviere eine, falls es keine gibt) und versuche es erneut.",
+      "targetOnOtherLevel": "Der Ziel-Token der Gruppe [{tokenName}] befindet sich auf einer anderen Ebene ({levelName}). Wechsle bitte zu dieser Ebene und versuche es erneut.",
       "noTokensVisible": "Damit diese Aktion ausgeführt werden kann, muss entweder der Gruppen-Token ODER mindestens eines der Gruppenmitglieder in der Szene sichtbar (aktiviert) sein.",
       "membersAndPartyTokenVisible": "Der Gruppen-Token und die Gruppenmitglieder dürfen für diese Aktion nicht gleichzeitig sichtbar sein.",
       "pleaseWaitStillBusy": "Warte bitte, bis die aktuelle Aktion abgeschlossen ist. Falls dieses Problem weiterhin besteht, lade die Szene bitte neu.",
@@ -118,6 +108,7 @@
     },
     "promptForSimpleConfirmation": "Bestätigung erforderlich",
     "confirmDeleteParty": "Möchtest du Gruppe # ({partyName}) mit {noOfMembers} Mitgliedern aus der Liste löschen und diesen Gruppenplatz freigeben?",
+    "confirmDifferentLevelsOrElevations": "Die Gruppenmitglieder befinden sich derzeit auf unterschiedlichen Ebenen oder Höhen. Wenn du fortfährst, werden alle auf die Ebene und Höhe von [{tokenName}] ({levelName}, {elevation}) versetzt. Möchtest du fortfahren?",
     "okButton": "OK",
     "saveButton": "Speichern",
     "cancelButton": "Abbrechen",
@@ -127,6 +118,7 @@
       "findButton": "Suchen\n#{partyNo}"
     },
     "empty": "leer",
+    "none": "keine",
     "groupingConfirmation": "Die folgenden Tokens wurden <strong>Gruppe #{partyNo} [{partyTokenName}]</strong> zugewiesen.",
     "applyToAll": "Auf alle anwenden!",
     "keybindingLabels": {
@@ -138,7 +130,6 @@
       "showConfig": "Gruppenkonfigurationen anzeigen"
     },
     "settingsMenu": {
-      "behaviourSection": "Verhalten",
       "partyConfigSection": "Konfiguration der Gruppenmitglieder",
       "animationsSection": "Animation & Audio (erfordert JB2A & Automated Animations)"
     }
